@@ -1,6 +1,5 @@
 import { CartePreview } from "@/components/home/CartePreview";
 import { Hero } from "@/components/home/Hero";
-import { Loyalty } from "@/components/home/Loyalty";
 import { OrderCta } from "@/components/home/OrderCta";
 import { Restaurants } from "@/components/home/Restaurants";
 import { Signature } from "@/components/home/Signature";
@@ -14,7 +13,6 @@ export default function HomePage() {
       <Hero />
       <CartePreview />
       <Signature />
-      <Loyalty />
       <Restaurants />
       <OrderCta />
       <SiteFooter />

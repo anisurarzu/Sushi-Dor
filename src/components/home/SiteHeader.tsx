@@ -1,11 +1,9 @@
 import Link from "next/link";
 
 const links = [
-  { href: "#carte", label: "La carte" },
-  { href: "#signature", label: "Signatures" },
-  { href: "#restaurants", label: "Restaurants" },
-  { href: "#fidelite", label: "Fidélité" },
-  { href: "#contact", label: "Contact" },
+  { href: "/menu", label: "La carte" },
+  { href: "/#restaurants", label: "Restaurant" },
+  { href: "/#contact", label: "Contact" },
 ];
 
 export function SiteHeader() {
@@ -20,19 +18,19 @@ export function SiteHeader() {
 
         <nav className="hidden items-center gap-8 lg:flex">
           {links.map((link) => (
-            <a
+            <Link
               key={link.href}
               href={link.href}
               className="text-[0.72rem] uppercase tracking-[0.18em] text-mist transition-colors hover:text-champagne"
             >
               {link.label}
-            </a>
+            </Link>
           ))}
         </nav>
 
-        <a href="#commander" className="btn-gold text-[0.68rem]">
-          Commander
-        </a>
+        <Link href="/menu" className="btn-gold text-[0.68rem]">
+          La carte
+        </Link>
       </div>
     </header>
   );

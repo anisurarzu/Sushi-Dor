@@ -1,0 +1,937 @@
+{
+  "restaurant": {
+    "name": "Sushi D'or",
+    "city": "Annemasse",
+    "region": "Haute-Savoie",
+    "area": "Annemasse · Thonon-les-Bains",
+    "country": "France"
+  },
+  "categories": [
+    {
+      "slug": "entrees",
+      "nameFr": "Entrées",
+      "sortOrder": 0,
+      "imageUrl": "/menu/image1-31.jpeg"
+    },
+    {
+      "slug": "sushi",
+      "nameFr": "Sushi",
+      "sortOrder": 1,
+      "imageUrl": "/menu/image2-33.jpeg"
+    },
+    {
+      "slug": "tartare",
+      "nameFr": "Tartare",
+      "sortOrder": 2,
+      "imageUrl": "/menu/image3-35.jpeg"
+    },
+    {
+      "slug": "carpaccio-tataki",
+      "nameFr": "Carpaccios & Tataki",
+      "sortOrder": 3,
+      "imageUrl": "/menu/image4-37.jpeg"
+    },
+    {
+      "slug": "chirashi",
+      "nameFr": "Chirashi",
+      "sortOrder": 4,
+      "imageUrl": "/menu/image5-39.jpeg"
+    },
+    {
+      "slug": "sashimis",
+      "nameFr": "Sashimis",
+      "sortOrder": 5,
+      "imageUrl": "/menu/image6-41.jpeg"
+    },
+    {
+      "slug": "specialites",
+      "nameFr": "Spécialités Sushi d'Or",
+      "sortOrder": 6,
+      "imageUrl": "/menu/image7-43.jpeg"
+    },
+    {
+      "slug": "maki",
+      "nameFr": "Maki",
+      "sortOrder": 7,
+      "imageUrl": "/menu/image8-45.jpeg"
+    },
+    {
+      "slug": "fresh-maki",
+      "nameFr": "Fresh Maki",
+      "sortOrder": 8,
+      "imageUrl": "/menu/image9-47.jpeg"
+    },
+    {
+      "slug": "california",
+      "nameFr": "California",
+      "sortOrder": 9,
+      "imageUrl": "/menu/image10-49.jpeg"
+    },
+    {
+      "slug": "signature-california",
+      "nameFr": "Signature California",
+      "sortOrder": 10,
+      "imageUrl": "/menu/image11-51.jpeg"
+    },
+    {
+      "slug": "plats",
+      "nameFr": "Plats cuisinés",
+      "sortOrder": 11,
+      "imageUrl": "/menu/image12-53.jpeg"
+    },
+    {
+      "slug": "accompagnements",
+      "nameFr": "Accompagnements",
+      "sortOrder": 12,
+      "imageUrl": "/menu/image13-55.jpeg"
+    },
+    {
+      "slug": "menus-box",
+      "nameFr": "Menus & Box",
+      "sortOrder": 13,
+      "imageUrl": "/menu/image14-57.jpeg"
+    }
+  ],
+  "products": [
+    {
+      "sku": "1",
+      "slug": "1-salade-au-choux",
+      "nameFr": "Salade au choux",
+      "description": null,
+      "priceCents": 350,
+      "categorySlug": "entrees",
+      "imageUrl": "/menu/image1-31.jpeg",
+      "sortOrder": 0
+    },
+    {
+      "sku": "2",
+      "slug": "2-salade-wakame",
+      "nameFr": "Salade wakame",
+      "description": null,
+      "priceCents": 550,
+      "categorySlug": "entrees",
+      "imageUrl": "/menu/image2-33.jpeg",
+      "sortOrder": 1
+    },
+    {
+      "sku": "3",
+      "slug": "3-nems-au-poulet-4-pieces",
+      "nameFr": "Nems au poulet",
+      "description": "(4 pièces)",
+      "priceCents": 650,
+      "categorySlug": "entrees",
+      "imageUrl": "/menu/image3-35.jpeg",
+      "sortOrder": 2
+    },
+    {
+      "sku": "4",
+      "slug": "4-nems-aux-crevettes-4-pieces",
+      "nameFr": "Nems aux crevettes",
+      "description": "(4 pièces)",
+      "priceCents": 690,
+      "categorySlug": "entrees",
+      "imageUrl": "/menu/image4-37.jpeg",
+      "sortOrder": 3
+    },
+    {
+      "sku": "5",
+      "slug": "5-edamame",
+      "nameFr": "Edamame",
+      "description": null,
+      "priceCents": 490,
+      "categorySlug": "entrees",
+      "imageUrl": "/menu/image5-39.jpeg",
+      "sortOrder": 4
+    },
+    {
+      "sku": "6",
+      "slug": "6-soupe-miso",
+      "nameFr": "Soupe miso",
+      "description": null,
+      "priceCents": 350,
+      "categorySlug": "entrees",
+      "imageUrl": "/menu/image6-41.jpeg",
+      "sortOrder": 5
+    },
+    {
+      "sku": "7",
+      "slug": "7-gyoza-au-poulet-grille-5-pieces",
+      "nameFr": "Gyoza au poulet grillé",
+      "description": "(5 pièces)",
+      "priceCents": 690,
+      "categorySlug": "entrees",
+      "imageUrl": "/menu/image7-43.jpeg",
+      "sortOrder": 6
+    },
+    {
+      "sku": "8",
+      "slug": "8-raviolis-aux-crevettes-a-la-vapeur-4pieces",
+      "nameFr": "Raviolis aux crevettes à la vapeur",
+      "description": "(4pièces)",
+      "priceCents": 750,
+      "categorySlug": "entrees",
+      "imageUrl": "/menu/image8-45.jpeg",
+      "sortOrder": 7
+    },
+    {
+      "sku": "9",
+      "slug": "9-takoyaki-4-pieces",
+      "nameFr": "Takoyaki 4 pièces",
+      "description": null,
+      "priceCents": 690,
+      "categorySlug": "entrees",
+      "imageUrl": "/menu/image9-47.jpeg",
+      "sortOrder": 8
+    },
+    {
+      "sku": "10",
+      "slug": "10-soupe-thai-a-la-citronnelle-au-poulet",
+      "nameFr": "Soupe thaï à la citronnelle au poulet",
+      "description": null,
+      "priceCents": 690,
+      "categorySlug": "entrees",
+      "imageUrl": "/menu/image10-49.jpeg",
+      "sortOrder": 9
+    },
+    {
+      "sku": "11",
+      "slug": "11-salade-thai-au-b-uf",
+      "nameFr": "Salade thaï au bœuf",
+      "description": null,
+      "priceCents": 690,
+      "categorySlug": "entrees",
+      "imageUrl": "/menu/image11-51.jpeg",
+      "sortOrder": 10
+    },
+    {
+      "sku": "12",
+      "slug": "12-yakitori-saumon",
+      "nameFr": "YAKITORI SAUMON",
+      "description": null,
+      "priceCents": 750,
+      "categorySlug": "entrees",
+      "imageUrl": "/menu/image12-53.jpeg",
+      "sortOrder": 11
+    },
+    {
+      "sku": "20",
+      "slug": "20-sushi-saumon",
+      "nameFr": "Sushi saumon",
+      "description": null,
+      "priceCents": 450,
+      "categorySlug": "sushi",
+      "imageUrl": "/menu/image13-55.jpeg",
+      "sortOrder": 12
+    },
+    {
+      "sku": "21",
+      "slug": "21-sushi-thon",
+      "nameFr": "Sushi thon",
+      "description": null,
+      "priceCents": 490,
+      "categorySlug": "sushi",
+      "imageUrl": "/menu/image14-57.jpeg",
+      "sortOrder": 13
+    },
+    {
+      "sku": "22",
+      "slug": "22-sushi-daurade",
+      "nameFr": "Sushi daurade",
+      "description": null,
+      "priceCents": 450,
+      "categorySlug": "sushi",
+      "imageUrl": "/menu/image15-59.jpeg",
+      "sortOrder": 14
+    },
+    {
+      "sku": "23",
+      "slug": "23-sushi-dor-riz-violet-philadelphia-paillettes-dor",
+      "nameFr": "Sushi d'Or",
+      "description": "(riz violet, Philadelphia, paillettes d'or)",
+      "priceCents": 2326,
+      "categorySlug": "sushi",
+      "imageUrl": "/menu/image16-61.jpeg",
+      "sortOrder": 15
+    },
+    {
+      "sku": "40",
+      "slug": "40-tartare-de-saumon-avocat",
+      "nameFr": "Tartare de saumon,avocat",
+      "description": null,
+      "priceCents": 1050,
+      "categorySlug": "tartare",
+      "imageUrl": "/menu/image17-63.jpeg",
+      "sortOrder": 17
+    },
+    {
+      "sku": "41",
+      "slug": "41-tartare-de-thon-avocat",
+      "nameFr": "Tartare de thon avocat",
+      "description": null,
+      "priceCents": 1090,
+      "categorySlug": "tartare",
+      "imageUrl": "/menu/image18-65.jpeg",
+      "sortOrder": 18
+    },
+    {
+      "sku": "42",
+      "slug": "42-tartare-trois",
+      "nameFr": "Tartare trois",
+      "description": "saumon,thon,Dorade,avocat,sauce chef)",
+      "priceCents": 990,
+      "categorySlug": "tartare",
+      "imageUrl": "/menu/image19-67.jpeg",
+      "sortOrder": 19
+    },
+    {
+      "sku": "52",
+      "slug": "52-tataki-saumon-mi-cuit-10-pieces",
+      "nameFr": "Tataki saumon mi-cuit",
+      "description": "(10 pièces)",
+      "priceCents": 1400,
+      "categorySlug": "carpaccio-tataki",
+      "imageUrl": "/menu/image20-69.jpeg",
+      "sortOrder": 21
+    },
+    {
+      "sku": "53",
+      "slug": "53-tataki-thon-mi-cuit-10pieces",
+      "nameFr": "Tataki thon mi-cuit",
+      "description": "(10pièces)",
+      "priceCents": 1600,
+      "categorySlug": "carpaccio-tataki",
+      "imageUrl": "/menu/image21-71.jpeg",
+      "sortOrder": 22
+    },
+    {
+      "sku": "60",
+      "slug": "60-chirashi-saumon-riz-vinaigre-saumon",
+      "nameFr": "Chirashi saumon",
+      "description": "(riz vinaigré, saumon)",
+      "priceCents": 1500,
+      "categorySlug": "chirashi",
+      "imageUrl": "/menu/image22-73.jpeg",
+      "sortOrder": 23
+    },
+    {
+      "sku": "61",
+      "slug": "61-chirashi-mixte-riz-vinaigre-saumon-thon-daurade",
+      "nameFr": "Chirashi mixte",
+      "description": "(riz vinaigré, saumon, thon, daurade)",
+      "priceCents": 1700,
+      "categorySlug": "chirashi",
+      "imageUrl": "/menu/image23-75.jpeg",
+      "sortOrder": 24
+    },
+    {
+      "sku": "62",
+      "slug": "62-chirashi-poulet-riz-vinaigre-poulet-oignon-frit-ciboulette-sauce-teriyaki",
+      "nameFr": "Chirashi poulet.",
+      "description": "(riz vinaigré,poulet, oignon frit,Ciboulette,sauce teriyaki)",
+      "priceCents": 1500,
+      "categorySlug": "chirashi",
+      "imageUrl": "/menu/image24-79.jpeg",
+      "sortOrder": 25
+    },
+    {
+      "sku": "70",
+      "slug": "70-sashimis-saumon-12pieces",
+      "nameFr": "Sashimis saumon",
+      "description": "(12pièces)",
+      "priceCents": 1400,
+      "categorySlug": "sashimis",
+      "imageUrl": "/menu/image25-81.jpeg",
+      "sortOrder": 26
+    },
+    {
+      "sku": "71",
+      "slug": "71-sashimis-mixtes-poissons-12-pieces-4-saumon-4-thon-4-daurade",
+      "nameFr": "Sashimis mixtes poissons",
+      "description": "(12 pièces : 4 saumon, 4 thon, 4 daurade)",
+      "priceCents": 1600,
+      "categorySlug": "sashimis",
+      "imageUrl": "/menu/image26-83.jpeg",
+      "sortOrder": 27
+    },
+    {
+      "sku": "80",
+      "slug": "80-bruschetta-de-saumon-roquette-saumon-avec-sauce-au-chef-3-pieces",
+      "nameFr": "Bruschetta de saumon",
+      "description": ": roquette, saumon avec sauce au chef (3 pieces )",
+      "priceCents": 550,
+      "categorySlug": "specialites",
+      "imageUrl": "/menu/image27-85.jpeg",
+      "sortOrder": 28
+    },
+    {
+      "sku": "4",
+      "slug": "4-50",
+      "nameFr": ",50 €",
+      "description": null,
+      "priceCents": 450,
+      "categorySlug": "specialites",
+      "imageUrl": "/menu/image28-87.jpeg",
+      "sortOrder": 30
+    },
+    {
+      "sku": "4",
+      "slug": "4-00",
+      "nameFr": ",00 €",
+      "description": null,
+      "priceCents": 400,
+      "categorySlug": "specialites",
+      "imageUrl": "/menu/image29-89.jpeg",
+      "sortOrder": 32
+    },
+    {
+      "sku": "83",
+      "slug": "83-carpaccio-de-burrata-carpaccio-mixte-avec-burrata-8-pieces",
+      "nameFr": "Carpaccio de burrata",
+      "description": "(carpaccio mixte avec burrata (8 pièces",
+      "priceCents": 1390,
+      "categorySlug": "specialites",
+      "imageUrl": "/menu/image30-91.jpeg",
+      "sortOrder": 33
+    },
+    {
+      "sku": "84",
+      "slug": "84-langoustines-cru-au-fruit-de-la-passion-2-pieces",
+      "nameFr": "Langoustines cru au fruit de la passion",
+      "description": "(2 pièces)",
+      "priceCents": 990,
+      "categorySlug": "specialites",
+      "imageUrl": "/menu/image31-93.jpeg",
+      "sortOrder": 34
+    },
+    {
+      "sku": "85",
+      "slug": "85-huitres-3-pieces-ufs-de-truite-sauce-yuzu",
+      "nameFr": "Huîtres",
+      "description": "(3 pièces) : œufs de truite, sauce yuzu",
+      "priceCents": 990,
+      "categorySlug": "specialites",
+      "imageUrl": "/menu/image32-95.jpeg",
+      "sortOrder": 35
+    },
+    {
+      "sku": "87",
+      "slug": "87-sushi-burger-riz-violet-tartare-de-saumon-sauce-mangue-avocat-kade",
+      "nameFr": "Sushi burger",
+      "description": ": riz violet, tartare de saumon, sauce mangue ,avocat , Kade ﬃ",
+      "priceCents": 1090,
+      "categorySlug": "specialites",
+      "imageUrl": "/menu/image33-97.jpeg",
+      "sortOrder": 37
+    },
+    {
+      "sku": "88",
+      "slug": "88-crispy-sushi-saumon-3pce-riz-frit-saumon-tartare-sauce-mangue",
+      "nameFr": "Crispy Sushi Saumon",
+      "description": "(3pce) (Riz frit, saumon tartare,sauce mangue).",
+      "priceCents": 790,
+      "categorySlug": "specialites",
+      "imageUrl": "/menu/image34-99.jpeg",
+      "sortOrder": 38
+    },
+    {
+      "sku": "90",
+      "slug": "90-maki-saumon",
+      "nameFr": "Maki saumon",
+      "description": "Riz vinaigré, algue yaki nori et saumon)",
+      "priceCents": 520,
+      "categorySlug": "maki",
+      "imageUrl": "/menu/image35-101.jpeg",
+      "sortOrder": 39
+    },
+    {
+      "sku": "91",
+      "slug": "91-maki-saumon-cheese",
+      "nameFr": "Maki saumon-cheese",
+      "description": "Riz vinaigré, algue yaki nori, saumon & fromage frais)",
+      "priceCents": 650,
+      "categorySlug": "maki",
+      "imageUrl": "/menu/image36-107.jpeg",
+      "sortOrder": 40
+    },
+    {
+      "sku": "92",
+      "slug": "92-maki-spicy",
+      "nameFr": "Maki spicy",
+      "description": null,
+      "priceCents": 750,
+      "categorySlug": "maki",
+      "imageUrl": "/menu/image37-109.jpeg",
+      "sortOrder": 41
+    },
+    {
+      "sku": "93",
+      "slug": "93-maki-phila",
+      "nameFr": "Maki phila",
+      "description": "maki saumon frit (Philadelphia, sauce teriyaki)",
+      "priceCents": 650,
+      "categorySlug": "tartare",
+      "imageUrl": "/menu/image38-111.jpeg",
+      "sortOrder": 42
+    },
+    {
+      "sku": "94",
+      "slug": "94-maki-thon",
+      "nameFr": "Maki thon",
+      "description": "Riz vinaigré, algue yaki nori et thon)",
+      "priceCents": 550,
+      "categorySlug": "tartare",
+      "imageUrl": "/menu/image39-113.jpeg",
+      "sortOrder": 43
+    },
+    {
+      "sku": "95",
+      "slug": "95-maki-thon-spicy-mayo",
+      "nameFr": "MAKI THON SPICY MAYO",
+      "description": null,
+      "priceCents": 650,
+      "categorySlug": "tartare",
+      "imageUrl": "/menu/image40-115.jpeg",
+      "sortOrder": 44
+    },
+    {
+      "sku": "96",
+      "slug": "96-maki-avocat-cheese",
+      "nameFr": "Maki avocat-cheese",
+      "description": "Riz vinaigré, algue yaki nori avocat & fromage frais)",
+      "priceCents": 650,
+      "categorySlug": "tartare",
+      "imageUrl": "/menu/image41-117.jpeg",
+      "sortOrder": 45
+    },
+    {
+      "sku": "97",
+      "slug": "97-maki-avocat",
+      "nameFr": "Maki avocat",
+      "description": "Riz Vinaigré, Algue Yaki Nori, Sésame & Avocat)",
+      "priceCents": 450,
+      "categorySlug": "tartare",
+      "imageUrl": "/menu/image42-119.jpeg",
+      "sortOrder": 46
+    },
+    {
+      "sku": "98",
+      "slug": "98-maki-concombre",
+      "nameFr": "Maki concombre",
+      "description": null,
+      "priceCents": 550,
+      "categorySlug": "tartare",
+      "imageUrl": "/menu/image1-31.jpeg",
+      "sortOrder": 47
+    },
+    {
+      "sku": "99",
+      "slug": "99-fresh-saumon",
+      "nameFr": "Fresh saumon",
+      "description": "saumon, avocat, menthe, coriandre, salade)",
+      "priceCents": 690,
+      "categorySlug": "fresh-maki",
+      "imageUrl": "/menu/image2-33.jpeg",
+      "sortOrder": 48
+    },
+    {
+      "sku": "100",
+      "slug": "100-fresh-thon",
+      "nameFr": "Fresh thon",
+      "description": "thon, avocat, menthe, coriandre, salade)",
+      "priceCents": 700,
+      "categorySlug": "fresh-maki",
+      "imageUrl": "/menu/image3-35.jpeg",
+      "sortOrder": 49
+    },
+    {
+      "sku": "101",
+      "slug": "101-fresh-veggie",
+      "nameFr": "Fresh veggie",
+      "description": "Galette de riz, riz vinaigré, feuille de chêne rouge, avocat,concombre, carotte, fromage frais, pistache crue hachée, miel de ﬂeurs, menthe)",
+      "priceCents": 690,
+      "categorySlug": "fresh-maki",
+      "imageUrl": "/menu/image4-37.jpeg",
+      "sortOrder": 50
+    },
+    {
+      "sku": "102",
+      "slug": "102-maki-pink-saumon-cheese",
+      "nameFr": "Maki pink saumon-cheese",
+      "description": null,
+      "priceCents": 720,
+      "categorySlug": "fresh-maki",
+      "imageUrl": "/menu/image5-39.jpeg",
+      "sortOrder": 51
+    },
+    {
+      "sku": "103",
+      "slug": "103-maki-pink-saumon-avocat-cheese",
+      "nameFr": "Maki pink saumon-avocat-cheese",
+      "description": null,
+      "priceCents": 750,
+      "categorySlug": "fresh-maki",
+      "imageUrl": "/menu/image6-41.jpeg",
+      "sortOrder": 52
+    },
+    {
+      "sku": "104",
+      "slug": "104-maki-pink-aburi",
+      "nameFr": "Maki pink ABURI",
+      "description": "snacké,Ciboulette,Sésame)",
+      "priceCents": 790,
+      "categorySlug": "fresh-maki",
+      "imageUrl": "/menu/image7-43.jpeg",
+      "sortOrder": 53
+    },
+    {
+      "sku": "110",
+      "slug": "110-california-saumon-avocat",
+      "nameFr": "California SAUMON AVOCAT",
+      "description": "Riz vinaigré, algue nori,saumon, avocat & sésame)",
+      "priceCents": 650,
+      "categorySlug": "california",
+      "imageUrl": "/menu/image8-45.jpeg",
+      "sortOrder": 54
+    },
+    {
+      "sku": "111",
+      "slug": "111-california-saumon-cheese",
+      "nameFr": "California SAUMON Cheese",
+      "description": "Riz vinaigré, algue nori, sésame noir, sésame blanc, saumon, fromage frais)",
+      "priceCents": 690,
+      "categorySlug": "california",
+      "imageUrl": "/menu/image9-47.jpeg",
+      "sortOrder": 55
+    },
+    {
+      "sku": "112",
+      "slug": "112-california-thon-cuit",
+      "nameFr": "California Thon Cuit",
+      "description": "Thon Cuit à la Mayonnaise,Concombre, Avocat, Sésame)",
+      "priceCents": 650,
+      "categorySlug": "california",
+      "imageUrl": "/menu/image10-49.jpeg",
+      "sortOrder": 56
+    },
+    {
+      "sku": "113",
+      "slug": "113-california-thon-spicy-mayo",
+      "nameFr": "California thon spicy Mayo",
+      "description": null,
+      "priceCents": 690,
+      "categorySlug": "california",
+      "imageUrl": "/menu/image11-51.jpeg",
+      "sortOrder": 57
+    },
+    {
+      "sku": "114",
+      "slug": "114-california-veggie",
+      "nameFr": "California VEGGIE",
+      "description": "AVOCAT CONCOMBRE CHEESE Sesame)",
+      "priceCents": 650,
+      "categorySlug": "california",
+      "imageUrl": "/menu/image12-53.jpeg",
+      "sortOrder": 58
+    },
+    {
+      "sku": "115",
+      "slug": "115-california-saumon-avocat-cheese",
+      "nameFr": "California Saumon avocat Cheese",
+      "description": "Riz vinaigré, algue nori,saumon, avocat Cheese & sésame)",
+      "priceCents": 650,
+      "categorySlug": "california",
+      "imageUrl": "/menu/image13-55.jpeg",
+      "sortOrder": 59
+    },
+    {
+      "sku": "116",
+      "slug": "116-california-crispy-saumon-avocat-cheese",
+      "nameFr": "California Crispy Saumon avocat Cheese",
+      "description": "Riz vinaigré, algue nori,saumon, avocat Cheese & Crispy)",
+      "priceCents": 650,
+      "categorySlug": "california",
+      "imageUrl": "/menu/image14-57.jpeg",
+      "sortOrder": 60
+    },
+    {
+      "sku": "117",
+      "slug": "117-california-crispy-poulet",
+      "nameFr": "CALIFORNIA CRISPY POULET",
+      "description": "Riz vinaigré, algue nori, ﬁnger de poulet, oignon frit, guacamole, coriandre,sauce teriyaki.",
+      "priceCents": 650,
+      "categorySlug": "california",
+      "imageUrl": "/menu/image15-59.jpeg",
+      "sortOrder": 61
+    },
+    {
+      "sku": "119",
+      "slug": "119-tiger-crevettes-tempura-avocat-saumon-mayo-epicee",
+      "nameFr": "Tiger",
+      "description": "(crevettes tempura, avocat, saumon, mayo épicée)",
+      "priceCents": 1500,
+      "categorySlug": "signature-california",
+      "imageUrl": "/menu/image16-61.jpeg",
+      "sortOrder": 63
+    },
+    {
+      "sku": "120",
+      "slug": "120-rainbow-roll",
+      "nameFr": "Rainbow Roll",
+      "description": "surimi, avocat,mangue, poisson mélangé à l'extérieur)",
+      "priceCents": 1550,
+      "categorySlug": "signature-california",
+      "imageUrl": "/menu/image17-63.jpeg",
+      "sortOrder": 64
+    },
+    {
+      "sku": "121",
+      "slug": "121-chili-fried",
+      "nameFr": "CHILI FRIED",
+      "description": "Riz vinaigré, algue nori, saumon, avocat, fromage frais, sauce chili, chapelure japonaise,",
+      "priceCents": 1450,
+      "categorySlug": "signature-california",
+      "imageUrl": "/menu/image18-65.jpeg",
+      "sortOrder": 65
+    },
+    {
+      "sku": "130",
+      "slug": "130-poulet-au-curry-rouge",
+      "nameFr": "Poulet au curry rouge :",
+      "description": null,
+      "priceCents": 1450,
+      "categorySlug": "plats",
+      "imageUrl": "/menu/image19-67.jpeg",
+      "sortOrder": 67
+    },
+    {
+      "sku": "131",
+      "slug": "131-poulet-croustillant",
+      "nameFr": "Poulet croustillant :",
+      "description": null,
+      "priceCents": 1350,
+      "categorySlug": "plats",
+      "imageUrl": "/menu/image20-69.jpeg",
+      "sortOrder": 68
+    },
+    {
+      "sku": "132",
+      "slug": "132-poulet-thai-sur-plaque-chau-ante",
+      "nameFr": "Poulet thaï sur plaque chauﬀante :",
+      "description": null,
+      "priceCents": 1450,
+      "categorySlug": "plats",
+      "imageUrl": "/menu/image21-71.jpeg",
+      "sortOrder": 69
+    },
+    {
+      "sku": "133",
+      "slug": "133-calamar-saute-a-la-poele",
+      "nameFr": "Calamar sauté à la poêle :",
+      "description": null,
+      "priceCents": 1450,
+      "categorySlug": "plats",
+      "imageUrl": "/menu/image22-73.jpeg",
+      "sortOrder": 70
+    },
+    {
+      "sku": "134",
+      "slug": "134-b-uf-oignon",
+      "nameFr": "Bœuf oignon :",
+      "description": null,
+      "priceCents": 1350,
+      "categorySlug": "plats",
+      "imageUrl": "/menu/image23-75.jpeg",
+      "sortOrder": 71
+    },
+    {
+      "sku": "135",
+      "slug": "135-b-uf-thai-sur-plaque-chau-ante",
+      "nameFr": "Bœuf thaï sur plaque chauﬀante :",
+      "description": null,
+      "priceCents": 1490,
+      "categorySlug": "plats",
+      "imageUrl": "/menu/image24-79.jpeg",
+      "sortOrder": 72
+    },
+    {
+      "sku": "136",
+      "slug": "136-b-uf-sate-sur-plaque-chau-ante",
+      "nameFr": "Bœuf saté sur plaque chauﬀante :",
+      "description": null,
+      "priceCents": 1490,
+      "categorySlug": "plats",
+      "imageUrl": "/menu/image25-81.jpeg",
+      "sortOrder": 73
+    },
+    {
+      "sku": "137",
+      "slug": "137-crevettes-sel-et-poivre-sur-plaque-chau-ante",
+      "nameFr": "Crevettes sel et poivre sur plaque chauﬀante :",
+      "description": null,
+      "priceCents": 1590,
+      "categorySlug": "plats",
+      "imageUrl": "/menu/image26-83.jpeg",
+      "sortOrder": 74
+    },
+    {
+      "sku": "138",
+      "slug": "138-crevettes-au-curry-rouge",
+      "nameFr": "Crevettes au curry rouge :",
+      "description": null,
+      "priceCents": 1590,
+      "categorySlug": "plats",
+      "imageUrl": "/menu/image27-85.jpeg",
+      "sortOrder": 75
+    },
+    {
+      "sku": "139",
+      "slug": "139-crevettes-au-lait-de-coco",
+      "nameFr": "Crevettes au lait de coco :",
+      "description": null,
+      "priceCents": 1590,
+      "categorySlug": "plats",
+      "imageUrl": "/menu/image28-87.jpeg",
+      "sortOrder": 76
+    },
+    {
+      "sku": "140",
+      "slug": "140-riz-blanc",
+      "nameFr": "Riz blanc",
+      "description": null,
+      "priceCents": 250,
+      "categorySlug": "accompagnements",
+      "imageUrl": "/menu/image29-89.jpeg",
+      "sortOrder": 77
+    },
+    {
+      "sku": "141",
+      "slug": "141-riz-vinaigre",
+      "nameFr": "RIZ VINAIGRÉ",
+      "description": null,
+      "priceCents": 350,
+      "categorySlug": "accompagnements",
+      "imageUrl": "/menu/image30-91.jpeg",
+      "sortOrder": 78
+    },
+    {
+      "sku": "142",
+      "slug": "142-riz-cantonais-sans-porc",
+      "nameFr": "Riz cantonais",
+      "description": "(sans porc) :",
+      "priceCents": 650,
+      "categorySlug": "accompagnements",
+      "imageUrl": "/menu/image31-93.jpeg",
+      "sortOrder": 79
+    },
+    {
+      "sku": "143",
+      "slug": "143-plat-de-pates-thaies-au-b-uf",
+      "nameFr": "Plat de pâtes thaïes au bœuf :",
+      "description": null,
+      "priceCents": 1390,
+      "categorySlug": "accompagnements",
+      "imageUrl": "/menu/image32-95.jpeg",
+      "sortOrder": 80
+    },
+    {
+      "sku": "144",
+      "slug": "144-nouilles-sautees-vegetariennes",
+      "nameFr": "Nouilles sautées végétariennes :",
+      "description": null,
+      "priceCents": 650,
+      "categorySlug": "accompagnements",
+      "imageUrl": "/menu/image33-97.jpeg",
+      "sortOrder": 81
+    },
+    {
+      "sku": "150",
+      "slug": "150-menu-midi",
+      "nameFr": "MENU MIDI",
+      "description": null,
+      "priceCents": 1090,
+      "categorySlug": "menus-box",
+      "imageUrl": "/menu/image34-99.jpeg",
+      "sortOrder": 82
+    },
+    {
+      "sku": "151",
+      "slug": "151-menu-midi-tradition",
+      "nameFr": "MENU MIDI TRADITION",
+      "description": null,
+      "priceCents": 1290,
+      "categorySlug": "accompagnements",
+      "imageUrl": "/menu/image35-101.jpeg",
+      "sortOrder": 85
+    },
+    {
+      "sku": "152",
+      "slug": "152-menu-maki-gyoza-poulet",
+      "nameFr": "MENU MAKI & GYOZA POULET",
+      "description": null,
+      "priceCents": 1490,
+      "categorySlug": "accompagnements",
+      "imageUrl": "/menu/image36-107.jpeg",
+      "sortOrder": 88
+    },
+    {
+      "sku": "155",
+      "slug": "155-menu-california",
+      "nameFr": "MENU CALIFORNIA",
+      "description": null,
+      "priceCents": 1690,
+      "categorySlug": "menus-box",
+      "imageUrl": "/menu/image37-109.jpeg",
+      "sortOrder": 90
+    },
+    {
+      "sku": "156",
+      "slug": "156-menu-pink-mix",
+      "nameFr": "MENU PINK MIX",
+      "description": null,
+      "priceCents": 1850,
+      "categorySlug": "california",
+      "imageUrl": "/menu/image38-111.jpeg",
+      "sortOrder": 93
+    },
+    {
+      "sku": "157",
+      "slug": "157-menu-sushi-saumon",
+      "nameFr": "MENU SUSHI SAUMON",
+      "description": null,
+      "priceCents": 1890,
+      "categorySlug": "accompagnements",
+      "imageUrl": "/menu/image39-113.jpeg",
+      "sortOrder": 96
+    },
+    {
+      "sku": "158",
+      "slug": "158-box-classique",
+      "nameFr": "BOX CLASSIQUE",
+      "description": null,
+      "priceCents": 4600,
+      "categorySlug": "accompagnements",
+      "imageUrl": "/menu/image40-115.jpeg",
+      "sortOrder": 99
+    },
+    {
+      "sku": "159",
+      "slug": "159-box-party",
+      "nameFr": "BOX PARTY",
+      "description": null,
+      "priceCents": 6800,
+      "categorySlug": "accompagnements",
+      "imageUrl": "/menu/image41-117.jpeg",
+      "sortOrder": 102
+    },
+    {
+      "sku": "160",
+      "slug": "160-box-premium",
+      "nameFr": "BOX PREMIUM",
+      "description": null,
+      "priceCents": 7400,
+      "categorySlug": "california",
+      "imageUrl": "/menu/image42-119.jpeg",
+      "sortOrder": 106
+    }
+  ]
+}

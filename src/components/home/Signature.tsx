@@ -1,19 +1,19 @@
 const promises = [
   {
-    title: "Click & collect",
-    text: "Commandez en ligne, retirez en restaurant sans attendre.",
+    title: "Fraîcheur",
+    text: "Produits sélectionnés et préparés à la commande.",
   },
   {
-    title: "Livraison 7/7",
-    text: "À domicile ou au bureau, midi et soir partout en France.",
+    title: "Haute-Savoie",
+    text: "Un restaurant pour Annemasse et Thonon-les-Bains.",
   },
   {
-    title: "Paiement sécurisé",
-    text: "Transaction en ligne 100% sécurisée, confirmation immédiate.",
+    title: "Carte complète",
+    text: "Sushis, makis, spécialités, plats et menus.",
   },
   {
-    title: "Préparé à la commande",
-    text: "Chaque plat est assemblé au moment où vous validez.",
+    title: "Bientôt en ligne",
+    text: "Commande et réservation arrivent sur ce site.",
   },
 ];
 
@@ -40,9 +40,8 @@ export function Signature() {
             <span className="gold-text">à la carte</span>
           </h2>
           <p className="mt-5 max-w-md text-mist leading-relaxed">
-            Passion, précision et minutie dans chaque restaurant. Des makis
-            signature aux plateaux à partager — découvrez l&apos;esprit Sushi
-            D&apos;or.
+            Passion et précision à Annemasse et Thonon-les-Bains. Des classiques
+            aux créations Sushi D&apos;or.
           </p>
           <ul className="mt-10 grid gap-6 sm:grid-cols-2">
             {promises.map((item) => (

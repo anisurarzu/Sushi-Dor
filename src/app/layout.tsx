@@ -15,9 +15,9 @@ const body = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "Sushi D'or · Restaurants de Sushi, Livraison et à Emporter",
+  title: "Sushi D'or · Annemasse & Thonon-les-Bains",
   description:
-    "Sushi D'or — restaurants japonais en France. Sushis, makis, poke et plats chauds préparés à la commande. Livraison et click & collect.",
+    "Sushi D'or — cuisine japonaise à Annemasse et Thonon-les-Bains (Haute-Savoie). Carte, sushis, makis et spécialités.",
 };
 
 export default function RootLayout({
