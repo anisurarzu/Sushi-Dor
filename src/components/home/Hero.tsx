@@ -20,24 +20,24 @@ export function Hero() {
         aria-hidden
       />
 
-      <div className="absolute inset-x-0 top-24 z-20 flex justify-center px-6 md:top-28">
-        <p className="animate-rise border border-[color:var(--line)] bg-ink/70 px-5 py-2.5 text-center text-[0.68rem] uppercase tracking-[0.22em] text-gold backdrop-blur-sm md:text-[0.72rem]">
+      <div className="absolute inset-x-0 top-20 z-20 flex justify-center px-4 sm:top-24 sm:px-6 md:top-28">
+        <p className="animate-rise border border-[color:var(--line)] bg-ink/70 px-3 py-2 text-center text-[0.58rem] uppercase tracking-[0.16em] text-gold backdrop-blur-sm sm:px-5 sm:py-2.5 sm:text-[0.68rem] sm:tracking-[0.22em] md:text-[0.72rem]">
           This site is under construction
         </p>
       </div>
 
-      <div className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-16 pt-36 md:px-10 md:pb-24">
-        <p className="animate-rise mb-5 text-[0.72rem] uppercase tracking-[0.35em] text-gold">
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-12 pt-32 sm:px-6 sm:pb-16 sm:pt-36 md:px-10 md:pb-24">
+        <p className="animate-rise mb-3 text-[0.62rem] uppercase tracking-[0.22em] text-gold sm:mb-5 sm:text-[0.72rem] sm:tracking-[0.35em]">
           Annemasse · Thonon-les-Bains · Haute-Savoie
         </p>
-        <h1 className="animate-rise-delay font-[family-name:var(--font-display)] text-[clamp(3.2rem,9vw,7.2rem)] leading-[0.92] tracking-tight text-bone">
+        <h1 className="animate-rise-delay font-[family-name:var(--font-display)] text-[clamp(2.6rem,11vw,7.2rem)] leading-[0.92] tracking-tight text-bone">
           Sushi <span className="gold-text">D&apos;or</span>
         </h1>
-        <p className="animate-rise-delay-2 mt-6 max-w-xl text-base leading-relaxed text-champagne/85 md:text-lg">
+        <p className="animate-rise-delay-2 mt-4 max-w-xl text-sm leading-relaxed text-champagne/85 sm:mt-6 sm:text-base md:text-lg">
           Cuisine japonaise à Annemasse et Thonon-les-Bains. Découvrez notre
           carte — le site de commande en ligne arrive bientôt.
         </p>
-        <div className="animate-rise-delay-2 mt-10 flex flex-wrap gap-4">
+        <div className="animate-rise-delay-2 mt-7 flex flex-wrap gap-3 sm:mt-10 sm:gap-4">
           <Link href="/menu" className="btn-gold">
             Voir la carte
           </Link>

@@ -35,9 +35,9 @@ export default async function ProductPage({ params }: Props) {
     <main className="bg-ink text-bone">
       <div className="relative">
         <SiteHeader />
-        <div className="mx-auto grid max-w-7xl gap-10 px-6 pb-20 pt-32 md:grid-cols-2 md:px-10 md:pb-28">
+        <div className="mx-auto grid max-w-7xl gap-6 px-4 pb-14 pt-28 sm:gap-10 sm:px-6 sm:pb-20 sm:pt-32 md:grid-cols-2 md:px-10 md:pb-28">
           <div
-            className="min-h-[320px] bg-cover bg-center md:min-h-[520px]"
+            className="aspect-[4/3] bg-cover bg-center sm:aspect-auto sm:min-h-[360px] md:min-h-[520px]"
             style={{ backgroundImage: `url(${product.imageUrl})` }}
             role="img"
             aria-label={product.nameFr}
@@ -46,27 +46,27 @@ export default async function ProductPage({ params }: Props) {
             {category ? (
               <Link
                 href={`/menu#${category.slug}`}
-                className="mb-4 text-[0.72rem] uppercase tracking-[0.28em] text-gold hover:text-gold-bright"
+                className="mb-3 text-[0.65rem] uppercase tracking-[0.24em] text-gold hover:text-gold-bright sm:mb-4 sm:text-[0.72rem] sm:tracking-[0.28em]"
               >
                 {category.nameFr}
               </Link>
             ) : null}
-            <h1 className="font-[family-name:var(--font-display)] text-4xl text-bone md:text-5xl">
+            <h1 className="font-[family-name:var(--font-display)] text-3xl text-bone sm:text-4xl md:text-5xl">
               {product.nameFr}
             </h1>
-            <p className="mt-4 text-2xl text-gold">
+            <p className="mt-3 text-xl text-gold sm:mt-4 sm:text-2xl">
               {formatEuro(product.priceCents)}
             </p>
             {product.description ? (
-              <p className="mt-6 leading-relaxed text-mist">
+              <p className="mt-4 text-sm leading-relaxed text-mist sm:mt-6 sm:text-base">
                 {product.description}
               </p>
             ) : null}
-            <p className="mt-8 border border-[color:var(--line)] px-4 py-3 text-sm text-mist">
+            <p className="mt-6 border border-[color:var(--line)] px-3 py-2.5 text-xs text-mist sm:mt-8 sm:px-4 sm:py-3 sm:text-sm">
               This site is under construction — la commande en ligne arrive
               bientôt.
             </p>
-            <div className="mt-8 flex flex-wrap gap-4">
+            <div className="mt-6 flex flex-wrap gap-3 sm:mt-8 sm:gap-4">
               <Link href="/menu" className="btn-ghost">
                 Retour à la carte
               </Link>

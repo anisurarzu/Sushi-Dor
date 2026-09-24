@@ -163,3 +163,20 @@ body {
   border-color: var(--gold);
   background: rgba(196, 163, 90, 0.08);
 }
+
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+@media (max-width: 639px) {
+  .btn-gold,
+  .btn-ghost {
+    padding: 0.7rem 1.1rem;
+    font-size: 0.68rem;
+  }
+}

@@ -9,9 +9,9 @@ const links = [
 export function SiteHeader() {
   return (
     <header className="absolute inset-x-0 top-0 z-30">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-6 md:px-10">
-        <Link href="/" className="group relative z-10">
-          <span className="font-[family-name:var(--font-display)] text-2xl tracking-[0.08em] text-champagne md:text-[1.7rem]">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-4 sm:px-6 sm:py-6 md:px-10">
+        <Link href="/" className="group relative z-10 min-w-0">
+          <span className="font-[family-name:var(--font-display)] text-xl tracking-[0.06em] text-champagne sm:text-2xl sm:tracking-[0.08em] md:text-[1.7rem]">
             Sushi <span className="gold-text">D&apos;or</span>
           </span>
         </Link>
@@ -28,7 +28,10 @@ export function SiteHeader() {
           ))}
         </nav>
 
-        <Link href="/menu" className="btn-gold text-[0.68rem]">
+        <Link
+          href="/menu"
+          className="btn-gold shrink-0 px-3 py-2 text-[0.62rem] sm:px-4 sm:py-2.5 sm:text-[0.68rem]"
+        >
           La carte
         </Link>
       </div>

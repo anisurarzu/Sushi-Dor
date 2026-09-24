@@ -1,7 +1,7 @@
-import Link from "next/link";
+import { ProductCard } from "@/components/menu/ProductCard";
 import { SiteFooter } from "@/components/home/SiteFooter";
 import { SiteHeader } from "@/components/home/SiteHeader";
-import { formatEuro, menuData } from "@/lib/menu";
+import { menuData } from "@/lib/menu";
 
 export const metadata = {
   title: "La carte · Sushi D'or",
@@ -16,27 +16,27 @@ export default function MenuPage() {
     <main className="bg-ink text-bone">
       <div className="relative">
         <SiteHeader />
-        <div className="border-b border-[color:var(--line)] bg-ink-soft px-6 pb-16 pt-32 md:px-10">
+        <div className="border-b border-[color:var(--line)] bg-ink-soft px-4 pb-10 pt-28 sm:px-6 sm:pb-14 sm:pt-32 md:px-10 md:pb-16">
           <div className="mx-auto max-w-7xl">
-            <p className="mb-3 text-[0.72rem] uppercase tracking-[0.28em] text-gold">
+            <p className="mb-2 text-[0.65rem] uppercase tracking-[0.24em] text-gold sm:mb-3 sm:text-[0.72rem] sm:tracking-[0.28em]">
               Annemasse · Thonon-les-Bains
             </p>
-            <h1 className="font-[family-name:var(--font-display)] text-5xl text-bone md:text-6xl">
+            <h1 className="font-[family-name:var(--font-display)] text-4xl text-bone sm:text-5xl md:text-6xl">
               La <span className="gold-text">carte</span>
             </h1>
-            <p className="mt-4 max-w-xl text-mist">
+            <p className="mt-3 max-w-xl text-sm text-mist sm:mt-4 sm:text-base">
               {products.length} produits. Les prix sont ceux de notre menu
               actuel. La commande en ligne arrive bientôt.
             </p>
             <nav
-              className="mt-10 flex flex-wrap gap-2"
+              className="-mx-4 mt-6 flex gap-2 overflow-x-auto px-4 pb-1 scrollbar-none sm:mx-0 sm:mt-10 sm:flex-wrap sm:overflow-visible sm:px-0"
               aria-label="Catégories"
             >
               {categories.map((cat) => (
                 <a
                   key={cat.slug}
                   href={`#${cat.slug}`}
-                  className="border border-[color:var(--line)] px-3 py-1.5 text-[0.65rem] uppercase tracking-[0.14em] text-mist transition-colors hover:border-gold hover:text-champagne"
+                  className="shrink-0 border border-[color:var(--line)] px-2.5 py-1.5 text-[0.6rem] uppercase tracking-[0.12em] text-mist transition-colors hover:border-gold hover:text-champagne sm:px-3 sm:text-[0.65rem] sm:tracking-[0.14em]"
                 >
                   {cat.nameFr}
                 </a>
@@ -46,45 +46,23 @@ export default function MenuPage() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl space-y-20 px-6 py-16 md:px-10 md:py-24">
+      <div className="mx-auto max-w-7xl space-y-12 px-3 py-10 sm:space-y-16 sm:px-6 sm:py-16 md:space-y-20 md:px-10 md:py-24">
         {categories.map((cat) => {
           const items = products.filter((p) => p.categorySlug === cat.slug);
           if (items.length === 0) return null;
           return (
-            <section key={cat.slug} id={cat.slug} className="scroll-mt-28">
-              <div className="mb-8 flex items-end justify-between gap-4">
-                <h2 className="font-[family-name:var(--font-display)] text-3xl text-champagne md:text-4xl">
+            <section key={cat.slug} id={cat.slug} className="scroll-mt-24 sm:scroll-mt-28">
+              <div className="mb-4 flex items-end justify-between gap-3 px-1 sm:mb-8 sm:gap-4">
+                <h2 className="font-[family-name:var(--font-display)] text-2xl text-champagne sm:text-3xl md:text-4xl">
                   {cat.nameFr}
                 </h2>
-                <span className="text-xs text-mist">{items.length} produits</span>
+                <span className="shrink-0 text-[0.65rem] text-mist sm:text-xs">
+                  {items.length}
+                </span>
               </div>
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid grid-cols-2 gap-2.5 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 lg:gap-6">
                 {items.map((item) => (
-                  <Link
-                    key={item.slug}
-                    href={`/menu/${item.slug}`}
-                    className="group border border-[color:var(--line)] transition-colors hover:border-gold"
-                  >
-                    <div
-                      className="aspect-[16/10] bg-cover bg-center"
-                      style={{ backgroundImage: `url(${item.imageUrl})` }}
-                    />
-                    <div className="p-5">
-                      <div className="flex items-start justify-between gap-3">
-                        <h3 className="font-[family-name:var(--font-display)] text-xl text-bone group-hover:text-champagne">
-                          {item.nameFr}
-                        </h3>
-                        <p className="shrink-0 text-sm text-gold">
-                          {formatEuro(item.priceCents)}
-                        </p>
-                      </div>
-                      {item.description ? (
-                        <p className="mt-2 line-clamp-2 text-sm text-mist">
-                          {item.description}
-                        </p>
-                      ) : null}
-                    </div>
-                  </Link>
+                  <ProductCard key={item.slug} product={item} />
                 ))}
               </div>
             </section>
