@@ -5,18 +5,18 @@ import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
 
 export async function CartePreview() {
-  const featured = await prisma.product.findMany({
-    where: { isAvailable: true, isFeatured: true },
-    take: 8,
-    orderBy: { sortOrder: "asc" },
+  // Show the full catalog on the home page (same as before users expected)
+  const products = await prisma.product.findMany({
+    where: { isAvailable: true },
+    orderBy: [{ sortOrder: "asc" }, { nameFr: "asc" }],
     include: {
       addonGroups: {
         where: { isActive: true, required: true },
         select: { id: true },
       },
+      category: { select: { nameFr: true, slug: true } },
     },
   });
-  const count = await prisma.product.count({ where: { isAvailable: true } });
 
   return (
     <section
@@ -33,8 +33,8 @@ export async function CartePreview() {
               Une sélection <span className="gold-text">prêtieuse</span>
             </h2>
             <p className="mt-3 text-sm text-mist sm:mt-4 sm:text-base">
-              {count} produits — personnalisez vos options et commandez en
-              ligne.
+              {products.length} produits — personnalisez vos options et
+              commandez en ligne.
             </p>
           </div>
           <Link href="/menu" className="btn-ghost shrink-0 self-start">
@@ -42,8 +42,8 @@ export async function CartePreview() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 gap-2.5 sm:gap-4 lg:grid-cols-4 lg:gap-6">
-          {featured.map((item) => (
+        <div className="grid grid-cols-2 gap-2.5 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 lg:gap-6">
+          {products.map((item) => (
             <ProductCardDb
               key={item.id}
               product={{

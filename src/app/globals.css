@@ -180,3 +180,23 @@ body {
     font-size: 0.68rem;
   }
 }
+
+/* Readable form controls on dark UI */
+input,
+textarea,
+select {
+  color: var(--bone);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: color-mix(in srgb, var(--mist) 55%, transparent);
+}
+
+input:-webkit-autofill,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-text-fill-color: var(--bone);
+  box-shadow: 0 0 0 1000px var(--ink-soft) inset;
+  transition: background-color 9999s ease-in-out 0s;
+}

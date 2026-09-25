@@ -22,26 +22,26 @@ export function CartPageClient() {
   }
 
   return (
-    <div className="grid gap-10 lg:grid-cols-[1.4fr_0.8fr]">
-      <div className="space-y-4">
+    <div className="grid min-w-0 gap-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,0.8fr)] lg:gap-10">
+      <div className="min-w-0 space-y-4">
         {cart.items.map((item) => (
           <article
             key={item.id}
-            className="border border-[color:var(--line)] p-4 sm:p-5"
+            className="border border-[color:var(--line)] bg-ink-soft p-4 sm:p-5"
           >
-            <div className="flex gap-4">
+            <div className="flex gap-3 sm:gap-4">
               {item.imageUrl ? (
                 <div
-                  className="hidden h-24 w-24 shrink-0 bg-cover bg-center sm:block"
+                  className="h-16 w-16 shrink-0 bg-cover bg-center sm:h-24 sm:w-24"
                   style={{ backgroundImage: `url(${item.imageUrl})` }}
                 />
               ) : null}
               <div className="min-w-0 flex-1">
                 <div className="flex items-start justify-between gap-3">
-                  <h2 className="font-[family-name:var(--font-display)] text-xl text-champagne">
+                  <h2 className="font-[family-name:var(--font-display)] text-lg leading-snug text-champagne sm:text-xl">
                     {item.nameFr}
                   </h2>
-                  <p className="shrink-0 text-gold">
+                  <p className="shrink-0 text-sm text-gold sm:text-base">
                     {formatEuro(item.lineTotalCents)}
                   </p>
                 </div>
