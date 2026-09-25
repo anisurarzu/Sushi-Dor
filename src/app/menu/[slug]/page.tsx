@@ -2,74 +2,139 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SiteFooter } from "@/components/home/SiteFooter";
 import { SiteHeader } from "@/components/home/SiteHeader";
-import {
-  formatEuro,
-  getCategoryBySlug,
-  getProductBySlug,
-  menuData,
-} from "@/lib/menu";
+import { ProductConfigurator } from "@/components/menu/ProductConfigurator";
+import { prisma } from "@/lib/prisma";
+import { formatEuro } from "@/lib/pricing";
 
-type Props = { params: Promise<{ slug: string }> };
+export const dynamic = "force-dynamic";
 
-export function generateStaticParams() {
-  return menuData.products.map((p) => ({ slug: p.slug }));
-}
+type Props = {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ edit?: string }>;
+};
 
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const product = await prisma.product.findUnique({ where: { slug } });
   if (!product) return { title: "Produit · Sushi D'or" };
   return {
     title: `${product.nameFr} · Sushi D'or`,
-    description: product.description ?? `${product.nameFr} — Sushi D'or`,
+    description: product.description ?? product.nameFr,
   };
 }
 
-export default async function ProductPage({ params }: Props) {
+export default async function ProductPage({ params, searchParams }: Props) {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
-  if (!product) notFound();
-  const category = getCategoryBySlug(product.categorySlug);
+  const { edit } = await searchParams;
+
+  const product = await prisma.product.findUnique({
+    where: { slug },
+    include: {
+      category: true,
+      addonGroups: {
+        where: { isActive: true },
+        orderBy: { displayOrder: "asc" },
+        include: {
+          addons: {
+            where: { isActive: true },
+            orderBy: { displayOrder: "asc" },
+            include: { allergens: { include: { allergen: true } } },
+          },
+        },
+      },
+    },
+  });
+
+  if (!product || !product.isAvailable) notFound();
+
+  let initialAddonIds: string[] = [];
+  let initialQuantity = 1;
+  let cartItemId: string | undefined;
+  let mode: "add" | "edit" = "add";
+
+  if (edit) {
+    const item = await prisma.cartItem.findUnique({
+      where: { id: edit },
+      include: { addons: true },
+    });
+    if (item && item.productId === product.id) {
+      cartItemId = item.id;
+      initialQuantity = item.quantity;
+      initialAddonIds = item.addons.map((a) => a.addonId);
+      mode = "edit";
+    }
+  }
+
+  const detail = {
+    id: product.id,
+    slug: product.slug,
+    nameFr: product.nameFr,
+    description: product.description,
+    priceCents: product.priceCents,
+    imageUrl: product.imageUrl,
+    requiresCustomization: product.addonGroups.some((g) => g.required),
+    addonGroups: product.addonGroups.map((g) => ({
+      id: g.id,
+      nameFr: g.nameFr,
+      description: g.description,
+      selectionType: g.selectionType,
+      required: g.required,
+      minSelections: g.minSelections,
+      maxSelections: g.maxSelections,
+      addons: g.addons.map((a) => ({
+        id: a.id,
+        nameFr: a.nameFr,
+        description: a.description,
+        priceCents: a.priceCents,
+        allergens: a.allergens.map((x) => x.allergen.nameFr),
+      })),
+    })),
+  };
 
   return (
     <main className="bg-ink text-bone">
       <div className="relative">
         <SiteHeader />
-        <div className="mx-auto grid max-w-7xl gap-6 px-4 pb-14 pt-28 sm:gap-10 sm:px-6 sm:pb-20 sm:pt-32 md:grid-cols-2 md:px-10 md:pb-28">
+        <div className="mx-auto grid max-w-7xl gap-6 px-4 pb-8 pt-28 sm:gap-10 sm:px-6 sm:pb-20 sm:pt-32 md:grid-cols-2 md:px-10 md:pb-28">
           <div
-            className="aspect-[4/3] bg-cover bg-center sm:aspect-auto sm:min-h-[360px] md:min-h-[520px]"
-            style={{ backgroundImage: `url(${product.imageUrl})` }}
+            className="aspect-[4/3] bg-cover bg-center sm:min-h-[360px] md:min-h-[520px]"
+            style={{
+              backgroundImage: product.imageUrl
+                ? `url(${product.imageUrl})`
+                : undefined,
+            }}
             role="img"
             aria-label={product.nameFr}
           />
-          <div className="flex flex-col justify-center">
-            {category ? (
+          <div>
+            {product.category ? (
               <Link
-                href={`/menu#${category.slug}`}
-                className="mb-3 text-[0.65rem] uppercase tracking-[0.24em] text-gold hover:text-gold-bright sm:mb-4 sm:text-[0.72rem] sm:tracking-[0.28em]"
+                href={`/menu#${product.category.slug}`}
+                className="mb-3 text-[0.65rem] uppercase tracking-[0.24em] text-gold"
               >
-                {category.nameFr}
+                {product.category.nameFr}
               </Link>
             ) : null}
-            <h1 className="font-[family-name:var(--font-display)] text-3xl text-bone sm:text-4xl md:text-5xl">
+            <h1 className="font-[family-name:var(--font-display)] text-3xl sm:text-4xl md:text-5xl">
               {product.nameFr}
             </h1>
-            <p className="mt-3 text-xl text-gold sm:mt-4 sm:text-2xl">
+            <p className="mt-3 text-xl text-gold sm:text-2xl">
               {formatEuro(product.priceCents)}
             </p>
             {product.description ? (
-              <p className="mt-4 text-sm leading-relaxed text-mist sm:mt-6 sm:text-base">
+              <p className="mt-4 text-sm text-mist sm:text-base">
                 {product.description}
               </p>
             ) : null}
-            <p className="mt-6 border border-[color:var(--line)] px-3 py-2.5 text-xs text-mist sm:mt-8 sm:px-4 sm:py-3 sm:text-sm">
-              This site is under construction — la commande en ligne arrive
-              bientôt.
-            </p>
-            <div className="mt-6 flex flex-wrap gap-3 sm:mt-8 sm:gap-4">
-              <Link href="/menu" className="btn-ghost">
-                Retour à la carte
-              </Link>
+
+            <div className="mt-8">
+              <ProductConfigurator
+                product={detail}
+                initialAddonIds={initialAddonIds}
+                initialQuantity={initialQuantity}
+                cartItemId={cartItemId}
+                mode={mode}
+              />
             </div>
           </div>
         </div>

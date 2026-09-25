@@ -59,23 +59,29 @@ enum DayOfWeek {
   SUNDAY
 }
 
+enum AddonSelectionType {
+  SINGLE
+  MULTIPLE
+}
+
 model User {
-  id           String    @id @default(cuid())
-  email        String    @unique
-  passwordHash String?
-  firstName    String?
-  lastName     String?
-  phone        String?
-  role         Role      @default(CUSTOMER)
-  marketingOptIn Boolean @default(false)
-  loyaltyPoints Int      @default(0)
+  id              String    @id @default(cuid())
+  email           String    @unique
+  passwordHash    String?
+  firstName       String?
+  lastName        String?
+  phone           String?
+  role            Role      @default(CUSTOMER)
+  marketingOptIn  Boolean   @default(false)
+  loyaltyPoints   Int       @default(0)
   emailVerifiedAt DateTime?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   sessions     Session[]
   addresses    CustomerAddress[]
   orders       Order[]
+  carts        Cart[]
   reservations Reservation[]
   auditLogs    AuditLog[]
 }
@@ -104,59 +110,62 @@ model Restaurant {
   lat                 Float?
   lng                 Float?
   isActive            Boolean  @default(true)
-  deliveryEnabled     Boolean  @default(false)
+  deliveryEnabled     Boolean  @default(true)
   pickupEnabled       Boolean  @default(true)
   dineInEnabled       Boolean  @default(false)
   reservationEnabled  Boolean  @default(true)
   timezone            String   @default("Europe/Paris")
   minOrderCents       Int      @default(0)
+  deliveryFeeCents    Int      @default(300)
   prepTimeMinutes     Int      @default(30)
   reservationInterval Int      @default(30)
   maxGuestsPerSlot    Int      @default(40)
   maxPartySize        Int      @default(12)
   minAdvanceMinutes   Int      @default(60)
   maxAdvanceDays      Int      @default(30)
+  maxItemQuantity     Int      @default(20)
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 
-  openingHours OpeningHour[]
-  blockedDates BlockedDate[]
-  tables       DiningTable[]
+  openingHours  OpeningHour[]
+  blockedDates  BlockedDate[]
+  tables        DiningTable[]
   deliveryZones DeliveryZone[]
-  orders       Order[]
-  reservations Reservation[]
+  orders        Order[]
+  carts         Cart[]
+  reservations  Reservation[]
 }
 
 model OpeningHour {
-  id           String    @id @default(cuid())
+  id           String     @id @default(cuid())
   restaurantId String
   restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
   dayOfWeek    DayOfWeek
-  openTime     String // HH:mm
-  closeTime    String // HH:mm
-  service      String    @default("ALL") // ALL | LUNCH | DINNER | RESERVATION
-  isClosed     Boolean   @default(false)
+  openTime     String
+  closeTime    String
+  service      String     @default("ALL")
+  isClosed     Boolean    @default(false)
 
   @@index([restaurantId, dayOfWeek])
 }
 
 model BlockedDate {
-  id           String   @id @default(cuid())
+  id           String     @id @default(cuid())
   restaurantId String
   restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
-  date         DateTime @db.Date
+  date         DateTime   @db.Date
   reason       String?
 
   @@unique([restaurantId, date])
 }
 
 model DiningTable {
-  id           String   @id @default(cuid())
+  id           String        @id @default(cuid())
   restaurantId String
-  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  restaurant   Restaurant    @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
   name         String
   capacity     Int
-  isActive     Boolean  @default(true)
+  isActive     Boolean       @default(true)
   reservations Reservation[]
 
   @@index([restaurantId])
@@ -176,10 +185,11 @@ model Category {
 }
 
 model Allergen {
-  id       String            @id @default(cuid())
-  code     String            @unique
+  id       String              @id @default(cuid())
+  code     String              @unique
   nameFr   String
   products ProductAllergen[]
+  addons   ProductAddonAllergen[]
 }
 
 model Ingredient {
@@ -189,29 +199,30 @@ model Ingredient {
 }
 
 model Product {
-  id          String   @id @default(cuid())
-  slug        String   @unique
-  sku         String?  @unique
-  nameFr      String
-  description String?
-  priceCents  Int
-  imageUrl    String?
-  categoryId  String
-  category    Category @relation(fields: [categoryId], references: [id])
-  isFeatured  Boolean  @default(false)
-  isAvailable Boolean  @default(true)
-  isVegetarian Boolean @default(false)
-  isVegan     Boolean  @default(false)
-  isSpicy     Boolean  @default(false)
-  sortOrder   Int      @default(0)
-  pieces      Int?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String   @id @default(cuid())
+  slug         String   @unique
+  sku          String?  @unique
+  nameFr       String
+  description  String?
+  priceCents   Int
+  imageUrl     String?
+  categoryId   String
+  category     Category @relation(fields: [categoryId], references: [id])
+  isFeatured   Boolean  @default(false)
+  isAvailable  Boolean  @default(true)
+  isVegetarian Boolean  @default(false)
+  isVegan      Boolean  @default(false)
+  isSpicy      Boolean  @default(false)
+  sortOrder    Int      @default(0)
+  pieces       Int?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   allergens   ProductAllergen[]
   ingredients ProductIngredient[]
-  options     ProductOption[]
-  variants    ProductVariant[]
+  addonGroups ProductAddonGroup[]
+  cartItems   CartItem[]
+  orderItems  OrderItem[]
 
   @@index([categoryId])
   @@index([isAvailable, isFeatured])
@@ -235,65 +246,75 @@ model ProductIngredient {
   @@id([productId, ingredientId])
 }
 
-model ProductVariant {
-  id         String  @id @default(cuid())
-  productId  String
-  product    Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  nameFr     String
-  priceDelta Int     @default(0)
-  isDefault  Boolean @default(false)
+model ProductAddonGroup {
+  id            String              @id @default(cuid())
+  productId     String
+  product       Product             @relation(fields: [productId], references: [id], onDelete: Cascade)
+  nameFr        String
+  description   String?
+  selectionType AddonSelectionType  @default(SINGLE)
+  required      Boolean             @default(false)
+  minSelections Int                 @default(0)
+  maxSelections Int                 @default(1)
+  displayOrder  Int                 @default(0)
+  isActive      Boolean             @default(true)
+  addons        ProductAddon[]
 
-  @@index([productId])
+  @@index([productId, displayOrder])
 }
 
-model ProductOption {
-  id         String              @id @default(cuid())
-  productId  String
-  product    Product             @relation(fields: [productId], references: [id], onDelete: Cascade)
-  nameFr     String
-  required   Boolean             @default(false)
-  maxSelect  Int                 @default(1)
-  values     ProductOptionValue[]
+model ProductAddon {
+  id           String           @id @default(cuid())
+  groupId      String
+  group        ProductAddonGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  nameFr       String
+  description  String?
+  priceCents   Int              @default(0)
+  imageUrl     String?
+  isActive     Boolean          @default(true)
+  displayOrder Int              @default(0)
+  allergens    ProductAddonAllergen[]
+  cartAddons   CartItemAddon[]
+  orderAddons  OrderItemAddon[]
 
-  @@index([productId])
+  @@index([groupId, displayOrder])
 }
 
-model ProductOptionValue {
-  id       String        @id @default(cuid())
-  optionId String
-  option   ProductOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
-  nameFr   String
-  priceDelta Int         @default(0)
+model ProductAddonAllergen {
+  addonId    String
+  allergenId String
+  addon      ProductAddon @relation(fields: [addonId], references: [id], onDelete: Cascade)
+  allergen   Allergen     @relation(fields: [allergenId], references: [id], onDelete: Cascade)
 
-  @@index([optionId])
+  @@id([addonId, allergenId])
 }
 
 model DeliveryZone {
-  id           String   @id @default(cuid())
-  restaurantId String
-  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
-  name         String
-  postalCodes  String[] // e.g. ["75001","75002"]
-  feeCents     Int
-  minOrderCents Int     @default(0)
-  isActive     Boolean  @default(true)
+  id            String     @id @default(cuid())
+  restaurantId  String
+  restaurant    Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  name          String
+  postalCodes   String[]
+  feeCents      Int
+  minOrderCents Int        @default(0)
+  isActive      Boolean    @default(true)
 
   @@index([restaurantId])
 }
 
 model Discount {
-  id            String    @id @default(cuid())
-  code          String    @unique
-  description   String?
-  percentOff    Int?
+  id             String    @id @default(cuid())
+  code           String    @unique
+  description    String?
+  percentOff     Int?
   amountOffCents Int?
-  minOrderCents Int       @default(0)
-  startsAt      DateTime?
-  endsAt        DateTime?
-  maxUses       Int?
-  usedCount     Int       @default(0)
-  isActive      Boolean   @default(true)
-  createdAt     DateTime  @default(now())
+  minOrderCents  Int       @default(0)
+  startsAt       DateTime?
+  endsAt         DateTime?
+  maxUses        Int?
+  usedCount      Int       @default(0)
+  isActive       Boolean   @default(true)
+  createdAt      DateTime  @default(now())
 }
 
 model CustomerAddress {
@@ -310,38 +331,91 @@ model CustomerAddress {
   @@index([userId])
 }
 
+model Cart {
+  id             String     @id @default(cuid())
+  sessionToken   String     @unique
+  userId         String?
+  user           User?      @relation(fields: [userId], references: [id])
+  restaurantId   String?
+  restaurant     Restaurant? @relation(fields: [restaurantId], references: [id])
+  orderType      OrderType  @default(TAKEAWAY)
+  discountCode   String?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  items          CartItem[]
+
+  @@index([userId])
+}
+
+model CartItem {
+  id                   String   @id @default(cuid())
+  cartId               String
+  cart                 Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productId            String
+  product              Product  @relation(fields: [productId], references: [id])
+  productNameSnapshot  String
+  basePriceSnapshot    Int
+  quantity             Int
+  unitPriceSnapshot    Int
+  lineTotalCents       Int
+  configSignature      String
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  addons               CartItemAddon[]
+
+  @@unique([cartId, configSignature])
+  @@index([cartId])
+  @@index([productId])
+}
+
+model CartItemAddon {
+  id                String       @id @default(cuid())
+  cartItemId        String
+  cartItem          CartItem     @relation(fields: [cartItemId], references: [id], onDelete: Cascade)
+  addonId           String
+  addon             ProductAddon @relation(fields: [addonId], references: [id])
+  addonNameSnapshot String
+  priceSnapshot     Int
+  quantity          Int          @default(1)
+
+  @@index([cartItemId])
+}
+
 model Order {
-  id              String        @id @default(cuid())
-  orderNumber     String        @unique
-  userId          String?
-  user            User?         @relation(fields: [userId], references: [id])
-  restaurantId    String
-  restaurant      Restaurant    @relation(fields: [restaurantId], references: [id])
-  type            OrderType
-  status          OrderStatus   @default(PENDING_PAYMENT)
-  paymentStatus   PaymentStatus @default(UNPAID)
-  currency        String        @default("EUR")
-  subtotalCents   Int
-  deliveryFeeCents Int          @default(0)
-  discountCents   Int           @default(0)
-  totalCents      Int
-  discountCode    String?
-  customerEmail   String
-  customerPhone   String
-  customerFirstName String
-  customerLastName  String
-  deliveryStreet  String?
-  deliveryComplement String?
-  deliveryPostalCode String?
-  deliveryCity    String?
-  deliveryNotes   String?
-  notes           String?
-  estimatedReadyAt DateTime?
-  stripeSessionId String?       @unique
-  stripePaymentIntentId String? @unique
-  paidAt          DateTime?
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  id                   String        @id @default(cuid())
+  orderNumber          String        @unique
+  idempotencyKey       String?       @unique
+  userId               String?
+  user                 User?         @relation(fields: [userId], references: [id])
+  restaurantId         String
+  restaurant           Restaurant    @relation(fields: [restaurantId], references: [id])
+  type                 OrderType
+  status               OrderStatus   @default(PENDING_PAYMENT)
+  paymentStatus        PaymentStatus @default(UNPAID)
+  currency             String        @default("EUR")
+  productsSubtotalCents Int
+  addonsSubtotalCents  Int           @default(0)
+  subtotalCents        Int
+  deliveryFeeCents     Int           @default(0)
+  discountCents        Int           @default(0)
+  totalCents           Int
+  discountCode         String?
+  customerEmail        String
+  customerPhone        String
+  customerFirstName    String
+  customerLastName     String
+  deliveryStreet       String?
+  deliveryComplement   String?
+  deliveryPostalCode   String?
+  deliveryCity         String?
+  deliveryNotes        String?
+  notes                String?
+  estimatedReadyAt     DateTime?
+  stripeSessionId      String?       @unique
+  stripePaymentIntentId String?      @unique
+  paidAt               DateTime?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
 
   items    OrderItem[]
   payments Payment[]
@@ -352,17 +426,33 @@ model Order {
 }
 
 model OrderItem {
-  id                   String @id @default(cuid())
-  orderId              String
-  order                Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  productId            String?
-  productNameSnapshot  String
-  unitPriceSnapshot    Int
-  quantity             Int
-  optionsSnapshot      Json?
-  lineTotalCents       Int
+  id                  String  @id @default(cuid())
+  orderId             String
+  order               Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId           String?
+  product             Product? @relation(fields: [productId], references: [id])
+  productNameSnapshot String
+  basePriceSnapshot   Int
+  unitPriceSnapshot   Int
+  quantity            Int
+  lineTotalCents      Int
+  addons              OrderItemAddon[]
 
   @@index([orderId])
+}
+
+model OrderItemAddon {
+  id                String        @id @default(cuid())
+  orderItemId       String
+  orderItem         OrderItem     @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  addonId           String?
+  addon             ProductAddon? @relation(fields: [addonId], references: [id])
+  addonNameSnapshot String
+  priceSnapshot     Int
+  quantity          Int           @default(1)
+  lineTotalCents    Int
+
+  @@index([orderItemId])
 }
 
 model Payment {
@@ -394,8 +484,8 @@ model Reservation {
   user             User?             @relation(fields: [userId], references: [id])
   status           ReservationStatus @default(CONFIRMED)
   date             DateTime          @db.Date
-  startTime        String // HH:mm
-  endTime          String // HH:mm
+  startTime        String
+  endTime          String
   partySize        Int
   firstName        String
   lastName         String
