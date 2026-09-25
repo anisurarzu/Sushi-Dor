@@ -1,8 +1,8 @@
-import Link from "next/link";
 import { SiteFooter } from "@/components/home/SiteFooter";
 import { SiteHeader } from "@/components/home/SiteHeader";
 import { ProductCardDb } from "@/components/menu/ProductCardDb";
-import { prisma } from "@/lib/prisma";
+import { getStaticCatalog } from "@/lib/catalog-static";
+import { dbAvailable, prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
@@ -13,24 +13,47 @@ export const metadata = {
 };
 
 export default async function MenuPage() {
-  const categories = await prisma.category.findMany({
-    where: { isActive: true },
-    orderBy: { sortOrder: "asc" },
-    include: {
-      products: {
-        where: { isAvailable: true },
+  let categories = getStaticCatalog().categories;
+  let total = categories.reduce((s, c) => s + c.products.length, 0);
+  let fromDb = false;
+
+  if (await dbAvailable()) {
+    try {
+      const rows = await prisma.category.findMany({
+        where: { isActive: true },
         orderBy: { sortOrder: "asc" },
         include: {
-          addonGroups: {
-            where: { isActive: true, required: true },
-            select: { id: true },
+          products: {
+            where: { isAvailable: true },
+            orderBy: { sortOrder: "asc" },
+            include: {
+              addonGroups: {
+                where: { isActive: true, required: true },
+                select: { id: true },
+              },
+            },
           },
         },
-      },
-    },
-  });
-
-  const total = categories.reduce((s, c) => s + c.products.length, 0);
+      });
+      categories = rows.map((cat) => ({
+        slug: cat.slug,
+        nameFr: cat.nameFr,
+        products: cat.products.map((item) => ({
+          id: item.id,
+          slug: item.slug,
+          nameFr: item.nameFr,
+          description: item.description,
+          priceCents: item.priceCents,
+          imageUrl: item.imageUrl,
+          requiresCustomization: item.addonGroups.length > 0,
+        })),
+      }));
+      total = categories.reduce((s, c) => s + c.products.length, 0);
+      fromDb = true;
+    } catch {
+      // static fallback
+    }
+  }
 
   return (
     <main className="bg-ink text-bone">
@@ -45,8 +68,10 @@ export default async function MenuPage() {
               La <span className="gold-text">carte</span>
             </h1>
             <p className="mt-3 max-w-xl text-sm text-mist sm:text-base">
-              {total} produits. Personnalisez vos options, ajoutez au panier et
-              payez en ligne.
+              {total} produits.
+              {fromDb
+                ? " Personnalisez vos options, ajoutez au panier et payez en ligne."
+                : " Catalogue affiché hors-ligne — connectez PostgreSQL sur Vercel pour activer panier et paiement."}
             </p>
             <nav
               className="-mx-4 mt-6 flex gap-2 overflow-x-auto px-4 pb-1 scrollbar-none sm:mx-0 sm:mt-10 sm:flex-wrap sm:overflow-visible sm:px-0"
@@ -89,7 +114,7 @@ export default async function MenuPage() {
                       description: item.description,
                       priceCents: item.priceCents,
                       imageUrl: item.imageUrl,
-                      requiresCustomization: item.addonGroups.length > 0,
+                      requiresCustomization: item.requiresCustomization,
                     }}
                   />
                 ))}

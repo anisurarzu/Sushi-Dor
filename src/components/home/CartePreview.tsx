@@ -1,22 +1,40 @@
 import Link from "next/link";
 import { ProductCardDb } from "@/components/menu/ProductCardDb";
-import { prisma } from "@/lib/prisma";
+import { getStaticCatalog } from "@/lib/catalog-static";
+import { dbAvailable, prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
 export async function CartePreview() {
-  // Show the full catalog on the home page (same as before users expected)
-  const products = await prisma.product.findMany({
-    where: { isAvailable: true },
-    orderBy: [{ sortOrder: "asc" }, { nameFr: "asc" }],
-    include: {
-      addonGroups: {
-        where: { isActive: true, required: true },
-        select: { id: true },
-      },
-      category: { select: { nameFr: true, slug: true } },
-    },
-  });
+  let products = getStaticCatalog().products;
+  let fromDb = false;
+
+  if (await dbAvailable()) {
+    try {
+      const rows = await prisma.product.findMany({
+        where: { isAvailable: true },
+        orderBy: [{ sortOrder: "asc" }, { nameFr: "asc" }],
+        include: {
+          addonGroups: {
+            where: { isActive: true, required: true },
+            select: { id: true },
+          },
+        },
+      });
+      products = rows.map((item) => ({
+        id: item.id,
+        slug: item.slug,
+        nameFr: item.nameFr,
+        description: item.description,
+        priceCents: item.priceCents,
+        imageUrl: item.imageUrl,
+        requiresCustomization: item.addonGroups.length > 0,
+      }));
+      fromDb = true;
+    } catch {
+      // keep static fallback
+    }
+  }
 
   return (
     <section
@@ -35,6 +53,12 @@ export async function CartePreview() {
             <p className="mt-3 text-sm text-mist sm:mt-4 sm:text-base">
               {products.length} produits — personnalisez vos options et
               commandez en ligne.
+              {!fromDb ? (
+                <span className="mt-2 block text-xs text-gold/80">
+                  Catalogue en mode lecture (base de données production à
+                  connecter).
+                </span>
+              ) : null}
             </p>
           </div>
           <Link href="/menu" className="btn-ghost shrink-0 self-start">
@@ -52,7 +76,7 @@ export async function CartePreview() {
                 description: item.description,
                 priceCents: item.priceCents,
                 imageUrl: item.imageUrl,
-                requiresCustomization: item.addonGroups.length > 0,
+                requiresCustomization: item.requiresCustomization,
               }}
             />
           ))}
