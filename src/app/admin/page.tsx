@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
 import { formatEuro } from "@/lib/pricing";
+import { AdminLogoutButton } from "@/components/admin/AdminLogoutButton";
 
 export const dynamic = "force-dynamic";
 
@@ -87,6 +88,7 @@ export default async function AdminDashboardPage() {
           >
             Commandes
           </Link>
+          <AdminLogoutButton />
         </div>
       </div>
 

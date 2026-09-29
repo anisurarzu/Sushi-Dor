@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { AdminLogoutButton } from "@/components/admin/AdminLogoutButton";
 
 const NAV = [
   { href: "/admin", label: "Dashboard", exact: true },
@@ -33,13 +34,11 @@ type Props = {
 
 export function AdminShell({ children, adminName, adminEmail }: Props) {
   const pathname = usePathname();
-  const router = useRouter();
   const [open, setOpen] = useState(false);
 
-  async function logout() {
-    await fetch("/api/admin/logout", { method: "POST" });
-    router.push("/admin/login");
-    router.refresh();
+  // Login is a full-bleed page — never wrap it in the dashboard chrome.
+  if (pathname === "/admin/login") {
+    return <>{children}</>;
   }
 
   function isActive(href: string, exact?: boolean) {
@@ -48,7 +47,7 @@ export function AdminShell({ children, adminName, adminEmail }: Props) {
   }
 
   const nav = (
-    <nav className="flex flex-1 flex-col gap-0.5 p-3">
+    <nav className="flex flex-1 flex-col gap-0.5 overflow-y-auto p-3">
       {NAV.map((item) => (
         <Link
           key={item.href}
@@ -66,6 +65,14 @@ export function AdminShell({ children, adminName, adminEmail }: Props) {
     </nav>
   );
 
+  const accountBlock = (
+    <div className="border-t border-[#c4a35a]/20 p-4 text-xs text-[#a89f8e]">
+      <p className="text-[#f0e6c8]">{adminName}</p>
+      <p className="truncate">{adminEmail}</p>
+      <AdminLogoutButton variant="link" className="mt-3 text-sm" />
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-[#0a0908] text-[#f7f2e8]">
       <div className="flex min-h-screen">
@@ -79,17 +86,7 @@ export function AdminShell({ children, adminName, adminEmail }: Props) {
             </p>
           </div>
           {nav}
-          <div className="border-t border-[#c4a35a]/20 p-4 text-xs text-[#a89f8e]">
-            <p className="text-[#f0e6c8]">{adminName}</p>
-            <p className="truncate">{adminEmail}</p>
-            <button
-              type="button"
-              onClick={logout}
-              className="mt-3 text-[#c4a35a] hover:text-[#e0c878]"
-            >
-              Déconnexion
-            </button>
-          </div>
+          {accountBlock}
         </aside>
 
         <div className="flex min-w-0 flex-1 flex-col">
@@ -107,13 +104,16 @@ export function AdminShell({ children, adminName, adminEmail }: Props) {
                 Gestion du restaurant
               </p>
             </div>
-            <Link
-              href="/"
-              className="text-[0.65rem] uppercase tracking-[0.14em] text-[#c4a35a]"
-              target="_blank"
-            >
-              Voir le site
-            </Link>
+            <div className="flex items-center gap-3">
+              <Link
+                href="/"
+                className="text-[0.65rem] uppercase tracking-[0.14em] text-[#c4a35a]"
+                target="_blank"
+              >
+                Voir le site
+              </Link>
+              <AdminLogoutButton />
+            </div>
           </header>
 
           {open ? (
@@ -131,6 +131,7 @@ export function AdminShell({ children, adminName, adminEmail }: Props) {
                   </p>
                 </div>
                 {nav}
+                {accountBlock}
               </aside>
             </div>
           ) : null}
