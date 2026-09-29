@@ -106,18 +106,26 @@ async function main() {
     let sku = p.sku;
     if (seenSkus.has(sku)) sku = `${sku}-${p.slug.slice(0, 12)}`;
     seenSkus.add(sku);
+    const featuredSkus = ["23", "86", "110", "118", "119"];
+    const featured = featuredSkus.includes(p.sku);
     await prisma.product.create({
       data: {
         slug: p.slug,
         sku,
         nameFr: p.nameFr,
         description: p.description,
+        shortDescription: p.description,
         priceCents: p.priceCents,
         imageUrl: p.imageUrl,
         categoryId: category.id,
         sortOrder: p.sortOrder,
         isAvailable: true,
-        isFeatured: ["23", "86", "110", "118", "119"].includes(p.sku),
+        isFeatured: featured,
+        featuredOrder: featured ? featuredSkus.indexOf(p.sku) : 0,
+        isPopular: featured,
+        isNew: ["118", "119"].includes(p.sku),
+        isVegetarian: /veggie|avocat|concombre/i.test(p.nameFr),
+        isSpicy: /spicy|chili/i.test(p.nameFr),
       },
     });
   }
@@ -231,19 +239,141 @@ async function main() {
     });
   }
 
-  // Admin user (password must be changed) — bcrypt hash for "ChangeMe123!"
+  // Admin user — SUPER_ADMIN (password must be changed) — bcrypt hash for "ChangeMe123!"
   const bcrypt = await import("bcryptjs");
   const passwordHash = await bcrypt.hash("ChangeMe123!", 12);
   await prisma.user.upsert({
     where: { email: "admin@sushidor.fr" },
-    update: { role: "ADMIN", passwordHash },
+    update: { role: "SUPER_ADMIN", passwordHash, isActive: true },
     create: {
       email: "admin@sushidor.fr",
       firstName: "Admin",
       lastName: "Sushi D'or",
-      role: "ADMIN",
+      role: "SUPER_ADMIN",
       passwordHash,
+      isActive: true,
     },
+  });
+
+  const roleDefaults: Record<string, string[]> = {
+    STAFF: [
+      "dashboard.view",
+      "orders.view",
+      "orders.edit",
+      "reservations.view",
+      "reservations.edit",
+      "products.view",
+      "customers.view",
+    ],
+    MANAGER: [
+      "dashboard.view",
+      "orders.view",
+      "orders.create",
+      "orders.edit",
+      "orders.cancel",
+      "products.view",
+      "products.create",
+      "products.edit",
+      "products.archive",
+      "categories.view",
+      "categories.create",
+      "categories.edit",
+      "addons.view",
+      "addons.create",
+      "addons.edit",
+      "reservations.view",
+      "reservations.create",
+      "reservations.edit",
+      "reservations.cancel",
+      "customers.view",
+      "customers.edit",
+      "analytics.view",
+      "delivery.view",
+      "delivery.edit",
+      "discounts.view",
+      "discounts.edit",
+      "payments.view",
+      "restaurants.view",
+      "settings.view",
+    ],
+    SUPER_ADMIN: [
+      "dashboard.view",
+      "orders.view",
+      "orders.create",
+      "orders.edit",
+      "orders.cancel",
+      "orders.refund",
+      "products.view",
+      "products.create",
+      "products.edit",
+      "products.archive",
+      "categories.view",
+      "categories.create",
+      "categories.edit",
+      "categories.archive",
+      "addons.view",
+      "addons.create",
+      "addons.edit",
+      "addons.archive",
+      "reservations.view",
+      "reservations.create",
+      "reservations.edit",
+      "reservations.cancel",
+      "customers.view",
+      "customers.edit",
+      "customers.delete",
+      "users.view",
+      "users.create",
+      "users.edit",
+      "users.deactivate",
+      "roles.view",
+      "roles.create",
+      "roles.edit",
+      "roles.delete",
+      "analytics.view",
+      "settings.view",
+      "settings.edit",
+      "audit_logs.view",
+      "restaurants.view",
+      "restaurants.edit",
+      "delivery.view",
+      "delivery.edit",
+      "discounts.view",
+      "discounts.edit",
+      "payments.view",
+    ],
+  };
+  for (const [key, perms] of Object.entries(roleDefaults)) {
+    const role = await prisma.roleDef.upsert({
+      where: { key },
+      update: {
+        nameFr:
+          key === "SUPER_ADMIN"
+            ? "Super Admin"
+            : key === "MANAGER"
+              ? "Manager"
+              : "Staff",
+      },
+      create: {
+        key,
+        nameFr:
+          key === "SUPER_ADMIN"
+            ? "Super Admin"
+            : key === "MANAGER"
+              ? "Manager"
+              : "Staff",
+      },
+    });
+    await prisma.rolePermission.deleteMany({ where: { roleId: role.id } });
+    await prisma.rolePermission.createMany({
+      data: perms.map((permission) => ({ roleId: role.id, permission })),
+    });
+  }
+
+  // Migrate legacy ADMIN → SUPER_ADMIN
+  await prisma.user.updateMany({
+    where: { role: "ADMIN" },
+    data: { role: "SUPER_ADMIN" },
   });
 
   console.log("Seed complete.");

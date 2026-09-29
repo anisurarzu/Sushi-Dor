@@ -87,7 +87,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    refresh().finally(() => setLoading(false));
+    let active = true;
+    void (async () => {
+      await refresh();
+      if (active) setLoading(false);
+    })();
+    return () => {
+      active = false;
+    };
   }, [refresh]);
 
   const addItem = useCallback(

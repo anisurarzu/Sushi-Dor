@@ -62,25 +62,27 @@ export function CartPageClient() {
                 ) : null}
 
                 <div className="mt-4 flex flex-wrap items-center gap-3">
-                  <div className="inline-flex items-center border border-[color:var(--line)]">
+                  <div className="inline-flex items-stretch overflow-hidden border border-[color:var(--line)] bg-ink">
                     <button
                       type="button"
-                      className="px-3 py-1.5"
+                      className="px-3 py-1.5 text-champagne transition-colors hover:bg-gold/10 hover:text-gold"
                       onClick={() =>
                         updateQty(item.id, Math.max(1, item.quantity - 1))
                       }
+                      aria-label="Diminuer"
                     >
                       −
                     </button>
-                    <span className="min-w-8 text-center text-sm">
+                    <span className="flex min-w-9 items-center justify-center border-x border-[color:var(--line)] px-2 text-sm font-medium tabular-nums text-bone">
                       {item.quantity}
                     </span>
                     <button
                       type="button"
-                      className="px-3 py-1.5"
+                      className="px-3 py-1.5 text-champagne transition-colors hover:bg-gold/10 hover:text-gold"
                       onClick={() =>
                         updateQty(item.id, Math.min(20, item.quantity + 1))
                       }
+                      aria-label="Augmenter"
                     >
                       +
                     </button>
@@ -139,26 +141,32 @@ export function CartPageClient() {
           </div>
         </div>
 
-        <dl className="mt-6 space-y-2 text-sm">
-          <div className="flex justify-between text-mist">
+        <dl className="mt-6 space-y-2.5 text-sm">
+          <div className="flex justify-between gap-3 text-[#c4bbaa]">
             <dt>Sous-total produits</dt>
-            <dd>{cart.totals.formatted.productsSubtotal}</dd>
+            <dd className="tabular-nums text-bone">
+              {cart.totals.formatted.productsSubtotal}
+            </dd>
           </div>
-          <div className="flex justify-between text-mist">
+          <div className="flex justify-between gap-3 text-[#c4bbaa]">
             <dt>Options supplémentaires</dt>
-            <dd>{cart.totals.formatted.addonsSubtotal}</dd>
+            <dd className="tabular-nums text-bone">
+              {cart.totals.formatted.addonsSubtotal}
+            </dd>
           </div>
-          <div className="flex justify-between text-mist">
+          <div className="flex justify-between gap-3 text-[#c4bbaa]">
             <dt>Livraison</dt>
-            <dd>
+            <dd className="tabular-nums text-bone">
               {cart.orderType === "DELIVERY"
                 ? cart.totals.formatted.delivery
                 : "—"}
             </dd>
           </div>
-          <div className="flex justify-between border-t border-[color:var(--line)] pt-3 text-base text-champagne">
-            <dt>Total</dt>
-            <dd className="text-gold">{cart.totals.formatted.total}</dd>
+          <div className="flex justify-between gap-3 border-t border-[color:var(--line)] pt-3 text-base text-champagne">
+            <dt className="font-medium">Total</dt>
+            <dd className="tabular-nums text-gold">
+              {cart.totals.formatted.total}
+            </dd>
           </div>
         </dl>
 

@@ -70,7 +70,10 @@ export function CheckoutForm() {
     const data = await res.json();
     setPending(false);
     if (!res.ok) {
-      setError(data.error || "Le paiement n'a pas pu être effectué.");
+      setError(
+        data.error ||
+          "Le paiement n'a pas pu être effectué. Veuillez réessayer ou utiliser un autre moyen de paiement.",
+      );
       return;
     }
     window.location.href = data.checkoutUrl;
@@ -258,37 +261,40 @@ export function CheckoutForm() {
           ))}
         </ul>
 
-        <dl className="mt-5 space-y-2 text-sm">
-          <div className="flex justify-between gap-3 text-mist">
+        <dl className="mt-5 space-y-2.5 text-sm">
+          <div className="flex justify-between gap-3 text-[#c4bbaa]">
             <dt>Sous-total produits</dt>
-            <dd className="text-bone">
+            <dd className="tabular-nums text-bone">
               {cart.totals.formatted.productsSubtotal}
             </dd>
           </div>
-          <div className="flex justify-between gap-3 text-mist">
+          <div className="flex justify-between gap-3 text-[#c4bbaa]">
             <dt>Options supplémentaires</dt>
-            <dd className="text-bone">
+            <dd className="tabular-nums text-bone">
               {cart.totals.formatted.addonsSubtotal}
             </dd>
           </div>
-          <div className="flex justify-between gap-3 text-mist">
+          <div className="flex justify-between gap-3 text-[#c4bbaa]">
             <dt>Livraison</dt>
-            <dd className="text-bone">
+            <dd className="tabular-nums text-bone">
               {currentType === "DELIVERY"
                 ? cart.totals.formatted.delivery
                 : "—"}
             </dd>
           </div>
           <div className="flex justify-between gap-3 border-t border-[color:var(--line)] pt-3 text-base text-champagne">
-            <dt>Total</dt>
-            <dd className="text-gold">{cart.totals.formatted.total}</dd>
+            <dt className="font-medium">Total</dt>
+            <dd className="tabular-nums text-gold">{cart.totals.formatted.total}</dd>
           </div>
         </dl>
 
         {error ? (
-          <p className="mt-4 text-sm text-red-300" role="alert">
-            {error}
-          </p>
+          <div className="mt-4 space-y-2 text-sm text-red-300" role="alert">
+            <p>{error}</p>
+            <p className="text-xs text-[#c4bbaa]">
+              Veuillez réessayer ou utiliser un autre moyen de paiement.
+            </p>
+          </div>
         ) : null}
 
         <button
@@ -296,10 +302,11 @@ export function CheckoutForm() {
           disabled={pending}
           className="btn-gold mt-6 w-full"
         >
-          {pending ? "Redirection…" : "Procéder au paiement"}
+          {pending ? "Redirection…" : "Payer en toute sécurité"}
         </button>
-        <p className="mt-3 text-center text-xs text-mist">
-          Paiement sécurisé via Stripe · 3D Secure
+        <p className="mt-3 text-center text-xs text-[#c4bbaa]">
+          Paiement sécurisé par Stripe · Sushi D&apos;or ne stocke pas vos
+          données bancaires
         </p>
       </aside>
     </form>

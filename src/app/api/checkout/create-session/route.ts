@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { customAlphabet } from "nanoid";
+import type Stripe from "stripe";
 import { prisma } from "@/lib/prisma";
 import { getOrCreateCart } from "@/lib/cart";
 import { recalculateLine } from "@/lib/catalog";
@@ -36,11 +37,18 @@ export async function POST(req: Request) {
       const session = await stripe.checkout.sessions.retrieve(
         existing.stripeSessionId,
       );
-      if (session.url) {
+      if (session.status === "open" && session.url) {
         return NextResponse.json({
           orderId: existing.id,
           orderNumber: existing.orderNumber,
           checkoutUrl: session.url,
+        });
+      }
+      if (existing.paymentStatus === "PAID") {
+        return NextResponse.json({
+          orderId: existing.id,
+          orderNumber: existing.orderNumber,
+          checkoutUrl: `${appUrl()}/checkout/success?session_id=${existing.stripeSessionId}`,
         });
       }
     }
@@ -96,7 +104,6 @@ export async function POST(req: Request) {
       addonsSubtotalCents += priced.addonsSubtotalCents;
       pricedLines.push(priced);
 
-      // Sync cart snapshots if prices drifted
       if (
         priced.unitPriceCents !== item.unitPriceSnapshot ||
         priced.basePriceCents !== item.basePriceSnapshot
@@ -115,9 +122,7 @@ export async function POST(req: Request) {
 
     const subtotalCents = productsSubtotalCents + addonsSubtotalCents;
     const deliveryFeeCents =
-      body.orderType === "DELIVERY"
-        ? cart.restaurant.deliveryFeeCents
-        : 0;
+      body.orderType === "DELIVERY" ? cart.restaurant.deliveryFeeCents : 0;
     const discountCents = 0;
     const totalCents = subtotalCents + deliveryFeeCents - discountCents;
 
@@ -128,32 +133,156 @@ export async function POST(req: Request) {
       );
     }
 
-    const order = await prisma.order.create({
-      data: {
-        orderNumber: `SD${orderNumber()}`,
-        idempotencyKey: body.idempotencyKey,
-        restaurantId: cart.restaurantId,
-        type: body.orderType,
-        status: "PENDING_PAYMENT",
-        paymentStatus: "PENDING",
-        productsSubtotalCents,
-        addonsSubtotalCents,
-        subtotalCents,
-        deliveryFeeCents,
-        discountCents,
-        totalCents,
-        customerEmail: body.email,
-        customerPhone: body.phone,
-        customerFirstName: body.firstName,
-        customerLastName: body.lastName,
-        deliveryStreet: body.deliveryStreet,
-        deliveryComplement: body.deliveryComplement,
-        deliveryPostalCode: body.deliveryPostalCode,
-        deliveryCity: body.deliveryCity,
-        deliveryNotes: body.deliveryNotes,
-        notes: body.notes,
-        items: {
-          create: pricedLines.map((line) => ({
+    const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
+
+    for (const line of pricedLines) {
+      lineItems.push({
+        quantity: line.quantity,
+        price_data: {
+          currency: "eur",
+          unit_amount: line.basePriceCents,
+          product_data: {
+            name: line.productNameFr,
+          },
+        },
+      });
+      for (const addon of line.addons) {
+        if (addon.priceCents <= 0) continue;
+        lineItems.push({
+          quantity: line.quantity,
+          price_data: {
+            currency: "eur",
+            unit_amount: addon.priceCents,
+            product_data: {
+              name: `${addon.nameFr} (supplément)`,
+            },
+          },
+        });
+      }
+    }
+
+    if (deliveryFeeCents > 0) {
+      lineItems.push({
+        quantity: 1,
+        price_data: {
+          currency: "eur",
+          unit_amount: deliveryFeeCents,
+          product_data: { name: "Livraison" },
+        },
+      });
+    }
+
+    const stripeLineTotal = lineItems.reduce(
+      (sum, li) =>
+        sum + (li.price_data?.unit_amount ?? 0) * (li.quantity ?? 1),
+      0,
+    );
+    if (stripeLineTotal !== totalCents) {
+      // Fallback: single verified total (DB remains source of truth)
+      lineItems.length = 0;
+      lineItems.push({
+        quantity: 1,
+        price_data: {
+          currency: "eur",
+          unit_amount: totalCents,
+          product_data: {
+            name: `Commande Sushi D'or`,
+            description: `${pricedLines.length} article(s)`,
+          },
+        },
+      });
+    }
+
+    const order =
+      existing && existing.paymentStatus !== "PAID"
+        ? await prisma.order.update({
+            where: { id: existing.id },
+            data: {
+              type: body.orderType,
+              productsSubtotalCents,
+              addonsSubtotalCents,
+              subtotalCents,
+              deliveryFeeCents,
+              discountCents,
+              totalCents,
+              customerEmail: body.email,
+              customerPhone: body.phone,
+              customerFirstName: body.firstName,
+              customerLastName: body.lastName,
+              deliveryStreet: body.deliveryStreet,
+              deliveryComplement: body.deliveryComplement,
+              deliveryPostalCode: body.deliveryPostalCode,
+              deliveryCity: body.deliveryCity,
+              deliveryNotes: body.deliveryNotes,
+              notes: body.notes,
+              status: "PENDING_PAYMENT",
+              paymentStatus: "PENDING",
+            },
+          })
+        : await prisma.order.create({
+            data: {
+              orderNumber: `SD${orderNumber()}`,
+              idempotencyKey: body.idempotencyKey,
+              restaurantId: cart.restaurantId,
+              type: body.orderType,
+              status: "PENDING_PAYMENT",
+              paymentStatus: "PENDING",
+              productsSubtotalCents,
+              addonsSubtotalCents,
+              subtotalCents,
+              deliveryFeeCents,
+              discountCents,
+              totalCents,
+              customerEmail: body.email,
+              customerPhone: body.phone,
+              customerFirstName: body.firstName,
+              customerLastName: body.lastName,
+              deliveryStreet: body.deliveryStreet,
+              deliveryComplement: body.deliveryComplement,
+              deliveryPostalCode: body.deliveryPostalCode,
+              deliveryCity: body.deliveryCity,
+              deliveryNotes: body.deliveryNotes,
+              notes: body.notes,
+              items: {
+                create: pricedLines.map((line) => ({
+                  productId: line.productId,
+                  productNameSnapshot: line.productNameFr,
+                  basePriceSnapshot: line.basePriceCents,
+                  unitPriceSnapshot: line.unitPriceCents,
+                  quantity: line.quantity,
+                  lineTotalCents: line.lineTotalCents,
+                  addons: {
+                    create: line.addons.map((a) => ({
+                      addonId: a.addonId,
+                      addonNameSnapshot: a.nameFr,
+                      priceSnapshot: a.priceCents,
+                      quantity: line.quantity,
+                      lineTotalCents: a.priceCents * line.quantity,
+                    })),
+                  },
+                })),
+              },
+              payments: {
+                create: {
+                  provider: "stripe",
+                  status: "PENDING",
+                  amountCents: totalCents,
+                  currency: "EUR",
+                },
+              },
+            },
+          });
+
+    // If updating existing pending order, refresh line items
+    if (existing && existing.paymentStatus !== "PAID") {
+      await prisma.orderItemAddon.deleteMany({
+        where: { orderItem: { orderId: order.id } },
+      });
+      await prisma.orderItem.deleteMany({ where: { orderId: order.id } });
+      for (const line of pricedLines) {
+        await prisma.orderItem.create({
+          data: {
+            orderId: order.id,
             productId: line.productId,
             productNameSnapshot: line.productNameFr,
             basePriceSnapshot: line.basePriceCents,
@@ -169,44 +298,29 @@ export async function POST(req: Request) {
                 lineTotalCents: a.priceCents * line.quantity,
               })),
             },
-          })),
-        },
-        payments: {
-          create: {
-            provider: "stripe",
-            status: "PENDING",
-            amountCents: totalCents,
-            currency: "EUR",
           },
-        },
-      },
-      include: { items: { include: { addons: true } } },
-    });
+        });
+      }
+      await prisma.payment.updateMany({
+        where: { orderId: order.id },
+        data: { amountCents: totalCents, status: "PENDING" },
+      });
+    }
 
     const stripe = getStripe();
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       customer_email: body.email,
       client_reference_id: order.id,
-      line_items: [
-        {
-          quantity: 1,
-          price_data: {
-            currency: "eur",
-            unit_amount: totalCents,
-            product_data: {
-              name: `Commande Sushi D'or ${order.orderNumber}`,
-              description: `${order.items.length} article(s)`,
-            },
-          },
-        },
-      ],
+      line_items: lineItems,
       metadata: {
         orderId: order.id,
         orderNumber: order.orderNumber,
+        cartId: cart.id,
       },
-      success_url: `${appUrl()}/order/success?order=${order.id}&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${appUrl()}/checkout?cancelled=1`,
+      success_url: `${appUrl()}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${appUrl()}/checkout/cancel?order=${order.id}`,
+      locale: "fr",
     });
 
     await prisma.order.update({
@@ -225,11 +339,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // Clear cart after checkout session created (payment still pending)
-    await prisma.cartItemAddon.deleteMany({
-      where: { cartItem: { cartId: cart.id } },
-    });
-    await prisma.cartItem.deleteMany({ where: { cartId: cart.id } });
+    // Keep cart until webhook confirms payment (cancel returns to cart)
 
     return NextResponse.json({
       orderId: order.id,

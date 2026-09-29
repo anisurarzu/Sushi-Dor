@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { AdminSelect } from "@/components/admin/AdminSelect";
 import { formatEuro } from "@/lib/pricing";
 
 type Group = {
@@ -31,6 +32,7 @@ export function AdminAddonEditor({
   const [groups] = useState(initialGroups);
   const [message, setMessage] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const [selectionType, setSelectionType] = useState<"SINGLE" | "MULTIPLE">("SINGLE");
 
   async function createGroup(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -42,7 +44,7 @@ export function AdminAddonEditor({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         nameFr: fd.get("nameFr"),
-        selectionType: fd.get("selectionType"),
+        selectionType,
         required: fd.get("required") === "on",
         minSelections: Number(fd.get("minSelections") || 0),
         maxSelections: Number(fd.get("maxSelections") || 1),
@@ -55,6 +57,7 @@ export function AdminAddonEditor({
       return;
     }
     e.currentTarget.reset();
+    setSelectionType("SINGLE");
     router.refresh();
   }
 
@@ -135,14 +138,15 @@ export function AdminAddonEditor({
           placeholder="Nom du groupe"
           className="w-full border border-[color:var(--line)] bg-transparent px-3 py-2 text-sm"
         />
-        <select
-          name="selectionType"
-          className="w-full border border-[color:var(--line)] bg-ink px-3 py-2 text-sm"
-          defaultValue="SINGLE"
-        >
-          <option value="SINGLE">SINGLE</option>
-          <option value="MULTIPLE">MULTIPLE</option>
-        </select>
+        <AdminSelect
+          aria-label="Type de sélection"
+          value={selectionType}
+          onChange={(v) => setSelectionType(v as "SINGLE" | "MULTIPLE")}
+          options={[
+            { value: "SINGLE", label: "Choix unique (SINGLE)" },
+            { value: "MULTIPLE", label: "Choix multiple (MULTIPLE)" },
+          ]}
+        />
         <label className="flex items-center gap-2 text-sm text-mist">
           <input type="checkbox" name="required" /> Obligatoire
         </label>

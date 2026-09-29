@@ -20,9 +20,11 @@ type Props = { params: Promise<{ orderId: string }> };
 
 export default async function OrderTrackingPage({ params }: Props) {
   const { orderId } = await params;
-  const order = await prisma.order.findUnique({
-    where: { id: orderId },
-    include: { items: { include: { addons: true } } },
+  const order = await prisma.order.findFirst({
+    where: {
+      OR: [{ id: orderId }, { orderNumber: orderId }],
+    },
+    include: { items: { include: { addons: true } }, restaurant: true },
   });
   if (!order) notFound();
 
@@ -35,10 +37,13 @@ export default async function OrderTrackingPage({ params }: Props) {
     "OUT_FOR_DELIVERY",
     "COMPLETED",
   ];
-  const currentIdx = Math.max(
-    0,
-    statusOrder.indexOf(order.status === "CONFIRMED" ? "PAID" : order.status),
-  );
+  const mappedStatus =
+    order.status === "CONFIRMED" || order.paymentStatus === "PAID"
+      ? order.status === "PENDING_PAYMENT"
+        ? "PAID"
+        : order.status
+      : order.status;
+  const currentIdx = Math.max(0, statusOrder.indexOf(mappedStatus));
 
   return (
     <main className="bg-ink text-bone">
@@ -50,13 +55,19 @@ export default async function OrderTrackingPage({ params }: Props) {
         <h1 className="mt-3 font-[family-name:var(--font-display)] text-4xl">
           Commande #{order.orderNumber}
         </h1>
-        <p className="mt-2 text-mist">Total {formatEuro(order.totalCents)}</p>
+        <p className="mt-2 text-[#c4bbaa]">
+          {order.restaurant.name} ·{" "}
+          {order.type === "DELIVERY" ? "Livraison" : "À emporter"} · Total{" "}
+          {formatEuro(order.totalCents)} · Paiement {order.paymentStatus}
+        </p>
 
         <ol className="mt-10 space-y-4">
-          {steps.map((step, idx) => {
+          {steps.map((step) => {
+            const stepIdx = statusOrder.indexOf(step.key);
             const done =
-              currentIdx >= statusOrder.indexOf(step.key) ||
-              (step.key === "PAID" && order.paymentStatus === "PAID");
+              currentIdx >= stepIdx ||
+              (step.key === "PAID" && order.paymentStatus === "PAID") ||
+              (step.key === "PENDING_PAYMENT" && Boolean(order));
             return (
               <li key={step.key} className="flex items-center gap-3 text-sm">
                 <span
@@ -79,10 +90,19 @@ export default async function OrderTrackingPage({ params }: Props) {
         <ul className="mt-10 space-y-3 border border-[color:var(--line)] p-5 text-sm">
           {order.items.map((item) => (
             <li key={item.id}>
-              {item.productNameSnapshot} × {item.quantity}
+              <div className="flex justify-between gap-3">
+                <span>
+                  {item.productNameSnapshot} × {item.quantity}
+                </span>
+                <span className="text-gold">
+                  {formatEuro(item.lineTotalCents)}
+                </span>
+              </div>
               {item.addons.length > 0 ? (
-                <span className="block text-xs text-mist">
-                  {item.addons.map((a) => a.addonNameSnapshot).join(" · ")}
+                <span className="mt-1 block text-xs text-mist">
+                  {item.addons
+                    .map((a) => `${a.addonNameSnapshot} × ${a.quantity}`)
+                    .join(" · ")}
                 </span>
               ) : null}
             </li>

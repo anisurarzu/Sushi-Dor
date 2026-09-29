@@ -196,19 +196,21 @@ export function ProductConfigurator({
           <p className="mb-3 text-[0.7rem] uppercase tracking-[0.16em] text-gold">
             Quantité
           </p>
-          <div className="inline-flex items-center border border-[color:var(--line)]">
+          <div className="inline-flex items-stretch overflow-hidden border border-[color:var(--line)] bg-ink-soft">
             <button
               type="button"
-              className="px-4 py-2 text-champagne"
+              className="px-4 py-2.5 text-lg leading-none text-champagne transition-colors hover:bg-gold/10 hover:text-gold"
               onClick={() => setQty((q) => Math.max(1, q - 1))}
               aria-label="Diminuer"
             >
               −
             </button>
-            <span className="min-w-10 text-center text-bone">{qty}</span>
+            <span className="flex min-w-12 items-center justify-center border-x border-[color:var(--line)] px-3 text-base font-medium tabular-nums text-bone">
+              {qty}
+            </span>
             <button
               type="button"
-              className="px-4 py-2 text-champagne"
+              className="px-4 py-2.5 text-lg leading-none text-champagne transition-colors hover:bg-gold/10 hover:text-gold"
               onClick={() => setQty((q) => Math.min(20, q + 1))}
               aria-label="Augmenter"
             >
@@ -217,22 +219,26 @@ export function ProductConfigurator({
           </div>
         </div>
 
-        <div className="hidden space-y-2 border border-[color:var(--line)] p-4 text-sm md:block">
-          <div className="flex justify-between text-mist">
+        <div className="hidden space-y-3 border border-[color:var(--line)] bg-ink-soft p-4 text-sm md:block">
+          <div className="flex justify-between gap-4 text-[#c4bbaa]">
             <span>
               Sous-total ({formatEuro(product.priceCents)} × {qty})
             </span>
-            <span>{formatEuro(product.priceCents * qty)}</span>
+            <span className="tabular-nums text-bone">
+              {formatEuro(product.priceCents * qty)}
+            </span>
           </div>
           {addonsUnit > 0 ? (
-            <div className="flex justify-between text-mist">
+            <div className="flex justify-between gap-4 text-[#c4bbaa]">
               <span>Options ({formatEuro(addonsUnit)} × {qty})</span>
-              <span>{formatEuro(addonsUnit * qty)}</span>
+              <span className="tabular-nums text-bone">
+                {formatEuro(addonsUnit * qty)}
+              </span>
             </div>
           ) : null}
-          <div className="flex justify-between border-t border-[color:var(--line)] pt-2 text-champagne">
-            <span>Total</span>
-            <span className="text-gold">{formatEuro(total)}</span>
+          <div className="flex justify-between gap-4 border-t border-[color:var(--line)] pt-3 text-base text-champagne">
+            <span className="font-medium">Total</span>
+            <span className="tabular-nums text-gold">{formatEuro(total)}</span>
           </div>
         </div>
 

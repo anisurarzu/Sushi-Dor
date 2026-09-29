@@ -11,6 +11,8 @@ datasource db {
 enum Role {
   CUSTOMER
   ADMIN
+  SUPER_ADMIN
+  MANAGER
   STAFF
 }
 
@@ -72,18 +74,21 @@ model User {
   lastName        String?
   phone           String?
   role            Role      @default(CUSTOMER)
+  isActive        Boolean   @default(true)
   marketingOptIn  Boolean   @default(false)
   loyaltyPoints   Int       @default(0)
   emailVerifiedAt DateTime?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
-  sessions     Session[]
-  addresses    CustomerAddress[]
-  orders       Order[]
-  carts        Cart[]
-  reservations Reservation[]
-  auditLogs    AuditLog[]
+  sessions          Session[]
+  addresses         CustomerAddress[]
+  orders            Order[]
+  carts             Cart[]
+  reservations      Reservation[]
+  auditLogs         AuditLog[]
+  userPermissions   UserPermission[]
+  orderAdjustments  OrderAdjustment[]
 }
 
 model Session {
@@ -199,33 +204,51 @@ model Ingredient {
 }
 
 model Product {
-  id           String   @id @default(cuid())
-  slug         String   @unique
-  sku          String?  @unique
-  nameFr       String
-  description  String?
-  priceCents   Int
-  imageUrl     String?
-  categoryId   String
-  category     Category @relation(fields: [categoryId], references: [id])
-  isFeatured   Boolean  @default(false)
-  isAvailable  Boolean  @default(true)
-  isVegetarian Boolean  @default(false)
-  isVegan      Boolean  @default(false)
-  isSpicy      Boolean  @default(false)
-  sortOrder    Int      @default(0)
-  pieces       Int?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id               String   @id @default(cuid())
+  slug             String   @unique
+  sku              String?  @unique
+  nameFr           String
+  description      String?
+  shortDescription String?
+  priceCents       Int
+  imageUrl         String?
+  categoryId       String
+  category         Category @relation(fields: [categoryId], references: [id])
+  isFeatured       Boolean  @default(false)
+  featuredOrder    Int      @default(0)
+  isAvailable      Boolean  @default(true)
+  isNew            Boolean  @default(false)
+  isPopular        Boolean  @default(false)
+  isVegetarian     Boolean  @default(false)
+  isVegan          Boolean  @default(false)
+  isSpicy          Boolean  @default(false)
+  sortOrder        Int      @default(0)
+  pieces           Int?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   allergens   ProductAllergen[]
   ingredients ProductIngredient[]
   addonGroups ProductAddonGroup[]
+  images      ProductImage[]
   cartItems   CartItem[]
   orderItems  OrderItem[]
 
   @@index([categoryId])
-  @@index([isAvailable, isFeatured])
+  @@index([isAvailable, isFeatured, featuredOrder])
+}
+
+model ProductImage {
+  id           String   @id @default(cuid())
+  productId    String
+  product      Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url          String
+  alt          String?
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([productId, displayOrder])
 }
 
 model ProductAllergen {
@@ -417,12 +440,27 @@ model Order {
   createdAt            DateTime      @default(now())
   updatedAt            DateTime      @updatedAt
 
-  items    OrderItem[]
-  payments Payment[]
+  items        OrderItem[]
+  payments     Payment[]
+  adjustments  OrderAdjustment[]
 
   @@index([restaurantId, createdAt])
   @@index([status])
   @@index([customerEmail])
+}
+
+model OrderAdjustment {
+  id          String   @id @default(cuid())
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  kind        String
+  amountCents Int
+  note        String?
+  createdById String?
+  createdBy   User?    @relation(fields: [createdById], references: [id])
+  createdAt   DateTime @default(now())
+
+  @@index([orderId])
 }
 
 model OrderItem {
@@ -526,4 +564,36 @@ model AuditLog {
   createdAt DateTime @default(now())
 
   @@index([createdAt])
+  @@index([entity, entityId])
+}
+
+model RoleDef {
+  id          String           @id @default(cuid())
+  key         String           @unique
+  nameFr      String
+  description String?
+  permissions RolePermission[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+}
+
+model RolePermission {
+  id         String  @id @default(cuid())
+  roleId     String
+  role       RoleDef @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission String
+
+  @@unique([roleId, permission])
+  @@index([permission])
+}
+
+model UserPermission {
+  id         String  @id @default(cuid())
+  userId     String
+  user       User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  permission String
+  granted    Boolean @default(true)
+
+  @@unique([userId, permission])
+  @@index([permission])
 }

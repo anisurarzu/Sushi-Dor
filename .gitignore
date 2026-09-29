@@ -36,9 +36,13 @@ yarn-error.log*
 .env.*.local
 !.env.example
 
+# uploads
+/public/uploads
+
 # vercel
 .vercel
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+.neon
