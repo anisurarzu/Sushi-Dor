@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireAdminApi, writeAudit } from "@/lib/admin-auth";
+import { deleteAllProductImageFiles } from "@/lib/product-images";
 import { prisma } from "@/lib/prisma";
 
 const patchSchema = z.object({
@@ -56,6 +57,14 @@ export async function DELETE(_req: Request, { params }: Params) {
     return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
   }
   const { id } = await params;
+  const existing = await prisma.product.findUnique({
+    where: { id },
+    include: { images: true },
+  });
+  if (!existing) {
+    return NextResponse.json({ error: "Produit introuvable" }, { status: 404 });
+  }
+
   const used = await prisma.orderItem.count({ where: { productId: id } });
   if (used > 0) {
     const product = await prisma.product.update({
@@ -75,6 +84,12 @@ export async function DELETE(_req: Request, { params }: Params) {
       message: "Produit archivé (référencé dans des commandes).",
     });
   }
+
+  await deleteAllProductImageFiles([
+    existing.imageUrl,
+    ...existing.images.map((img) => img.url),
+  ]);
+
   await prisma.product.delete({ where: { id } });
   await writeAudit({
     userId: admin.id,

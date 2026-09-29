@@ -215,3 +215,68 @@ export async function deleteProductImageFile(url: string) {
     // best-effort delete
   }
 }
+
+/** Delete every stored image file for a product (Cloudinary + local). */
+export async function deleteAllProductImageFiles(
+  urls: (string | null | undefined)[],
+) {
+  const unique = [...new Set(urls.filter(Boolean) as string[])];
+  await Promise.all(unique.map((url) => deleteProductImageFile(url)));
+}
+
+/**
+ * Upload an existing local public/ path or remote image URL into Cloudinary
+ * and return the new secure URL.
+ */
+export async function migrateImageUrlToCloudinary(
+  sourceUrl: string,
+  productId: string,
+): Promise<string> {
+  if (!isCloudinaryConfigured()) {
+    throw new Error("Cloudinary is not configured.");
+  }
+  if (sourceUrl.includes("res.cloudinary.com")) {
+    return sourceUrl;
+  }
+
+  let buffer: Buffer;
+  let mime = "image/jpeg";
+  let filename = "image.jpg";
+
+  if (sourceUrl.startsWith("/")) {
+    const full = path.join(process.cwd(), "public", sourceUrl.replace(/^\//, ""));
+    const publicRoot = path.join(process.cwd(), "public");
+    if (!full.startsWith(publicRoot)) {
+      throw new Error(`Invalid image path: ${sourceUrl}`);
+    }
+    const { readFile } = await import("fs/promises");
+    buffer = await readFile(full);
+    const ext = path.extname(full).toLowerCase();
+    filename = path.basename(full);
+    mime =
+      ext === ".png"
+        ? "image/png"
+        : ext === ".webp"
+          ? "image/webp"
+          : ext === ".avif"
+            ? "image/avif"
+            : "image/jpeg";
+  } else if (sourceUrl.startsWith("http://") || sourceUrl.startsWith("https://")) {
+    const res = await fetch(sourceUrl);
+    if (!res.ok) {
+      throw new Error(`Failed to fetch ${sourceUrl}`);
+    }
+    buffer = Buffer.from(await res.arrayBuffer());
+    mime = res.headers.get("content-type") || "image/jpeg";
+    filename = sourceUrl.split("/").pop() || "image.jpg";
+  } else {
+    throw new Error(`Unsupported image URL: ${sourceUrl}`);
+  }
+
+  const file = new File([buffer], filename, { type: mime });
+  const uploaded = await uploadToCloudinary(
+    file,
+    `${CLOUD_FOLDER_ROOT}/products/${productId}`,
+  );
+  return uploaded.url;
+}
