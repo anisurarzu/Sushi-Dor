@@ -273,7 +273,7 @@ export async function migrateImageUrlToCloudinary(
     throw new Error(`Unsupported image URL: ${sourceUrl}`);
   }
 
-  const file = new File([buffer], filename, { type: mime });
+  const file = new File([new Uint8Array(buffer)], filename, { type: mime });
   const uploaded = await uploadToCloudinary(
     file,
     `${CLOUD_FOLDER_ROOT}/products/${productId}`,
