@@ -1,6 +1,7 @@
 import type Stripe from "stripe";
 import { prisma } from "@/lib/prisma";
 import { getStripe } from "@/lib/stripe";
+import { enqueuePrintForOrder } from "@/lib/print";
 
 const orderInclude = {
   items: { include: { addons: true } },
@@ -49,6 +50,11 @@ async function markPaid(
       where: { cartId: session.metadata.cartId },
     });
   }
+
+  // Queue kitchen/customer receipt for local Epson agent
+  void enqueuePrintForOrder(order.id).catch((err) =>
+    console.error("enqueuePrintForOrder failed", order.id, err),
+  );
 
   return order;
 }
@@ -162,6 +168,10 @@ async function recoverOrderFromSession(
     },
     include: orderInclude,
   });
+
+  void enqueuePrintForOrder(order.id).catch((err) =>
+    console.error("enqueuePrintForOrder failed", order.id, err),
+  );
 
   return order;
 }

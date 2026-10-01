@@ -4,6 +4,7 @@ import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
 import { formatEuro } from "@/lib/pricing";
 import { OrderStatusForm } from "@/components/admin/OrderStatusForm";
+import { ReprintButton } from "@/components/admin/ReprintButton";
 
 export const dynamic = "force-dynamic";
 
@@ -71,6 +72,11 @@ export default async function AdminOrderDetailPage({ params }: Props) {
             Modifier la commande
           </Link>
         </div>
+        {order.paymentStatus === "PAID" ? (
+          <div className="mt-3 max-w-xs">
+            <ReprintButton orderId={order.id} />
+          </div>
+        ) : null}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1.4fr_0.8fr]">

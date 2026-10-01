@@ -66,6 +66,14 @@ enum AddonSelectionType {
   MULTIPLE
 }
 
+enum PrintJobStatus {
+  PENDING
+  CLAIMED
+  PRINTED
+  FAILED
+  CANCELLED
+}
+
 model User {
   id              String    @id @default(cuid())
   email           String    @unique
@@ -443,10 +451,33 @@ model Order {
   items        OrderItem[]
   payments     Payment[]
   adjustments  OrderAdjustment[]
+  printJobs    PrintJob[]
 
   @@index([restaurantId, createdAt])
   @@index([status])
   @@index([customerEmail])
+}
+
+model PrintJob {
+  id           String         @id @default(cuid())
+  orderId      String
+  order        Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  restaurantId String?
+  kind         String         @default("RECEIPT")
+  status       PrintJobStatus @default(PENDING)
+  eposXml      String
+  escposBase64 String?
+  payloadJson  String?
+  error        String?
+  attempts     Int            @default(0)
+  claimedAt    DateTime?
+  printedAt    DateTime?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@index([status, createdAt])
+  @@index([orderId])
+  @@index([restaurantId, status])
 }
 
 model OrderAdjustment {
