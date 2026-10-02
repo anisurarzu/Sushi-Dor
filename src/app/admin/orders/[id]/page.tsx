@@ -74,7 +74,45 @@ export default async function AdminOrderDetailPage({ params }: Props) {
         </div>
         {order.paymentStatus === "PAID" ? (
           <div className="mt-3 max-w-xs">
-            <ReprintButton orderId={order.id} />
+            <ReprintButton
+              ticket={{
+                orderId: order.id,
+                orderNumber: order.orderNumber,
+                type: order.type,
+                totalCents: order.totalCents,
+                productsSubtotalCents: order.productsSubtotalCents,
+                addonsSubtotalCents: order.addonsSubtotalCents,
+                deliveryFeeCents: order.deliveryFeeCents,
+                discountCents: order.discountCents,
+                customerFirstName: order.customerFirstName,
+                customerLastName: order.customerLastName,
+                customerPhone: order.customerPhone,
+                deliveryStreet: order.deliveryStreet,
+                deliveryComplement: order.deliveryComplement,
+                deliveryPostalCode: order.deliveryPostalCode,
+                deliveryCity: order.deliveryCity,
+                deliveryNotes: order.deliveryNotes,
+                notes: order.notes,
+                paidAt: order.paidAt?.toISOString() ?? null,
+                createdAt: order.createdAt.toISOString(),
+                restaurant: {
+                  name: order.restaurant.name,
+                  address: order.restaurant.address,
+                  postalCode: order.restaurant.postalCode,
+                  city: order.restaurant.city,
+                  phone: order.restaurant.phone,
+                },
+                items: order.items.map((item) => ({
+                  productNameSnapshot: item.productNameSnapshot,
+                  quantity: item.quantity,
+                  lineTotalCents: item.lineTotalCents,
+                  addons: item.addons.map((a) => ({
+                    addonNameSnapshot: a.addonNameSnapshot,
+                    priceSnapshot: a.priceSnapshot,
+                  })),
+                })),
+              }}
+            />
           </div>
         ) : null}
       </div>
