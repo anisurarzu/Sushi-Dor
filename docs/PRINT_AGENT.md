@@ -91,7 +91,21 @@ sudo systemctl enable --now sushi-print-agent
 
 Admin → Commande → **Réimprimer le ticket** (paid orders only).
 
-## 5. Troubleshooting
+## 5. iPhone Print Station (AirPrint)
+
+Laptop agent = impression 100% automatique.  
+iPhone = alerte + **un tap** (limitation iOS).
+
+1. Ouvrir sur iPhone : https://www.sushidora.fr/print-station  
+2. Entrer `PRINT_AGENT_SECRET`  
+3. Partager → **Sur l'écran d'accueil** (comme une app)  
+4. Epson en **AirPrint** (même Wi‑Fi)  
+5. Garder la page ouverte pendant le service  
+6. Nouvelle commande payée → son + écran → **Imprimer (AirPrint)**
+
+Les deux peuvent tourner en même temps : laptop pour l'auto, iPhone en backup.
+
+## 6. Troubleshooting
 
 | Symptom | Check |
 |--------|--------|

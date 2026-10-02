@@ -134,6 +134,7 @@ body {
   letter-spacing: 0.04em;
   text-transform: uppercase;
   font-size: 0.78rem;
+  cursor: pointer;
   transition: transform 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease;
 }
 
@@ -156,6 +157,7 @@ body {
   letter-spacing: 0.04em;
   text-transform: uppercase;
   font-size: 0.78rem;
+  cursor: pointer;
   transition: border-color 0.25s ease, background 0.25s ease;
 }
 
@@ -294,3 +296,434 @@ select:-webkit-autofill {
     animation: none;
   }
 }
+
+/* —— Interactive cursor —— */
+a,
+button,
+label,
+select,
+summary,
+[role="button"],
+[type="button"],
+[type="submit"],
+[type="reset"],
+input[type="checkbox"],
+input[type="radio"],
+.btn-gold,
+.btn-ghost,
+.product-add-btn,
+.order-type-option {
+  cursor: pointer;
+}
+
+button:disabled,
+.btn-gold:disabled,
+.product-add-btn:disabled {
+  cursor: not-allowed;
+}
+
+/* —— Product add CTA —— */
+.product-add-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  width: 100%;
+  min-height: 2.55rem;
+  padding: 0.65rem 0.9rem;
+  border: 1px solid color-mix(in srgb, var(--gold) 55%, transparent);
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--gold-deep) 88%, #000),
+    var(--gold) 48%,
+    var(--gold-bright)
+  );
+  color: var(--ink);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    filter 0.22s ease,
+    background 0.25s ease,
+    border-color 0.25s ease,
+    color 0.25s ease;
+}
+
+.product-add-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 28px rgba(196, 163, 90, 0.28);
+  filter: brightness(1.04);
+}
+
+.product-add-btn:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+}
+
+.product-add-btn--ghost {
+  background: transparent;
+  color: var(--gold);
+  border-color: var(--line);
+}
+
+.product-add-btn--ghost:hover {
+  border-color: var(--gold);
+  background: rgba(196, 163, 90, 0.08);
+  color: var(--gold-bright);
+  filter: none;
+  box-shadow: none;
+}
+
+.product-add-btn--success {
+  background: color-mix(in srgb, var(--gold) 18%, var(--ink-soft));
+  border-color: var(--gold);
+  color: var(--gold-bright);
+  animation: productAddPop 0.45s ease;
+}
+
+.product-add-spinner {
+  width: 0.85rem;
+  height: 0.85rem;
+  border: 2px solid rgba(12, 10, 8, 0.25);
+  border-top-color: var(--ink);
+  border-radius: 9999px;
+  animation: adminLoginSpin 0.7s linear infinite;
+}
+
+.product-add-check {
+  stroke-dasharray: 24;
+  stroke-dashoffset: 24;
+  animation: productAddDraw 0.4s ease forwards 0.05s;
+}
+
+@keyframes productAddPop {
+  0% {
+    transform: scale(0.96);
+  }
+  55% {
+    transform: scale(1.03);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes productAddDraw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* —— Order type toggle —— */
+.order-type-toggle {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+  gap: 0.65rem;
+}
+
+.order-type-option {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--line);
+  background: var(--ink);
+  color: var(--mist);
+  transition:
+    border-color 0.22s ease,
+    background 0.22s ease,
+    color 0.22s ease,
+    box-shadow 0.22s ease,
+    transform 0.22s ease;
+}
+
+.order-type-option:hover {
+  border-color: color-mix(in srgb, var(--gold) 55%, transparent);
+  color: var(--champagne);
+}
+
+.order-type-option.is-active {
+  border-color: var(--gold);
+  background: linear-gradient(
+    145deg,
+    rgba(196, 163, 90, 0.14),
+    rgba(196, 163, 90, 0.04)
+  );
+  color: var(--gold);
+  box-shadow: inset 0 0 0 1px rgba(196, 163, 90, 0.12);
+}
+
+.order-type-icon {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid currentColor;
+  opacity: 0.9;
+  flex-shrink: 0;
+}
+
+.order-type-option.is-active .order-type-icon {
+  background: rgba(196, 163, 90, 0.12);
+}
+
+/* —— Cart fly + badge pulse —— */
+.cart-fly-dot {
+  position: fixed;
+  z-index: 80;
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  border-radius: 9999px;
+  background: radial-gradient(circle at 30% 30%, var(--gold-bright), var(--gold));
+  box-shadow: 0 0 14px rgba(224, 200, 120, 0.65);
+  pointer-events: none;
+  animation: cartFly 0.7s cubic-bezier(0.22, 0.9, 0.3, 1) forwards;
+}
+
+@keyframes cartFly {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--fly-x), var(--fly-y)) scale(0.35);
+  }
+}
+
+.cart-badge-pulse {
+  animation: cartBadgePulse 0.55s ease;
+}
+
+.cart-badge-count {
+  display: inline-block;
+  min-width: 1.1rem;
+  text-align: center;
+}
+
+@keyframes cartBadgePulse {
+  0% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(1.08);
+    border-color: var(--gold);
+    box-shadow: 0 0 0 4px rgba(196, 163, 90, 0.18);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* —— Order confirmation celebration —— */
+.order-celebration {
+  padding-bottom: 0.5rem;
+}
+
+.order-celebration-check-wrap {
+  margin-bottom: 1.25rem;
+}
+
+.order-celebration-check {
+  width: 4.5rem;
+  height: 4.5rem;
+}
+
+.order-celebration-ring {
+  stroke: var(--gold);
+  stroke-dasharray: 180;
+  stroke-dashoffset: 180;
+  animation: orderRingDraw 0.7s ease forwards;
+}
+
+.order-celebration-tick {
+  stroke: var(--gold-bright);
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  animation: orderTickDraw 0.45s ease 0.35s forwards;
+}
+
+.order-celebration-eyebrow {
+  animation: rise 0.7s ease 0.15s both;
+}
+
+.order-celebration-title {
+  animation: rise 0.8s ease 0.28s both;
+}
+
+.order-celebration-sub {
+  animation: rise 0.85s ease 0.4s both;
+}
+
+.order-celebration-particle {
+  position: absolute;
+  border-radius: 9999px;
+  background: var(--gold-bright);
+  opacity: 0;
+  animation: orderParticle 1.4s ease-out forwards;
+  box-shadow: 0 0 8px rgba(224, 200, 120, 0.45);
+}
+
+@keyframes orderRingDraw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes orderTickDraw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes orderParticle {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.4);
+  }
+  25% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-28px) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .product-add-btn--success,
+  .product-add-check,
+  .product-add-spinner,
+  .cart-fly-dot,
+  .cart-badge-pulse,
+  .order-celebration-ring,
+  .order-celebration-tick,
+  .order-celebration-particle,
+  .order-celebration-eyebrow,
+  .order-celebration-title,
+  .order-celebration-sub {
+    animation: none !important;
+  }
+
+  .order-celebration-ring,
+  .order-celebration-tick {
+    stroke-dashoffset: 0;
+  }
+
+  .order-celebration-particle {
+    opacity: 0;
+  }
+}
+
+/* —— iPhone Print Station —— */
+.print-station-pulse {
+  animation: printStationPulse 1.6s ease-in-out infinite;
+  box-shadow: 0 0 0 0 rgba(196, 163, 90, 0.55);
+}
+
+@keyframes printStationPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(196, 163, 90, 0.45);
+  }
+  70% {
+    box-shadow: 0 0 0 14px rgba(196, 163, 90, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(196, 163, 90, 0);
+  }
+}
+
+.print-station-ticket {
+  display: none;
+}
+
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+
+  .print-station-ticket,
+  .print-station-ticket * {
+    visibility: visible !important;
+  }
+
+  .print-station-ui {
+    display: none !important;
+  }
+
+  .print-station-ticket {
+    display: block !important;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 72mm;
+    max-width: 100%;
+    padding: 4mm;
+    color: #000 !important;
+    background: #fff !important;
+    font-family: ui-monospace, Menlo, monospace;
+    font-size: 11px;
+    line-height: 1.35;
+  }
+
+  .print-station-ticket h1 {
+    font-size: 16px;
+    text-align: center;
+    margin: 0 0 4px;
+  }
+
+  .print-station-ticket p {
+    margin: 2px 0;
+  }
+
+  .print-station-ticket .big {
+    font-size: 15px;
+    font-weight: 700;
+    text-align: center;
+    margin: 6px 0;
+  }
+
+  .print-station-ticket .thanks {
+    text-align: center;
+    margin-top: 10px;
+  }
+
+  .print-station-ticket hr {
+    border: none;
+    border-top: 1px dashed #000;
+    margin: 6px 0;
+  }
+
+  .print-station-ticket ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .print-station-ticket li {
+    margin: 4px 0;
+  }
+
+  .print-station-ticket .addon {
+    padding-left: 8px;
+    font-size: 10px;
+  }
+
+  @page {
+    margin: 4mm;
+    size: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .print-station-pulse {
+    animation: none;
+  }
+}
+
