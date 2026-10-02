@@ -11,13 +11,15 @@ export function CartBadge() {
   return (
     <Link
       href="/cart"
-      className="relative border border-[color:var(--line)] px-3 py-2 text-[0.62rem] uppercase tracking-[0.12em] text-champagne transition-colors hover:border-gold sm:px-4"
+      data-cart-badge
+      className="cart-badge relative cursor-pointer border border-[color:var(--line)] px-3 py-2 text-[0.62rem] uppercase tracking-[0.12em] text-champagne transition-colors hover:border-gold sm:px-4"
       aria-label={`Panier, ${units} articles, ${total}`}
     >
       Panier
       {units > 0 ? (
-        <span className="ml-2 text-gold">
-          {units} · {total}
+        <span className="ml-2 inline-flex items-center gap-1 text-gold">
+          <span className="cart-badge-count">{units}</span>
+          <span className="hidden sm:inline">· {total}</span>
         </span>
       ) : null}
     </Link>

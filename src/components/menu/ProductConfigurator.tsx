@@ -52,6 +52,7 @@ export function ProductConfigurator({
   const [qty, setQty] = useState(initialQuantity);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const [justAdded, setJustAdded] = useState(false);
 
   const addonPriceMap = useMemo(() => {
     const map = new Map<string, number>();
@@ -130,7 +131,18 @@ export function ProductConfigurator({
       setError(result.error);
       return;
     }
-    router.push("/cart");
+    setJustAdded(true);
+    window.dispatchEvent(
+      new CustomEvent("sd:cart-fly", {
+        detail: {
+          x: window.innerWidth / 2,
+          y: window.innerHeight - 80,
+        },
+      }),
+    );
+    window.setTimeout(() => {
+      router.push(mode === "edit" ? "/cart" : "/cart");
+    }, 650);
   }
 
   return (
@@ -199,7 +211,7 @@ export function ProductConfigurator({
           <div className="inline-flex items-stretch overflow-hidden border border-[color:var(--line)] bg-ink-soft">
             <button
               type="button"
-              className="px-4 py-2.5 text-lg leading-none text-champagne transition-colors hover:bg-gold/10 hover:text-gold"
+              className="cursor-pointer px-4 py-2.5 text-lg leading-none text-champagne transition-colors hover:bg-gold/10 hover:text-gold"
               onClick={() => setQty((q) => Math.max(1, q - 1))}
               aria-label="Diminuer"
             >
@@ -210,7 +222,7 @@ export function ProductConfigurator({
             </span>
             <button
               type="button"
-              className="px-4 py-2.5 text-lg leading-none text-champagne transition-colors hover:bg-gold/10 hover:text-gold"
+              className="cursor-pointer px-4 py-2.5 text-lg leading-none text-champagne transition-colors hover:bg-gold/10 hover:text-gold"
               onClick={() => setQty((q) => Math.min(20, q + 1))}
               aria-label="Augmenter"
             >
@@ -251,14 +263,16 @@ export function ProductConfigurator({
         <button
           type="button"
           onClick={submit}
-          disabled={pending}
-          className="btn-gold hidden w-full md:inline-flex"
+          disabled={pending || justAdded}
+          className={`btn-gold hidden w-full md:inline-flex ${justAdded ? "product-add-btn--success" : ""}`}
         >
           {pending
             ? "…"
-            : mode === "edit"
-              ? `Mettre à jour — ${formatEuro(total)}`
-              : `Ajouter au panier — ${formatEuro(total)}`}
+            : justAdded
+              ? "✓ Ajouté au panier"
+              : mode === "edit"
+                ? `Mettre à jour — ${formatEuro(total)}`
+                : `Ajouter au panier — ${formatEuro(total)}`}
         </button>
       </div>
 
@@ -266,14 +280,16 @@ export function ProductConfigurator({
         <button
           type="button"
           onClick={submit}
-          disabled={pending}
-          className="btn-gold w-full"
+          disabled={pending || justAdded}
+          className={`btn-gold w-full ${justAdded ? "product-add-btn--success" : ""}`}
         >
           {pending
             ? "…"
-            : mode === "edit"
-              ? `Mettre à jour · ${formatEuro(total)}`
-              : `Ajouter au panier · ${formatEuro(total)}`}
+            : justAdded
+              ? "✓ Ajouté au panier"
+              : mode === "edit"
+                ? `Mettre à jour · ${formatEuro(total)}`
+                : `Ajouter au panier · ${formatEuro(total)}`}
         </button>
       </div>
     </div>

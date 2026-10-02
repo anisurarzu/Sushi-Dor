@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCart } from "@/components/cart/CartProvider";
+import { OrderTypeToggle } from "@/components/cart/OrderTypeToggle";
 import { formatEuro } from "@/lib/pricing";
 
 export function CartPageClient() {
@@ -65,7 +66,7 @@ export function CartPageClient() {
                   <div className="inline-flex items-stretch overflow-hidden border border-[color:var(--line)] bg-ink">
                     <button
                       type="button"
-                      className="px-3 py-1.5 text-champagne transition-colors hover:bg-gold/10 hover:text-gold"
+                      className="cursor-pointer px-3 py-1.5 text-champagne transition-colors hover:bg-gold/10 hover:text-gold"
                       onClick={() =>
                         updateQty(item.id, Math.max(1, item.quantity - 1))
                       }
@@ -78,7 +79,7 @@ export function CartPageClient() {
                     </span>
                     <button
                       type="button"
-                      className="px-3 py-1.5 text-champagne transition-colors hover:bg-gold/10 hover:text-gold"
+                      className="cursor-pointer px-3 py-1.5 text-champagne transition-colors hover:bg-gold/10 hover:text-gold"
                       onClick={() =>
                         updateQty(item.id, Math.min(20, item.quantity + 1))
                       }
@@ -89,14 +90,14 @@ export function CartPageClient() {
                   </div>
                   <Link
                     href={`/menu/${item.slug}?edit=${item.id}`}
-                    className="text-[0.68rem] uppercase tracking-[0.14em] text-gold"
+                    className="cursor-pointer text-[0.68rem] uppercase tracking-[0.14em] text-gold hover:text-gold-bright"
                   >
                     Modifier
                   </Link>
                   <button
                     type="button"
                     onClick={() => removeItem(item.id)}
-                    className="text-[0.68rem] uppercase tracking-[0.14em] text-mist hover:text-champagne"
+                    className="cursor-pointer text-[0.68rem] uppercase tracking-[0.14em] text-mist hover:text-champagne"
                   >
                     Supprimer
                   </button>
@@ -116,29 +117,15 @@ export function CartPageClient() {
           <p className="text-[0.68rem] uppercase tracking-[0.16em] text-gold">
             Type de commande
           </p>
-          <div className="flex flex-wrap gap-2">
-            {(["TAKEAWAY", "DELIVERY"] as const).map((type) => {
-              const enabled =
-                type === "DELIVERY"
-                  ? cart.restaurant?.deliveryEnabled
-                  : cart.restaurant?.pickupEnabled;
-              if (!enabled) return null;
-              return (
-                <button
-                  key={type}
-                  type="button"
-                  onClick={() => setOrderType(type)}
-                  className={`border px-3 py-2 text-[0.65rem] uppercase tracking-[0.12em] ${
-                    cart.orderType === type
-                      ? "border-gold text-gold"
-                      : "border-[color:var(--line)] text-mist"
-                  }`}
-                >
-                  {type === "DELIVERY" ? "Livraison" : "À emporter"}
-                </button>
-              );
-            })}
-          </div>
+          <OrderTypeToggle
+            value={
+              cart.orderType === "DELIVERY" ? "DELIVERY" : "TAKEAWAY"
+            }
+            onChange={(type) => void setOrderType(type)}
+            pickupEnabled={cart.restaurant?.pickupEnabled}
+            deliveryEnabled={cart.restaurant?.deliveryEnabled}
+            name="cartOrderType"
+          />
         </div>
 
         <dl className="mt-6 space-y-2.5 text-sm">

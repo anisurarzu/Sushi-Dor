@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { formatEuro } from "@/lib/pricing";
 import type { HomeProduct } from "@/lib/home-catalog";
+import { ProductAddButton } from "@/components/menu/ProductAddButton";
 
 type Props = {
   product: HomeProduct;
@@ -72,12 +73,11 @@ export function ProductCardDb({ product, priority = false }: Props) {
         <p className="mt-2 text-sm font-medium tabular-nums text-gold">
           {formatEuro(product.priceCents)}
         </p>
-        <Link
-          href={href}
-          className="mt-auto pt-3 text-[0.62rem] uppercase tracking-[0.14em] text-gold hover:text-gold-bright"
-        >
-          {product.requiresCustomization ? "Personnaliser" : "Ajouter"}
-        </Link>
+        <ProductAddButton
+          productId={product.id}
+          slug={product.slug}
+          requiresCustomization={product.requiresCustomization}
+        />
       </div>
     </article>
   );

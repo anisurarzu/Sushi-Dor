@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { SiteFooter } from "@/components/home/SiteFooter";
 import { SiteHeader } from "@/components/home/SiteHeader";
+import { OrderCelebration } from "@/components/checkout/OrderCelebration";
 import { formatEuro } from "@/lib/pricing";
 import { resolveOrderFromCheckoutSession } from "@/lib/order-resolve";
 import { prisma } from "@/lib/prisma";
@@ -99,21 +100,20 @@ export default async function CheckoutSuccessPage({ searchParams }: Props) {
           </>
         ) : (
           <>
-            <p className="text-[0.7rem] uppercase tracking-[0.2em] text-gold">
-              {paid ? "Paiement confirmé" : "Confirmation en cours"}
-            </p>
-            <h1 className="mt-3 font-[family-name:var(--font-display)] text-4xl sm:text-5xl">
-              Merci pour votre commande&nbsp;!
-            </h1>
-            <p className="mt-4 text-[#c4bbaa]">
-              {paid
-                ? "Votre paiement a été confirmé."
-                : "Votre paiement est en cours de confirmation Stripe."}{" "}
-              Commande{" "}
-              <span className="text-champagne">#{order.orderNumber}</span>
-            </p>
+            <OrderCelebration
+              title="Merci pour votre commande !"
+              subtitle={
+                <>
+                  {paid
+                    ? "Votre paiement a été confirmé."
+                    : "Votre paiement est en cours de confirmation Stripe."}{" "}
+                  Commande{" "}
+                  <span className="text-champagne">#{order.orderNumber}</span>
+                </>
+              }
+            />
 
-            <ol className="mt-8 space-y-2 border border-[color:var(--line)] bg-ink-soft p-5 text-sm">
+            <ol className="mt-8 animate-rise-delay space-y-2 border border-[color:var(--line)] bg-ink-soft p-5 text-sm">
               {steps.map((step) => (
                 <li
                   key={step.label}
@@ -126,7 +126,7 @@ export default async function CheckoutSuccessPage({ searchParams }: Props) {
               ))}
             </ol>
 
-            <div className="mt-6 border border-[color:var(--line)] bg-ink-soft p-5">
+            <div className="mt-6 animate-rise-delay-2 border border-[color:var(--line)] bg-ink-soft p-5">
               <p className="text-sm text-[#c4bbaa]">
                 {order.restaurant.name} ·{" "}
                 {order.type === "DELIVERY" ? "Livraison" : "À emporter"} · ~{eta}{" "}
@@ -166,7 +166,7 @@ export default async function CheckoutSuccessPage({ searchParams }: Props) {
 
             <Link
               href={`/order/${order.orderNumber}`}
-              className="btn-gold mt-6 inline-flex"
+              className="btn-gold mt-6 inline-flex animate-rise-delay-2"
             >
               Suivre ma commande
             </Link>

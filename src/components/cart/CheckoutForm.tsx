@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { nanoid } from "nanoid";
 import { useCart } from "@/components/cart/CartProvider";
+import { OrderTypeToggle } from "@/components/cart/OrderTypeToggle";
 import { formatEuro } from "@/lib/pricing";
 
 const fieldClass =
@@ -94,45 +95,14 @@ export function CheckoutForm() {
           <h2 className="text-[0.7rem] uppercase tracking-[0.16em] text-gold">
             Type de commande
           </h2>
-          <div className="mt-4 flex flex-wrap gap-2">
-            {cart.restaurant?.pickupEnabled ? (
-              <label
-                className={`cursor-pointer border px-4 py-2.5 text-[0.7rem] uppercase tracking-[0.12em] ${
-                  currentType === "TAKEAWAY"
-                    ? "border-gold bg-gold/10 text-gold"
-                    : "border-[color:var(--line)] text-mist"
-                }`}
-              >
-                <input
-                  type="radio"
-                  name="orderType"
-                  value="TAKEAWAY"
-                  className="sr-only"
-                  checked={currentType === "TAKEAWAY"}
-                  onChange={() => changeType("TAKEAWAY")}
-                />
-                À emporter
-              </label>
-            ) : null}
-            {cart.restaurant?.deliveryEnabled ? (
-              <label
-                className={`cursor-pointer border px-4 py-2.5 text-[0.7rem] uppercase tracking-[0.12em] ${
-                  currentType === "DELIVERY"
-                    ? "border-gold bg-gold/10 text-gold"
-                    : "border-[color:var(--line)] text-mist"
-                }`}
-              >
-                <input
-                  type="radio"
-                  name="orderType"
-                  value="DELIVERY"
-                  className="sr-only"
-                  checked={currentType === "DELIVERY"}
-                  onChange={() => changeType("DELIVERY")}
-                />
-                Livraison
-              </label>
-            ) : null}
+          <div className="mt-4">
+            <OrderTypeToggle
+              value={currentType}
+              onChange={(type) => void changeType(type)}
+              pickupEnabled={cart.restaurant?.pickupEnabled}
+              deliveryEnabled={cart.restaurant?.deliveryEnabled}
+              name="orderType"
+            />
           </div>
         </section>
 
