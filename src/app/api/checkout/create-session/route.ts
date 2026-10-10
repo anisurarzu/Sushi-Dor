@@ -355,8 +355,61 @@ export async function POST(req: Request) {
       );
     }
     console.error("checkout error", err);
+
+    // Zod validation
+    if (
+      err &&
+      typeof err === "object" &&
+      "name" in err &&
+      (err as { name: string }).name === "ZodError"
+    ) {
+      const zerr = err as {
+        issues?: { message?: string }[];
+      };
+      const first = zerr.issues?.[0]?.message || "Données invalides";
+      return NextResponse.json({ error: first }, { status: 400 });
+    }
+
+    // Stripe SDK errors (expired key, auth, etc.)
+    if (err && typeof err === "object" && "type" in err) {
+      const s = err as {
+        type?: string;
+        code?: string;
+        message?: string;
+        raw?: { message?: string; code?: string };
+      };
+      const code = s.code || s.raw?.code;
+      const rawMsg = s.message || s.raw?.message || "";
+      if (code === "api_key_expired" || /expired api key/i.test(rawMsg)) {
+        return NextResponse.json(
+          {
+            error:
+              "Clé Stripe expirée. Mettez à jour STRIPE_SECRET_KEY (mode test) sur Vercel.",
+            code: "STRIPE_KEY_EXPIRED",
+          },
+          { status: 500 },
+        );
+      }
+      if (
+        s.type === "StripeAuthenticationError" ||
+        code === "api_key_invalid" ||
+        /invalid api key/i.test(rawMsg)
+      ) {
+        return NextResponse.json(
+          {
+            error:
+              "Clé Stripe invalide. Vérifiez STRIPE_SECRET_KEY / NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY.",
+            code: "STRIPE_KEY_INVALID",
+          },
+          { status: 500 },
+        );
+      }
+    }
+
     const message =
-      err instanceof Error && err.message.includes("STRIPE_SECRET_KEY")
+      err instanceof Error &&
+      (err.message.includes("STRIPE_SECRET_KEY") ||
+        err.message.includes("Clé Stripe"))
         ? err.message
         : "Le paiement n'a pas pu être initialisé. Veuillez réessayer.";
     return NextResponse.json({ error: message }, { status: 400 });
