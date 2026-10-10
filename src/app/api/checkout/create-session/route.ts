@@ -29,26 +29,39 @@ export async function POST(req: Request) {
     }
 
     // Idempotency: return existing pending Stripe session
-    const existing = await prisma.order.findUnique({
+    let existing = await prisma.order.findUnique({
       where: { idempotencyKey: body.idempotencyKey },
     });
     if (existing?.stripeSessionId) {
-      const stripe = getStripe();
-      const session = await stripe.checkout.sessions.retrieve(
-        existing.stripeSessionId,
-      );
-      if (session.status === "open" && session.url) {
-        return NextResponse.json({
-          orderId: existing.id,
-          orderNumber: existing.orderNumber,
-          checkoutUrl: session.url,
-        });
-      }
-      if (existing.paymentStatus === "PAID") {
-        return NextResponse.json({
-          orderId: existing.id,
-          orderNumber: existing.orderNumber,
-          checkoutUrl: `${appUrl()}/checkout/success?session_id=${existing.stripeSessionId}`,
+      try {
+        const stripe = getStripe();
+        const session = await stripe.checkout.sessions.retrieve(
+          existing.stripeSessionId,
+        );
+        if (session.status === "open" && session.url) {
+          return NextResponse.json({
+            orderId: existing.id,
+            orderNumber: existing.orderNumber,
+            checkoutUrl: session.url,
+          });
+        }
+        if (existing.paymentStatus === "PAID") {
+          return NextResponse.json({
+            orderId: existing.id,
+            orderNumber: existing.orderNumber,
+            checkoutUrl: `${appUrl()}/checkout/success?session_id=${existing.stripeSessionId}`,
+          });
+        }
+      } catch (retrieveErr) {
+        // Old/expired Stripe account sessions break retries after key rotation.
+        console.warn(
+          "stripe session retrieve failed; creating a new session",
+          existing.stripeSessionId,
+          retrieveErr,
+        );
+        existing = await prisma.order.update({
+          where: { id: existing.id },
+          data: { stripeSessionId: null },
         });
       }
     }

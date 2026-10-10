@@ -62,22 +62,33 @@ export function CheckoutForm() {
       idempotencyKey,
     };
 
-    const res = await fetch("/api/checkout/create-session", {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    const data = await res.json();
-    setPending(false);
-    if (!res.ok) {
+    try {
+      const res = await fetch("/api/checkout/create-session", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json().catch(() => ({}));
+      setPending(false);
+      if (!res.ok) {
+        setError(
+          data.error ||
+            "Le paiement n'a pas pu être effectué. Veuillez réessayer ou utiliser un autre moyen de paiement.",
+        );
+        return;
+      }
+      if (!data.checkoutUrl) {
+        setError("Lien de paiement manquant. Rechargez la page et réessayez.");
+        return;
+      }
+      window.location.href = data.checkoutUrl;
+    } catch {
+      setPending(false);
       setError(
-        data.error ||
-          "Le paiement n'a pas pu être effectué. Veuillez réessayer ou utiliser un autre moyen de paiement.",
+        "Connexion interrompue. Rechargez la page (www.sushidora.fr) et réessayez.",
       );
-      return;
     }
-    window.location.href = data.checkoutUrl;
   }
 
   async function changeType(type: "TAKEAWAY" | "DELIVERY") {
