@@ -116,16 +116,8 @@ export function ReprintButton({ ticket }: { ticket: TicketPreview }) {
             <div className="bg-[#f7f2e8] px-5 py-5 font-[Helvetica,Arial,sans-serif] text-[1.05rem] leading-snug text-[#0c0a08]">
               <div className="text-center">
                 <p className="text-2xl font-semibold tracking-wide">
-                  SUSHI D&apos;OR
+                  Sushi D&apos;or
                 </p>
-                {ticket.restaurant.name
-                  .normalize("NFD")
-                  .replace(/[\u0300-\u036f]/g, "")
-                  .replace(/['’]/g, "")
-                  .toLowerCase()
-                  .includes("sushi d") ? null : (
-                  <p className="mt-1">{ticket.restaurant.name}</p>
-                )}
                 {ticket.restaurant.phone ? (
                   <p className="mt-1 text-sm font-normal">
                     {ticket.restaurant.phone}
@@ -136,7 +128,7 @@ export function ReprintButton({ ticket }: { ticket: TicketPreview }) {
               <div className="my-3 border-t border-dashed border-[#0c0a08]/35" />
 
               <p className="text-center text-2xl font-semibold tracking-wide">
-                {ticket.orderNumber}
+                #{ticket.orderNumber}
               </p>
               <p className="text-center text-xl font-medium uppercase tracking-wide">
                 {typeLabel(ticket.type)}

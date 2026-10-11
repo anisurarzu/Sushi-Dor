@@ -391,7 +391,7 @@ export function PrintStationClient() {
               Nouveau ticket
             </p>
             <h2 className="mt-2 font-[family-name:var(--font-display)] text-3xl text-champagne">
-              {order.orderNumber}
+              #{order.orderNumber}
             </h2>
             <p className="mt-1 text-gold">{typeLabel(order.type)}</p>
             <p className="mt-3 text-sm">
@@ -454,12 +454,12 @@ export function PrintStationClient() {
       {/* AirPrint sheet */}
       {order ? (
         <article className="print-station-ticket" aria-hidden={!busy}>
-          <h1>SUSHI D&apos;OR</h1>
+          <h1>Sushi D&apos;or</h1>
           {order.restaurant.phone ? (
             <p className="meta">{order.restaurant.phone}</p>
           ) : null}
           <hr />
-          <p className="big">{order.orderNumber}</p>
+          <p className="big">#{order.orderNumber}</p>
           <p className="order-type">
             {typeLabel(order.type).toUpperCase()}
           </p>
