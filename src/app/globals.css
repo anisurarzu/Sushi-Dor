@@ -668,36 +668,38 @@ button:disabled,
     color: #000 !important;
     background: #fff !important;
     font-family: ui-monospace, Menlo, monospace;
-    font-size: 11px;
-    line-height: 1.35;
+    font-size: 16px;
+    line-height: 1.4;
+    font-weight: 600;
   }
 
   .print-station-ticket h1 {
-    font-size: 16px;
+    font-size: 22px;
     text-align: center;
-    margin: 0 0 4px;
+    margin: 0 0 6px;
   }
 
   .print-station-ticket p {
-    margin: 2px 0;
+    margin: 3px 0;
   }
 
   .print-station-ticket .big {
-    font-size: 15px;
-    font-weight: 700;
+    font-size: 22px;
+    font-weight: 800;
     text-align: center;
-    margin: 6px 0;
+    margin: 8px 0;
   }
 
   .print-station-ticket .thanks {
     text-align: center;
-    margin-top: 10px;
+    margin-top: 12px;
+    font-size: 16px;
   }
 
   .print-station-ticket hr {
     border: none;
-    border-top: 1px dashed #000;
-    margin: 6px 0;
+    border-top: 2px dashed #000;
+    margin: 8px 0;
   }
 
   .print-station-ticket ul {
@@ -707,12 +709,13 @@ button:disabled,
   }
 
   .print-station-ticket li {
-    margin: 4px 0;
+    margin: 6px 0;
+    font-size: 16px;
   }
 
   .print-station-ticket .addon {
     padding-left: 8px;
-    font-size: 10px;
+    font-size: 14px;
   }
 
   @page {

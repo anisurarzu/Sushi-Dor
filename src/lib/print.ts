@@ -72,26 +72,28 @@ export function buildEposXml(order: OrderForPrint): string {
     timeZone: "Europe/Paris",
   }).format(when);
 
+  // Kitchen-readable sizes: height=2 (double) for body, 2x2 for title/total.
   const parts: string[] = [];
   parts.push(`<text lang="fr"/>`);
   parts.push(`<text align="center"/>`);
+  parts.push(`<text width="2" height="2"/>`);
   parts.push(line("SUSHI D'OR"));
+  parts.push(`<text width="1" height="2"/>`);
   parts.push(line(order.restaurant.name));
   parts.push(line(`${order.restaurant.address}`));
   parts.push(
     line(`${order.restaurant.postalCode} ${order.restaurant.city}`),
   );
   if (order.restaurant.phone) parts.push(line(order.restaurant.phone));
-  parts.push(`<text align="left"/>`);
-  parts.push(`<feed unit="16"/>`);
+  parts.push(`<feed unit="20"/>`);
   parts.push(`<text align="center"/>`);
   parts.push(`<text width="2" height="2"/>`);
   parts.push(line(`#${order.orderNumber}`));
-  parts.push(`<text width="1" height="1"/>`);
   parts.push(line(orderTypeLabel(order.type)));
-  parts.push(`<text align="left"/>`);
+  parts.push(`<text width="1" height="2"/>`);
   parts.push(line(whenFr));
-  parts.push(line("-".repeat(42)));
+  parts.push(`<text align="left"/>`);
+  parts.push(line("-".repeat(32)));
   parts.push(
     line(
       `${order.customerFirstName} ${order.customerLastName}`.trim() ||
@@ -110,23 +112,21 @@ export function buildEposXml(order: OrderForPrint): string {
     );
     if (order.deliveryNotes) parts.push(line(`Note: ${order.deliveryNotes}`));
   }
-  parts.push(line("-".repeat(42)));
+  parts.push(line("-".repeat(32)));
 
   for (const item of order.items) {
-    parts.push(
-      line(
-        `${item.quantity}x ${item.productNameSnapshot}  ${formatEuro(item.lineTotalCents)}`,
-      ),
-    );
+    parts.push(`<text width="1" height="2"/>`);
+    parts.push(line(`${item.quantity}x ${item.productNameSnapshot}`));
+    parts.push(line(`   ${formatEuro(item.lineTotalCents)}`));
     for (const a of item.addons) {
       const price =
         a.priceSnapshot > 0 ? ` +${formatEuro(a.priceSnapshot)}` : "";
-      parts.push(line(`   + ${a.addonNameSnapshot}${price}`));
+      parts.push(line(` + ${a.addonNameSnapshot}${price}`));
     }
   }
 
-  parts.push(line("-".repeat(42)));
-  parts.push(line(`Sous-total   ${formatEuro(order.productsSubtotalCents)}`));
+  parts.push(line("-".repeat(32)));
+  parts.push(line(`Sous-total  ${formatEuro(order.productsSubtotalCents)}`));
   if (order.addonsSubtotalCents > 0) {
     parts.push(line(`Options     ${formatEuro(order.addonsSubtotalCents)}`));
   }
@@ -137,17 +137,19 @@ export function buildEposXml(order: OrderForPrint): string {
     parts.push(line(`Remise     -${formatEuro(order.discountCents)}`));
   }
   parts.push(`<text width="2" height="2"/>`);
-  parts.push(line(`TOTAL  ${formatEuro(order.totalCents)}`));
-  parts.push(`<text width="1" height="1"/>`);
+  parts.push(line(`TOTAL`));
+  parts.push(line(formatEuro(order.totalCents)));
+  parts.push(`<text width="1" height="2"/>`);
   parts.push(line("Paye - Stripe"));
   if (order.notes) {
-    parts.push(line("-".repeat(42)));
+    parts.push(line("-".repeat(32)));
     parts.push(line(`Note: ${order.notes}`));
   }
   parts.push(`<feed unit="24"/>`);
   parts.push(`<text align="center"/>`);
+  parts.push(`<text width="1" height="2"/>`);
   parts.push(line("Merci et bon appetit !"));
-  parts.push(`<feed unit="32"/>`);
+  parts.push(`<feed unit="40"/>`);
   parts.push(`<cut type="feed"/>`);
 
   return `<?xml version="1.0" encoding="utf-8"?>
@@ -169,18 +171,26 @@ export function buildEscPosBase64(order: OrderForPrint): string {
   };
   push(new Uint8Array([0x1b, 0x40])); // init
   push(new Uint8Array([0x1b, 0x61, 0x01])); // center
+  push(new Uint8Array([0x1d, 0x21, 0x11])); // double width + height
   push("SUSHI D'OR\n");
+  push(new Uint8Array([0x1d, 0x21, 0x10])); // double height
   push(`${order.restaurant.name}\n`);
+  push(new Uint8Array([0x1d, 0x21, 0x11]));
+  push(`#${order.orderNumber}\n`);
+  push(`${orderTypeLabel(order.type)}\n`);
   push(new Uint8Array([0x1b, 0x61, 0x00])); // left
-  push(`#${order.orderNumber}  ${orderTypeLabel(order.type)}\n`);
-  push("-".repeat(32) + "\n");
+  push(new Uint8Array([0x1d, 0x21, 0x10])); // double height body
+  push("-".repeat(24) + "\n");
   for (const item of order.items) {
     push(`${item.quantity}x ${item.productNameSnapshot}\n`);
-    for (const a of item.addons) push(`  + ${a.addonNameSnapshot}\n`);
+    for (const a of item.addons) push(` + ${a.addonNameSnapshot}\n`);
   }
-  push("-".repeat(32) + "\n");
+  push("-".repeat(24) + "\n");
+  push(new Uint8Array([0x1d, 0x21, 0x11]));
   push(`TOTAL ${formatEuro(order.totalCents)}\n`);
+  push(new Uint8Array([0x1d, 0x21, 0x10]));
   push("Paye - Stripe\n\n");
+  push(new Uint8Array([0x1b, 0x61, 0x01]));
   push("Merci !\n\n\n");
   push(new Uint8Array([0x1d, 0x56, 0x00])); // cut
 

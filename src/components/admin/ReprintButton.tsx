@@ -113,9 +113,9 @@ export function ReprintButton({ ticket }: { ticket: TicketPreview }) {
             </div>
 
             {/* Receipt-style preview */}
-            <div className="bg-[#f7f2e8] px-5 py-5 font-mono text-[0.78rem] leading-relaxed text-[#0c0a08]">
+            <div className="bg-[#f7f2e8] px-5 py-5 font-mono text-[1rem] font-semibold leading-relaxed text-[#0c0a08]">
               <div className="text-center">
-                <p className="text-base font-semibold tracking-wide">
+                <p className="text-xl font-bold tracking-wide">
                   SUSHI D&apos;OR
                 </p>
                 <p className="mt-1">{ticket.restaurant.name}</p>
@@ -130,13 +130,13 @@ export function ReprintButton({ ticket }: { ticket: TicketPreview }) {
 
               <div className="my-3 border-t border-dashed border-[#0c0a08]/35" />
 
-              <p className="text-center text-lg font-bold">
+              <p className="text-center text-2xl font-bold">
                 #{ticket.orderNumber}
               </p>
-              <p className="text-center font-semibold uppercase">
+              <p className="text-center text-lg font-bold uppercase">
                 {typeLabel(ticket.type)}
               </p>
-              <p className="mt-1 text-center text-[0.7rem]">{when}</p>
+              <p className="mt-1 text-center text-sm">{when}</p>
 
               <div className="my-3 border-t border-dashed border-[#0c0a08]/35" />
 
@@ -210,7 +210,7 @@ export function ReprintButton({ ticket }: { ticket: TicketPreview }) {
                     <span>-{formatEuro(ticket.discountCents)}</span>
                   </div>
                 ) : null}
-                <div className="flex justify-between pt-1 text-base font-bold">
+                <div className="flex justify-between pt-2 text-xl font-bold">
                   <span>TOTAL</span>
                   <span>{formatEuro(ticket.totalCents)}</span>
                 </div>
