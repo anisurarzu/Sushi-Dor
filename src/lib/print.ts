@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { formatEuro } from "@/lib/pricing";
 import type { PrintJob } from "@prisma/client";
 
-/** 80mm Epson ≈ 42 cols at 1× width; keep 40 for padding. */
+/** 80mm Epson TM-m30 ≈ 42 chars at normal width; use 40 for safe padding. */
 const COL = 40;
 
 function escapeXml(value: string): string {
@@ -24,6 +24,7 @@ function orderTypeLabel(type: string): string {
   return "A EMPORTER";
 }
 
+/** Left label + right price on one line (monospace receipt columns). */
 function pairLine(left: string, right: string, width = COL): string {
   const price = right.trim();
   const maxLeft = Math.max(1, width - price.length - 1);
@@ -35,22 +36,30 @@ function pairLine(left: string, right: string, width = COL): string {
   return `${label}${" ".repeat(pad)}${price}`;
 }
 
-function thinRule(): string {
+function rule(): string {
   return "-".repeat(COL);
-}
-
-function shortName(first: string, last: string): string {
-  const f = first.trim();
-  const l = last.trim();
-  if (!f && !l) return "Client";
-  if (!l) return f;
-  return `${f} ${l.charAt(0).toUpperCase()}.`;
 }
 
 function isPlaceholderAddress(value: string | null | undefined): boolean {
   if (!value) return true;
   const v = value.trim().toLowerCase();
-  return !v || v === "à préciser" || v === "a preciser" || v === "n/a" || v === "-";
+  return (
+    !v ||
+    v === "à préciser" ||
+    v === "a preciser" ||
+    v === "n/a" ||
+    v === "-"
+  );
+}
+
+function normalizeBrandName(name: string): string {
+  return name
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/['’]/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
 }
 
 type OrderForPrint = {
@@ -95,58 +104,73 @@ type OrderForPrint = {
   }[];
 };
 
-/**
- * Kitchen ticket — Uber Eats–style hierarchy (no QR):
- * brand + type · inverted name/order# · bold items · bold total
- */
+/** Build Epson ePOS-Print XML for TM-m30 / TM-m30III. */
 export function buildEposXml(order: OrderForPrint): string {
   const when = order.paidAt ?? order.createdAt;
   const whenFr = new Intl.DateTimeFormat("fr-FR", {
-    day: "numeric",
-    month: "long",
-    hour: "2-digit",
-    minute: "2-digit",
+    dateStyle: "short",
+    timeStyle: "short",
     timeZone: "Europe/Paris",
   }).format(when);
 
-  const customer = shortName(order.customerFirstName, order.customerLastName);
-  const typeLabel = orderTypeLabel(order.type);
+  const brand = "SUSHI D'OR";
+  const showRestaurantName =
+    normalizeBrandName(order.restaurant.name) !== normalizeBrandName(brand);
+  const customer =
+    `${order.customerFirstName} ${order.customerLastName}`.trim() || "Client";
+
+  // Uber-style hierarchy on Epson: font_a + bold (em) + taller body text.
+  // Layout pattern unchanged (no QR).
   const parts: string[] = [];
+  parts.push(`<text lang="fr" font="font_a"/>`);
 
-  parts.push(`<text lang="fr"/>`);
-  parts.push(`<text align="left"/>`);
-
-  // Top: brand left + order type right (Uber-style)
-  parts.push(`<text width="1" height="2" em="true"/>`);
-  parts.push(line(pairLine("SUSHI D'OR", typeLabel)));
-  parts.push(`<text width="1" height="1" em="false"/>`);
+  // Header — brand once
+  parts.push(`<text align="center" em="true" width="2" height="2"/>`);
+  parts.push(line(brand));
+  parts.push(`<text em="false" width="1" height="1"/>`);
+  if (showRestaurantName) parts.push(line(order.restaurant.name));
   if (!isPlaceholderAddress(order.restaurant.address)) {
     parts.push(line(order.restaurant.address));
   }
   parts.push(
     line(`${order.restaurant.postalCode} ${order.restaurant.city}`.trim()),
   );
+  if (order.restaurant.phone) parts.push(line(order.restaurant.phone));
 
-  // Inverted banner: customer + order number (Uber-style highlight)
+  // Order meta — large like Uber header bar
   parts.push(`<feed unit="12"/>`);
-  parts.push(`<text reverse="true" width="1" height="2" em="true"/>`);
-  parts.push(line(pairLine(customer, `#${order.orderNumber}`)));
-  parts.push(`<text reverse="false" width="1" height="1" em="false"/>`);
-  parts.push(line(`Tel: ${order.customerPhone}`));
+  parts.push(`<text align="center" em="true" width="2" height="2"/>`);
+  parts.push(line(`#${order.orderNumber}`));
+  parts.push(`<text width="1" height="2"/>`);
+  parts.push(line(orderTypeLabel(order.type)));
+  parts.push(`<text em="false" width="1" height="1"/>`);
+  parts.push(line(whenFr));
+
+  // Customer — bold / tall
+  parts.push(`<text align="left"/>`);
+  parts.push(line(rule()));
+  parts.push(`<text em="true" width="1" height="2"/>`);
+  parts.push(line(customer));
+  parts.push(`<text em="false" width="1" height="1"/>`);
+  parts.push(line(order.customerPhone));
   if (order.type === "DELIVERY") {
+    parts.push(`<text em="true"/>`);
+    parts.push(line("LIVRAISON"));
+    parts.push(`<text em="false"/>`);
     if (order.deliveryStreet) parts.push(line(order.deliveryStreet));
+    if (order.deliveryComplement) parts.push(line(order.deliveryComplement));
     parts.push(
       line(
         `${order.deliveryPostalCode ?? ""} ${order.deliveryCity ?? ""}`.trim(),
       ),
     );
+    if (order.deliveryNotes) parts.push(line(`Note: ${order.deliveryNotes}`));
   }
 
-  parts.push(line(thinRule()));
-
-  // Items — larger bold lines, price same row
+  // Items — bold + taller, price same line
+  parts.push(line(rule()));
   for (const item of order.items) {
-    parts.push(`<text width="1" height="2" em="true"/>`);
+    parts.push(`<text em="true" width="1" height="2"/>`);
     parts.push(
       line(
         pairLine(
@@ -155,18 +179,19 @@ export function buildEposXml(order: OrderForPrint): string {
         ),
       ),
     );
-    parts.push(`<text width="1" height="1" em="false"/>`);
+    parts.push(`<text em="false" width="1" height="1"/>`);
     for (const a of item.addons) {
-      const left = `  ${a.quantity > 1 ? `${a.quantity}x ` : ""}${a.addonNameSnapshot}`;
-      const right =
-        a.priceSnapshot > 0 ? formatEuro(a.priceSnapshot) : "";
-      parts.push(line(right ? pairLine(left, right) : left));
+      const addonLeft = `   ${a.addonNameSnapshot}`;
+      const addonRight =
+        a.priceSnapshot > 0 ? `+${formatEuro(a.priceSnapshot)}` : "";
+      parts.push(
+        line(addonRight ? pairLine(addonLeft, addonRight) : addonLeft),
+      );
     }
   }
 
-  parts.push(line(thinRule()));
-
   // Totals
+  parts.push(line(rule()));
   parts.push(`<text width="1" height="1"/>`);
   parts.push(
     line(pairLine("Sous-total", formatEuro(order.productsSubtotalCents))),
@@ -186,30 +211,21 @@ export function buildEposXml(order: OrderForPrint): string {
       line(pairLine("Remise", `-${formatEuro(order.discountCents)}`)),
     );
   }
-
-  parts.push(`<feed unit="8"/>`);
-  parts.push(`<text width="1" height="2" em="true"/>`);
-  parts.push(line(pairLine("Montant paye", formatEuro(order.totalCents))));
-  parts.push(`<text width="1" height="1" em="false"/>`);
+  parts.push(`<text em="true" width="1" height="2"/>`);
+  parts.push(line(pairLine("TOTAL", formatEuro(order.totalCents))));
+  parts.push(`<text em="false" width="1" height="1"/>`);
   parts.push(line("Paye - Stripe"));
 
   if (order.notes) {
-    parts.push(line(thinRule()));
+    parts.push(line(rule()));
     parts.push(line(`Note: ${order.notes}`));
   }
-  if (order.deliveryNotes) {
-    parts.push(line(`Livraison: ${order.deliveryNotes}`));
-  }
 
-  parts.push(line(thinRule()));
-  parts.push(line(`Effectuee le ${whenFr}`));
-  parts.push(`<feed unit="16"/>`);
+  parts.push(`<feed unit="20"/>`);
   parts.push(`<text align="center"/>`);
-  parts.push(line("Merci pour votre commande"));
-  parts.push(line("Sushi D'or"));
-  parts.push(`<feed unit="40"/>`);
+  parts.push(line("Merci et bon appetit !"));
+  parts.push(`<feed unit="36"/>`);
   parts.push(`<cut type="feed"/>`);
-
   return `<?xml version="1.0" encoding="utf-8"?>
 <s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">
   <s:Body>
@@ -220,52 +236,53 @@ ${parts.join("\n")}
 </s:Envelope>`;
 }
 
-/** ESC/POS fallback — same hierarchy (reverse banner + large total). */
+/** ESC/POS ticket (TCP 9100 fallback). */
 export function buildEscPosBase64(order: OrderForPrint): string {
   const enc = new TextEncoder();
   const chunks: Uint8Array[] = [];
   const push = (s: string | Uint8Array) => {
     chunks.push(typeof s === "string" ? enc.encode(s) : s);
   };
+  const brand = "SUSHI D'OR";
+  const showRestaurantName =
+    normalizeBrandName(order.restaurant.name) !== normalizeBrandName(brand);
 
-  const when = order.paidAt ?? order.createdAt;
-  const whenFr = new Intl.DateTimeFormat("fr-FR", {
-    day: "numeric",
-    month: "long",
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: "Europe/Paris",
-  }).format(when);
-  const customer = shortName(order.customerFirstName, order.customerLastName);
-  const typeLabel = orderTypeLabel(order.type);
+  const customer =
+    `${order.customerFirstName} ${order.customerLastName}`.trim() || "Client";
 
   push(new Uint8Array([0x1b, 0x40])); // init
-  push(new Uint8Array([0x1b, 0x61, 0x00])); // left
+  push(new Uint8Array([0x1b, 0x4d, 0x00])); // Font A
+  push(new Uint8Array([0x1b, 0x61, 0x01])); // center
+  push(new Uint8Array([0x1b, 0x45, 0x01])); // bold
   push(new Uint8Array([0x1d, 0x21, 0x11])); // double W+H
-  push(`${pairLine("SUSHI D'OR", typeLabel, 24)}\n`);
+  push(`${brand}\n`);
   push(new Uint8Array([0x1d, 0x21, 0x00]));
+  push(new Uint8Array([0x1b, 0x45, 0x00]));
+  if (showRestaurantName) push(`${order.restaurant.name}\n`);
   if (!isPlaceholderAddress(order.restaurant.address)) {
     push(`${order.restaurant.address}\n`);
   }
   push(`${order.restaurant.postalCode} ${order.restaurant.city}\n`);
-
-  // Reverse banner
-  push(new Uint8Array([0x1d, 0x42, 0x01])); // reverse on
+  if (order.restaurant.phone) push(`${order.restaurant.phone}\n`);
+  push(new Uint8Array([0x1b, 0x45, 0x01]));
   push(new Uint8Array([0x1d, 0x21, 0x11]));
-  push(`${pairLine(customer, `#${order.orderNumber}`, 24)}\n`);
+  push(`#${order.orderNumber}\n`);
+  push(new Uint8Array([0x1d, 0x21, 0x01])); // double height
+  push(`${orderTypeLabel(order.type)}\n`);
   push(new Uint8Array([0x1d, 0x21, 0x00]));
-  push(new Uint8Array([0x1d, 0x42, 0x00])); // reverse off
-  push(`Tel: ${order.customerPhone}\n`);
-  if (order.type === "DELIVERY") {
-    if (order.deliveryStreet) push(`${order.deliveryStreet}\n`);
-    const cityLine =
-      `${order.deliveryPostalCode ?? ""} ${order.deliveryCity ?? ""}`.trim();
-    if (cityLine) push(`${cityLine}\n`);
-  }
-  push(`${thinRule()}\n`);
-
+  push(new Uint8Array([0x1b, 0x45, 0x00]));
+  push(new Uint8Array([0x1b, 0x61, 0x00])); // left
+  push(`${rule()}\n`);
+  push(new Uint8Array([0x1b, 0x45, 0x01]));
+  push(new Uint8Array([0x1d, 0x21, 0x01]));
+  push(`${customer}\n`);
+  push(new Uint8Array([0x1d, 0x21, 0x00]));
+  push(new Uint8Array([0x1b, 0x45, 0x00]));
+  push(`${order.customerPhone}\n`);
+  push(`${rule()}\n`);
   for (const item of order.items) {
-    push(new Uint8Array([0x1d, 0x21, 0x01])); // double height
+    push(new Uint8Array([0x1b, 0x45, 0x01]));
+    push(new Uint8Array([0x1d, 0x21, 0x01]));
     push(
       `${pairLine(
         `${item.quantity} x ${item.productNameSnapshot}`,
@@ -273,37 +290,28 @@ export function buildEscPosBase64(order: OrderForPrint): string {
       )}\n`,
     );
     push(new Uint8Array([0x1d, 0x21, 0x00]));
+    push(new Uint8Array([0x1b, 0x45, 0x00]));
     for (const a of item.addons) {
-      const left = `  ${a.quantity > 1 ? `${a.quantity}x ` : ""}${a.addonNameSnapshot}`;
       push(
         a.priceSnapshot > 0
-          ? `${pairLine(left, formatEuro(a.priceSnapshot))}\n`
-          : `${left}\n`,
+          ? `${pairLine(`   ${a.addonNameSnapshot}`, `+${formatEuro(a.priceSnapshot)}`)}\n`
+          : `   ${a.addonNameSnapshot}\n`,
       );
     }
   }
-
-  push(`${thinRule()}\n`);
-  push(`${pairLine("Sous-total", formatEuro(order.productsSubtotalCents))}\n`);
-  if (order.addonsSubtotalCents > 0) {
-    push(`${pairLine("Options", formatEuro(order.addonsSubtotalCents))}\n`);
-  }
-  if (order.deliveryFeeCents > 0) {
-    push(`${pairLine("Livraison", formatEuro(order.deliveryFeeCents))}\n`);
-  }
-  if (order.discountCents > 0) {
-    push(`${pairLine("Remise", `-${formatEuro(order.discountCents)}`)}\n`);
-  }
+  push(`${rule()}\n`);
+  push(
+    `${pairLine("Sous-total", formatEuro(order.productsSubtotalCents))}\n`,
+  );
+  push(new Uint8Array([0x1b, 0x45, 0x01]));
   push(new Uint8Array([0x1d, 0x21, 0x11]));
-  push(`${pairLine("Montant paye", formatEuro(order.totalCents), 24)}\n`);
+  push(`${pairLine("TOTAL", formatEuro(order.totalCents), 24)}\n`);
   push(new Uint8Array([0x1d, 0x21, 0x00]));
-  push("Paye - Stripe\n");
-  if (order.notes) push(`Note: ${order.notes}\n`);
-  push(`${thinRule()}\n`);
-  push(`Effectuee le ${whenFr}\n`);
+  push(new Uint8Array([0x1b, 0x45, 0x00]));
+  push("Paye - Stripe\n\n");
   push(new Uint8Array([0x1b, 0x61, 0x01]));
-  push("Merci pour votre commande\nSushi D'or\n\n\n");
-  push(new Uint8Array([0x1d, 0x56, 0x00]));
+  push("Merci et bon appetit !\n\n\n");
+  push(new Uint8Array([0x1d, 0x56, 0x00])); // cut
 
   const total = chunks.reduce((n, c) => n + c.length, 0);
   const out = new Uint8Array(total);
@@ -320,6 +328,10 @@ const orderPrintInclude = {
   items: { include: { addons: true } },
 } as const;
 
+/**
+ * Queue a kitchen/customer receipt when an order becomes PAID.
+ * Idempotent for auto path: skips if a non-failed RECEIPT already exists.
+ */
 export async function enqueuePrintForOrder(
   orderId: string,
   opts?: { force?: boolean },
