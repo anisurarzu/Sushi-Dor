@@ -126,7 +126,7 @@ export function buildEposXml(order: OrderForPrint): string {
     timeZone: "Europe/Paris",
   }).format(when);
 
-  const brand = "Sushi D'or";
+  const brand = "SUSHI D'OR";
   const customer =
     `${order.customerFirstName} ${order.customerLastName}`.trim() || "Client";
 
@@ -138,10 +138,10 @@ export function buildEposXml(order: OrderForPrint): string {
   parts.push(`<text align="center" width="2" height="2"/>`);
   parts.push(line(brand));
   parts.push(`<text width="1" height="1"/>`);
+  parts.push(`<feed unit="28"/>`);
   if (order.restaurant.phone) parts.push(line(order.restaurant.phone));
 
   // Order meta
-  parts.push(`<feed unit="12"/>`);
   parts.push(`<text align="center" width="2" height="2"/>`);
   parts.push(line(ticketOrderNo(order.orderNumber)));
   parts.push(`<text width="1" height="2"/>`);
@@ -246,7 +246,7 @@ export function buildEscPosBase64(order: OrderForPrint): string {
   const push = (s: string | Uint8Array) => {
     chunks.push(typeof s === "string" ? enc.encode(s) : s);
   };
-  const brand = "Sushi D'or";
+  const brand = "SUSHI D'OR";
 
   const customer =
     `${order.customerFirstName} ${order.customerLastName}`.trim() || "Client";
@@ -258,6 +258,7 @@ export function buildEscPosBase64(order: OrderForPrint): string {
   push(new Uint8Array([0x1d, 0x21, 0x11])); // double W+H
   push(`${brand}\n`);
   push(new Uint8Array([0x1d, 0x21, 0x00]));
+  push("\n\n"); // space under title
   if (order.restaurant.phone) push(`${order.restaurant.phone}\n`);
   push(new Uint8Array([0x1d, 0x21, 0x11]));
   push(`${ticketOrderNo(order.orderNumber)}\n`);

@@ -115,8 +115,8 @@ export function ReprintButton({ ticket }: { ticket: TicketPreview }) {
             {/* Receipt-style preview */}
             <div className="bg-[#f7f2e8] px-5 py-5 font-[Helvetica,Arial,sans-serif] text-[1.05rem] leading-snug text-[#0c0a08]">
               <div className="text-center">
-                <p className="text-2xl font-semibold tracking-wide">
-                  Sushi D&apos;or
+                <p className="mb-4 text-2xl font-semibold tracking-wide uppercase">
+                  SUSHI D&apos;OR
                 </p>
                 {ticket.restaurant.phone ? (
                   <p className="mt-1 text-sm font-normal">
@@ -125,7 +125,7 @@ export function ReprintButton({ ticket }: { ticket: TicketPreview }) {
                 ) : null}
               </div>
 
-              <div className="my-3 border-t border-dashed border-[#0c0a08]/35" />
+              <div className="my-5 border-t border-dashed border-[#0c0a08]/35" />
 
               <p className="text-center text-2xl font-semibold tracking-wide">
                 #{ticket.orderNumber.replace(/^#+/, "")}

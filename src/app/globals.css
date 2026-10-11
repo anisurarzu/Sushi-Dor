@@ -679,7 +679,12 @@ button:disabled,
     font-weight: 600;
     letter-spacing: 0.02em;
     text-align: center;
-    margin: 0 0 6px;
+    margin: 0;
+    text-transform: uppercase;
+  }
+
+  .print-station-ticket .title-gap {
+    height: 14px;
   }
 
   .print-station-ticket p {

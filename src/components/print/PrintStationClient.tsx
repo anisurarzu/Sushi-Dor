@@ -454,7 +454,8 @@ export function PrintStationClient() {
       {/* AirPrint sheet */}
       {order ? (
         <article className="print-station-ticket" aria-hidden={!busy}>
-          <h1>Sushi D&apos;or</h1>
+          <h1>SUSHI D&apos;OR</h1>
+          <div className="title-gap" aria-hidden />
           {order.restaurant.phone ? (
             <p className="meta">{order.restaurant.phone}</p>
           ) : null}
