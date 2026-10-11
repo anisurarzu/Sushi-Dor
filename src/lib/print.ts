@@ -69,6 +69,12 @@ function shopFooterAddress(restaurant: {
   return SHOP_FOOTER_ADDRESS;
 }
 
+/** Always print with a leading # (e.g. #SD11102601). */
+function ticketOrderNo(orderNumber: string): string {
+  const n = orderNumber.trim().replace(/^#+/, "");
+  return `#${n}`;
+}
+
 type OrderForPrint = {
   id: string;
   orderNumber: string;
@@ -137,7 +143,7 @@ export function buildEposXml(order: OrderForPrint): string {
   // Order meta
   parts.push(`<feed unit="12"/>`);
   parts.push(`<text align="center" width="2" height="2"/>`);
-  parts.push(line(`#${order.orderNumber}`));
+  parts.push(line(ticketOrderNo(order.orderNumber)));
   parts.push(`<text width="1" height="2"/>`);
   parts.push(line(orderTypeLabel(order.type)));
   parts.push(`<text width="1" height="1"/>`);
@@ -254,7 +260,7 @@ export function buildEscPosBase64(order: OrderForPrint): string {
   push(new Uint8Array([0x1d, 0x21, 0x00]));
   if (order.restaurant.phone) push(`${order.restaurant.phone}\n`);
   push(new Uint8Array([0x1d, 0x21, 0x11]));
-  push(`#${order.orderNumber}\n`);
+  push(`${ticketOrderNo(order.orderNumber)}\n`);
   push(new Uint8Array([0x1d, 0x21, 0x01])); // double height
   push(`${orderTypeLabel(order.type)}\n`);
   push(new Uint8Array([0x1d, 0x21, 0x00]));

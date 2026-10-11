@@ -128,7 +128,7 @@ export function ReprintButton({ ticket }: { ticket: TicketPreview }) {
               <div className="my-3 border-t border-dashed border-[#0c0a08]/35" />
 
               <p className="text-center text-2xl font-semibold tracking-wide">
-                #{ticket.orderNumber}
+                #{ticket.orderNumber.replace(/^#+/, "")}
               </p>
               <p className="text-center text-xl font-medium uppercase tracking-wide">
                 {typeLabel(ticket.type)}
