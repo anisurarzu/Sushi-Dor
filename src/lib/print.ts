@@ -2,6 +2,9 @@ import { prisma } from "@/lib/prisma";
 import { formatEuro } from "@/lib/pricing";
 import type { PrintJob } from "@prisma/client";
 
+/** 80mm Epson TM-m30 ≈ 42 chars at normal width; use 40 for safe padding. */
+const COL = 40;
+
 function escapeXml(value: string): string {
   return value
     .replace(/&/g, "&amp;")
@@ -19,6 +22,44 @@ function orderTypeLabel(type: string): string {
   if (type === "DELIVERY") return "LIVRAISON";
   if (type === "DINE_IN") return "SUR PLACE";
   return "A EMPORTER";
+}
+
+/** Left label + right price on one line (monospace receipt columns). */
+function pairLine(left: string, right: string, width = COL): string {
+  const price = right.trim();
+  const maxLeft = Math.max(1, width - price.length - 1);
+  let label = left.trim();
+  if (label.length > maxLeft) {
+    label = `${label.slice(0, Math.max(1, maxLeft - 1))}…`;
+  }
+  const pad = Math.max(1, width - label.length - price.length);
+  return `${label}${" ".repeat(pad)}${price}`;
+}
+
+function rule(): string {
+  return "-".repeat(COL);
+}
+
+function isPlaceholderAddress(value: string | null | undefined): boolean {
+  if (!value) return true;
+  const v = value.trim().toLowerCase();
+  return (
+    !v ||
+    v === "à préciser" ||
+    v === "a preciser" ||
+    v === "n/a" ||
+    v === "-"
+  );
+}
+
+function normalizeBrandName(name: string): string {
+  return name
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/['’]/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
 }
 
 type OrderForPrint = {
@@ -72,37 +113,46 @@ export function buildEposXml(order: OrderForPrint): string {
     timeZone: "Europe/Paris",
   }).format(when);
 
-  // Kitchen-readable sizes: height=2 (double) for body, 2x2 for title/total.
+  const brand = "SUSHI D'OR";
+  const showRestaurantName =
+    normalizeBrandName(order.restaurant.name) !== normalizeBrandName(brand);
+
   const parts: string[] = [];
   parts.push(`<text lang="fr"/>`);
+
+  // Header — brand once
   parts.push(`<text align="center"/>`);
   parts.push(`<text width="2" height="2"/>`);
-  parts.push(line("SUSHI D'OR"));
-  parts.push(`<text width="1" height="2"/>`);
-  parts.push(line(order.restaurant.name));
-  parts.push(line(`${order.restaurant.address}`));
+  parts.push(line(brand));
+  parts.push(`<text width="1" height="1"/>`);
+  if (showRestaurantName) parts.push(line(order.restaurant.name));
+  if (!isPlaceholderAddress(order.restaurant.address)) {
+    parts.push(line(order.restaurant.address));
+  }
   parts.push(
-    line(`${order.restaurant.postalCode} ${order.restaurant.city}`),
+    line(`${order.restaurant.postalCode} ${order.restaurant.city}`.trim()),
   );
   if (order.restaurant.phone) parts.push(line(order.restaurant.phone));
-  parts.push(`<feed unit="20"/>`);
-  parts.push(`<text align="center"/>`);
+
+  parts.push(`<feed unit="16"/>`);
   parts.push(`<text width="2" height="2"/>`);
   parts.push(line(`#${order.orderNumber}`));
-  parts.push(line(orderTypeLabel(order.type)));
   parts.push(`<text width="1" height="2"/>`);
+  parts.push(line(orderTypeLabel(order.type)));
+  parts.push(`<text width="1" height="1"/>`);
   parts.push(line(whenFr));
+
+  // Customer
   parts.push(`<text align="left"/>`);
-  parts.push(line("-".repeat(32)));
+  parts.push(line(rule()));
   parts.push(
     line(
-      `${order.customerFirstName} ${order.customerLastName}`.trim() ||
-        "Client",
+      `${order.customerFirstName} ${order.customerLastName}`.trim() || "Client",
     ),
   );
   parts.push(line(order.customerPhone));
   if (order.type === "DELIVERY") {
-    parts.push(line("Adresse livraison:"));
+    parts.push(line("Livraison:"));
     if (order.deliveryStreet) parts.push(line(order.deliveryStreet));
     if (order.deliveryComplement) parts.push(line(order.deliveryComplement));
     parts.push(
@@ -112,44 +162,62 @@ export function buildEposXml(order: OrderForPrint): string {
     );
     if (order.deliveryNotes) parts.push(line(`Note: ${order.deliveryNotes}`));
   }
-  parts.push(line("-".repeat(32)));
 
+  // Items — name + price same line
+  parts.push(line(rule()));
   for (const item of order.items) {
-    parts.push(`<text width="1" height="2"/>`);
-    parts.push(line(`${item.quantity}x ${item.productNameSnapshot}`));
-    parts.push(line(`   ${formatEuro(item.lineTotalCents)}`));
+    parts.push(
+      line(
+        pairLine(
+          `${item.quantity}x ${item.productNameSnapshot}`,
+          formatEuro(item.lineTotalCents),
+        ),
+      ),
+    );
     for (const a of item.addons) {
-      const price =
-        a.priceSnapshot > 0 ? ` +${formatEuro(a.priceSnapshot)}` : "";
-      parts.push(line(` + ${a.addonNameSnapshot}${price}`));
+      const addonLeft = `  + ${a.addonNameSnapshot}`;
+      const addonRight =
+        a.priceSnapshot > 0 ? `+${formatEuro(a.priceSnapshot)}` : "";
+      parts.push(
+        line(addonRight ? pairLine(addonLeft, addonRight) : addonLeft),
+      );
     }
   }
 
-  parts.push(line("-".repeat(32)));
-  parts.push(line(`Sous-total  ${formatEuro(order.productsSubtotalCents)}`));
+  // Totals
+  parts.push(line(rule()));
+  parts.push(
+    line(pairLine("Sous-total", formatEuro(order.productsSubtotalCents))),
+  );
   if (order.addonsSubtotalCents > 0) {
-    parts.push(line(`Options     ${formatEuro(order.addonsSubtotalCents)}`));
+    parts.push(
+      line(pairLine("Options", formatEuro(order.addonsSubtotalCents))),
+    );
   }
   if (order.deliveryFeeCents > 0) {
-    parts.push(line(`Livraison   ${formatEuro(order.deliveryFeeCents)}`));
+    parts.push(
+      line(pairLine("Livraison", formatEuro(order.deliveryFeeCents))),
+    );
   }
   if (order.discountCents > 0) {
-    parts.push(line(`Remise     -${formatEuro(order.discountCents)}`));
+    parts.push(
+      line(pairLine("Remise", `-${formatEuro(order.discountCents)}`)),
+    );
   }
-  parts.push(`<text width="2" height="2"/>`);
-  parts.push(line(`TOTAL`));
-  parts.push(line(formatEuro(order.totalCents)));
   parts.push(`<text width="1" height="2"/>`);
+  parts.push(line(pairLine("TOTAL", formatEuro(order.totalCents))));
+  parts.push(`<text width="1" height="1"/>`);
   parts.push(line("Paye - Stripe"));
+
   if (order.notes) {
-    parts.push(line("-".repeat(32)));
+    parts.push(line(rule()));
     parts.push(line(`Note: ${order.notes}`));
   }
-  parts.push(`<feed unit="24"/>`);
+
+  parts.push(`<feed unit="20"/>`);
   parts.push(`<text align="center"/>`);
-  parts.push(`<text width="1" height="2"/>`);
   parts.push(line("Merci et bon appetit !"));
-  parts.push(`<feed unit="40"/>`);
+  parts.push(`<feed unit="36"/>`);
   parts.push(`<cut type="feed"/>`);
 
   return `<?xml version="1.0" encoding="utf-8"?>
@@ -162,36 +230,66 @@ ${parts.join("\n")}
 </s:Envelope>`;
 }
 
-/** Minimal ESC/POS ticket (TCP 9100 fallback). */
+/** ESC/POS ticket (TCP 9100 fallback). */
 export function buildEscPosBase64(order: OrderForPrint): string {
   const enc = new TextEncoder();
   const chunks: Uint8Array[] = [];
   const push = (s: string | Uint8Array) => {
     chunks.push(typeof s === "string" ? enc.encode(s) : s);
   };
+  const brand = "SUSHI D'OR";
+  const showRestaurantName =
+    normalizeBrandName(order.restaurant.name) !== normalizeBrandName(brand);
+
   push(new Uint8Array([0x1b, 0x40])); // init
   push(new Uint8Array([0x1b, 0x61, 0x01])); // center
-  push(new Uint8Array([0x1d, 0x21, 0x11])); // double width + height
-  push("SUSHI D'OR\n");
-  push(new Uint8Array([0x1d, 0x21, 0x10])); // double height
-  push(`${order.restaurant.name}\n`);
+  push(new Uint8Array([0x1d, 0x21, 0x11])); // double W+H
+  push(`${brand}\n`);
+  push(new Uint8Array([0x1d, 0x21, 0x00])); // normal
+  if (showRestaurantName) push(`${order.restaurant.name}\n`);
+  if (!isPlaceholderAddress(order.restaurant.address)) {
+    push(`${order.restaurant.address}\n`);
+  }
+  push(`${order.restaurant.postalCode} ${order.restaurant.city}\n`);
+  if (order.restaurant.phone) push(`${order.restaurant.phone}\n`);
   push(new Uint8Array([0x1d, 0x21, 0x11]));
   push(`#${order.orderNumber}\n`);
+  push(new Uint8Array([0x1d, 0x21, 0x01])); // double height
   push(`${orderTypeLabel(order.type)}\n`);
+  push(new Uint8Array([0x1d, 0x21, 0x00]));
   push(new Uint8Array([0x1b, 0x61, 0x00])); // left
-  push(new Uint8Array([0x1d, 0x21, 0x10])); // double height body
-  push("-".repeat(24) + "\n");
+  push(`${rule()}\n`);
+  push(
+    `${order.customerFirstName} ${order.customerLastName}`.trim() || "Client",
+  );
+  push("\n");
+  push(`${order.customerPhone}\n`);
+  push(`${rule()}\n`);
   for (const item of order.items) {
-    push(`${item.quantity}x ${item.productNameSnapshot}\n`);
-    for (const a of item.addons) push(` + ${a.addonNameSnapshot}\n`);
+    push(
+      `${pairLine(
+        `${item.quantity}x ${item.productNameSnapshot}`,
+        formatEuro(item.lineTotalCents),
+      )}\n`,
+    );
+    for (const a of item.addons) {
+      push(
+        a.priceSnapshot > 0
+          ? `${pairLine(`  + ${a.addonNameSnapshot}`, `+${formatEuro(a.priceSnapshot)}`)}\n`
+          : `  + ${a.addonNameSnapshot}\n`,
+      );
+    }
   }
-  push("-".repeat(24) + "\n");
+  push(`${rule()}\n`);
+  push(
+    `${pairLine("Sous-total", formatEuro(order.productsSubtotalCents))}\n`,
+  );
   push(new Uint8Array([0x1d, 0x21, 0x11]));
-  push(`TOTAL ${formatEuro(order.totalCents)}\n`);
-  push(new Uint8Array([0x1d, 0x21, 0x10]));
+  push(`${pairLine("TOTAL", formatEuro(order.totalCents), 24)}\n`);
+  push(new Uint8Array([0x1d, 0x21, 0x00]));
   push("Paye - Stripe\n\n");
   push(new Uint8Array([0x1b, 0x61, 0x01]));
-  push("Merci !\n\n\n");
+  push("Merci et bon appetit !\n\n\n");
   push(new Uint8Array([0x1d, 0x56, 0x00])); // cut
 
   const total = chunks.reduce((n, c) => n + c.length, 0);

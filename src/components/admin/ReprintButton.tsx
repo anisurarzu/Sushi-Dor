@@ -113,18 +113,32 @@ export function ReprintButton({ ticket }: { ticket: TicketPreview }) {
             </div>
 
             {/* Receipt-style preview */}
-            <div className="bg-[#f7f2e8] px-5 py-5 font-mono text-[1rem] font-semibold leading-relaxed text-[#0c0a08]">
+            <div className="bg-[#f7f2e8] px-5 py-5 font-mono text-[0.95rem] font-semibold leading-relaxed text-[#0c0a08]">
               <div className="text-center">
                 <p className="text-xl font-bold tracking-wide">
                   SUSHI D&apos;OR
                 </p>
-                <p className="mt-1">{ticket.restaurant.name}</p>
-                <p>{ticket.restaurant.address}</p>
-                <p>
+                {ticket.restaurant.name
+                  .normalize("NFD")
+                  .replace(/[\u0300-\u036f]/g, "")
+                  .replace(/['’]/g, "")
+                  .toLowerCase()
+                  .includes("sushi d") ? null : (
+                  <p className="mt-1">{ticket.restaurant.name}</p>
+                )}
+                {ticket.restaurant.address &&
+                !/^à préciser$/i.test(ticket.restaurant.address.trim()) ? (
+                  <p className="mt-1 text-sm font-normal">
+                    {ticket.restaurant.address}
+                  </p>
+                ) : null}
+                <p className="text-sm font-normal">
                   {ticket.restaurant.postalCode} {ticket.restaurant.city}
                 </p>
                 {ticket.restaurant.phone ? (
-                  <p>{ticket.restaurant.phone}</p>
+                  <p className="text-sm font-normal">
+                    {ticket.restaurant.phone}
+                  </p>
                 ) : null}
               </div>
 

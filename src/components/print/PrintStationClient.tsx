@@ -455,16 +455,19 @@ export function PrintStationClient() {
       {order ? (
         <article className="print-station-ticket" aria-hidden={!busy}>
           <h1>SUSHI D&apos;OR</h1>
-          <p>{order.restaurant.name}</p>
+          {order.restaurant.address &&
+          !/^à préciser$/i.test(order.restaurant.address.trim()) ? (
+            <p>{order.restaurant.address}</p>
+          ) : null}
           <p>
-            {order.restaurant.address}
-            <br />
             {order.restaurant.postalCode} {order.restaurant.city}
           </p>
           {order.restaurant.phone ? <p>{order.restaurant.phone}</p> : null}
           <hr />
           <p className="big">#{order.orderNumber}</p>
-          <p>{typeLabel(order.type).toUpperCase()}</p>
+          <p className="big" style={{ fontSize: "18px" }}>
+            {typeLabel(order.type).toUpperCase()}
+          </p>
           <p>
             {new Date(order.paidAt || order.createdAt).toLocaleString("fr-FR")}
           </p>
@@ -491,10 +494,18 @@ export function PrintStationClient() {
           <ul>
             {order.items.map((item, i) => (
               <li key={i}>
-                <strong>
-                  {item.quantity}× {item.productNameSnapshot}
-                </strong>{" "}
-                {formatEuro(item.lineTotalCents)}
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    gap: "8px",
+                  }}
+                >
+                  <span>
+                    {item.quantity}× {item.productNameSnapshot}
+                  </span>
+                  <span>{formatEuro(item.lineTotalCents)}</span>
+                </div>
                 {item.addons.map((a, j) => (
                   <div key={j} className="addon">
                     + {a.addonNameSnapshot}
