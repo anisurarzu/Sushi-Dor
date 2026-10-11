@@ -27,7 +27,7 @@ async function main() {
     where: { slug: "sushi-dor-annemasse" },
     update: {
       name: "Sushi D'or",
-      address: "À préciser",
+      address: "37 Rue du Chablais",
       postalCode: "74100",
       city: "Annemasse",
       deliveryEnabled: true,
@@ -38,7 +38,7 @@ async function main() {
     create: {
       slug: "sushi-dor-annemasse",
       name: "Sushi D'or",
-      address: "À préciser",
+      address: "37 Rue du Chablais",
       postalCode: "74100",
       city: "Annemasse",
       phone: null,

@@ -126,17 +126,8 @@ export function ReprintButton({ ticket }: { ticket: TicketPreview }) {
                   .includes("sushi d") ? null : (
                   <p className="mt-1">{ticket.restaurant.name}</p>
                 )}
-                {ticket.restaurant.address &&
-                !/^à préciser$/i.test(ticket.restaurant.address.trim()) ? (
-                  <p className="mt-1 text-sm font-normal">
-                    {ticket.restaurant.address}
-                  </p>
-                ) : null}
-                <p className="text-sm font-normal">
-                  {ticket.restaurant.postalCode} {ticket.restaurant.city}
-                </p>
                 {ticket.restaurant.phone ? (
-                  <p className="text-sm font-normal">
+                  <p className="mt-1 text-sm font-normal">
                     {ticket.restaurant.phone}
                   </p>
                 ) : null}
@@ -144,8 +135,8 @@ export function ReprintButton({ ticket }: { ticket: TicketPreview }) {
 
               <div className="my-3 border-t border-dashed border-[#0c0a08]/35" />
 
-              <p className="text-center text-3xl font-semibold">
-                #{ticket.orderNumber}
+              <p className="text-center text-2xl font-semibold tracking-wide">
+                {ticket.orderNumber}
               </p>
               <p className="text-center text-xl font-medium uppercase tracking-wide">
                 {typeLabel(ticket.type)}
@@ -244,6 +235,12 @@ export function ReprintButton({ ticket }: { ticket: TicketPreview }) {
               ) : null}
 
               <p className="mt-4 text-center">Merci et bon appétit !</p>
+              <p className="mt-2 text-center text-sm font-normal">
+                {ticket.restaurant.address &&
+                !/^à préciser$/i.test(ticket.restaurant.address.trim())
+                  ? `${ticket.restaurant.address}, ${ticket.restaurant.postalCode} ${ticket.restaurant.city}`
+                  : "37 Rue du Chablais, 74100 Annemasse"}
+              </p>
             </div>
 
             <div className="space-y-2 border-t border-[color:var(--line)] p-4">

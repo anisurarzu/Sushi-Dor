@@ -1,14 +1,12 @@
 import { NextResponse } from "next/server";
-import { customAlphabet } from "nanoid";
 import type Stripe from "stripe";
 import { prisma } from "@/lib/prisma";
 import { getOrCreateCart } from "@/lib/cart";
 import { recalculateLine } from "@/lib/catalog";
 import { PricingError } from "@/lib/pricing";
+import { nextOrderNumber } from "@/lib/order-number";
 import { checkoutSchema } from "@/lib/validators";
 import { appUrl, getStripe } from "@/lib/stripe";
-
-const orderNumber = customAlphabet("ABCDEFGHJKLMNPQRSTUVWXYZ23456789", 8);
 
 export async function POST(req: Request) {
   try {
@@ -234,7 +232,7 @@ export async function POST(req: Request) {
           })
         : await prisma.order.create({
             data: {
-              orderNumber: `SD${orderNumber()}`,
+              orderNumber: await nextOrderNumber(),
               idempotencyKey: body.idempotencyKey,
               restaurantId: cart.restaurantId,
               type: body.orderType,

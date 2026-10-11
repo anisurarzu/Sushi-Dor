@@ -455,18 +455,11 @@ export function PrintStationClient() {
       {order ? (
         <article className="print-station-ticket" aria-hidden={!busy}>
           <h1>SUSHI D&apos;OR</h1>
-          {order.restaurant.address &&
-          !/^à préciser$/i.test(order.restaurant.address.trim()) ? (
-            <p className="meta">{order.restaurant.address}</p>
-          ) : null}
-          <p className="meta">
-            {order.restaurant.postalCode} {order.restaurant.city}
-          </p>
           {order.restaurant.phone ? (
             <p className="meta">{order.restaurant.phone}</p>
           ) : null}
           <hr />
-          <p className="big">#{order.orderNumber}</p>
+          <p className="big">{order.orderNumber}</p>
           <p className="order-type">
             {typeLabel(order.type).toUpperCase()}
           </p>
@@ -546,6 +539,12 @@ export function PrintStationClient() {
           <p className="meta">Payé — Stripe</p>
           {order.notes ? <p>Note: {order.notes}</p> : null}
           <p className="thanks">Merci et bon appétit !</p>
+          <p className="meta footer-address">
+            {order.restaurant.address &&
+            !/^à préciser$/i.test(order.restaurant.address.trim())
+              ? `${order.restaurant.address}, ${order.restaurant.postalCode} ${order.restaurant.city}`
+              : "37 Rue du Chablais, 74100 Annemasse"}
+          </p>
         </article>
       ) : null}
     </main>

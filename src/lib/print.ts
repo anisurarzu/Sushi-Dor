@@ -5,6 +5,9 @@ import type { PrintJob } from "@prisma/client";
 /** 80mm Epson TM-m30 ≈ 42 chars at normal width; use 40 for safe padding. */
 const COL = 40;
 
+/** Shop address printed at the bottom of every ticket. */
+const SHOP_FOOTER_ADDRESS = "37 Rue du Chablais, 74100 Annemasse";
+
 function escapeXml(value: string): string {
   return value
     .replace(/&/g, "&amp;")
@@ -50,6 +53,20 @@ function isPlaceholderAddress(value: string | null | undefined): boolean {
     v === "n/a" ||
     v === "-"
   );
+}
+
+function shopFooterAddress(restaurant: {
+  address: string;
+  postalCode: string;
+  city: string;
+}): string {
+  if (!isPlaceholderAddress(restaurant.address)) {
+    const cityLine = `${restaurant.postalCode} ${restaurant.city}`.trim();
+    return cityLine
+      ? `${restaurant.address}, ${cityLine}`
+      : restaurant.address;
+  }
+  return SHOP_FOOTER_ADDRESS;
 }
 
 function normalizeBrandName(name: string): string {
@@ -123,23 +140,17 @@ export function buildEposXml(order: OrderForPrint): string {
   const parts: string[] = [];
   parts.push(`<text lang="fr" font="font_a" em="false"/>`);
 
-  // Header — brand once
+  // Header — brand only (address goes to footer)
   parts.push(`<text align="center" width="2" height="2"/>`);
   parts.push(line(brand));
   parts.push(`<text width="1" height="1"/>`);
   if (showRestaurantName) parts.push(line(order.restaurant.name));
-  if (!isPlaceholderAddress(order.restaurant.address)) {
-    parts.push(line(order.restaurant.address));
-  }
-  parts.push(
-    line(`${order.restaurant.postalCode} ${order.restaurant.city}`.trim()),
-  );
   if (order.restaurant.phone) parts.push(line(order.restaurant.phone));
 
   // Order meta
   parts.push(`<feed unit="12"/>`);
   parts.push(`<text align="center" width="2" height="2"/>`);
-  parts.push(line(`#${order.orderNumber}`));
+  parts.push(line(order.orderNumber));
   parts.push(`<text width="1" height="2"/>`);
   parts.push(line(orderTypeLabel(order.type)));
   parts.push(`<text width="1" height="1"/>`);
@@ -221,6 +232,8 @@ export function buildEposXml(order: OrderForPrint): string {
   parts.push(`<feed unit="20"/>`);
   parts.push(`<text align="center"/>`);
   parts.push(line("Merci et bon appetit !"));
+  parts.push(`<feed unit="10"/>`);
+  parts.push(line(shopFooterAddress(order.restaurant)));
   parts.push(`<feed unit="36"/>`);
   parts.push(`<cut type="feed"/>`);
   return `<?xml version="1.0" encoding="utf-8"?>
@@ -255,13 +268,9 @@ export function buildEscPosBase64(order: OrderForPrint): string {
   push(`${brand}\n`);
   push(new Uint8Array([0x1d, 0x21, 0x00]));
   if (showRestaurantName) push(`${order.restaurant.name}\n`);
-  if (!isPlaceholderAddress(order.restaurant.address)) {
-    push(`${order.restaurant.address}\n`);
-  }
-  push(`${order.restaurant.postalCode} ${order.restaurant.city}\n`);
   if (order.restaurant.phone) push(`${order.restaurant.phone}\n`);
   push(new Uint8Array([0x1d, 0x21, 0x11]));
-  push(`#${order.orderNumber}\n`);
+  push(`${order.orderNumber}\n`);
   push(new Uint8Array([0x1d, 0x21, 0x01])); // double height
   push(`${orderTypeLabel(order.type)}\n`);
   push(new Uint8Array([0x1d, 0x21, 0x00]));
@@ -298,7 +307,8 @@ export function buildEscPosBase64(order: OrderForPrint): string {
   push(new Uint8Array([0x1d, 0x21, 0x00]));
   push("Paye - Stripe\n\n");
   push(new Uint8Array([0x1b, 0x61, 0x01]));
-  push("Merci et bon appetit !\n\n\n");
+  push("Merci et bon appetit !\n");
+  push(`${shopFooterAddress(order.restaurant)}\n\n\n`);
   push(new Uint8Array([0x1d, 0x56, 0x00])); // cut
 
   const total = chunks.reduce((n, c) => n + c.length, 0);

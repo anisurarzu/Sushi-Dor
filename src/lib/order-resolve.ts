@@ -1,5 +1,6 @@
 import type Stripe from "stripe";
 import { prisma } from "@/lib/prisma";
+import { nextOrderNumber } from "@/lib/order-number";
 import { getStripe } from "@/lib/stripe";
 import { enqueuePrintForOrder } from "@/lib/print";
 
@@ -71,8 +72,7 @@ async function recoverOrderFromSession(
   if (!restaurant) return null;
 
   const orderNumber =
-    session.metadata?.orderNumber ||
-    `SD${session.id.slice(-8).toUpperCase()}`;
+    session.metadata?.orderNumber || (await nextOrderNumber());
   const existingNumber = await prisma.order.findUnique({
     where: { orderNumber },
   });
