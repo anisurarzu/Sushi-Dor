@@ -115,7 +115,7 @@ export function ReprintButton({ ticket }: { ticket: TicketPreview }) {
             {/* Receipt-style preview */}
             <div className="bg-[#f7f2e8] px-5 py-5 font-[Helvetica,Arial,sans-serif] text-[1.05rem] leading-snug text-[#0c0a08]">
               <div className="text-center">
-                <p className="text-2xl font-extrabold tracking-wide">
+                <p className="text-2xl font-semibold tracking-wide">
                   SUSHI D&apos;OR
                 </p>
                 {ticket.restaurant.name
@@ -144,23 +144,23 @@ export function ReprintButton({ ticket }: { ticket: TicketPreview }) {
 
               <div className="my-3 border-t border-dashed border-[#0c0a08]/35" />
 
-              <p className="text-center text-3xl font-extrabold">
+              <p className="text-center text-3xl font-semibold">
                 #{ticket.orderNumber}
               </p>
-              <p className="text-center text-xl font-bold uppercase tracking-wide">
+              <p className="text-center text-xl font-medium uppercase tracking-wide">
                 {typeLabel(ticket.type)}
               </p>
               <p className="mt-1 text-center text-sm font-normal">{when}</p>
 
               <div className="my-3 border-t border-dashed border-[#0c0a08]/35" />
 
-              <p className="text-xl font-extrabold">
+              <p className="text-xl font-semibold">
                 {ticket.customerFirstName} {ticket.customerLastName}
               </p>
               <p className="font-normal">{ticket.customerPhone}</p>
               {ticket.type === "DELIVERY" ? (
                 <div className="mt-2">
-                  <p className="font-bold uppercase tracking-wide">Livraison</p>
+                  <p className="font-medium uppercase tracking-wide">Livraison</p>
                   {ticket.deliveryStreet ? <p>{ticket.deliveryStreet}</p> : null}
                   {ticket.deliveryComplement ? (
                     <p>{ticket.deliveryComplement}</p>
@@ -179,7 +179,7 @@ export function ReprintButton({ ticket }: { ticket: TicketPreview }) {
               <ul className="space-y-2.5">
                 {ticket.items.map((item, i) => (
                   <li key={i}>
-                    <div className="flex justify-between gap-2 text-[1.1rem] font-bold">
+                    <div className="flex justify-between gap-2 text-[1.1rem] font-medium">
                       <span>
                         {item.quantity} x {item.productNameSnapshot}
                       </span>
@@ -229,7 +229,7 @@ export function ReprintButton({ ticket }: { ticket: TicketPreview }) {
                     <span>-{formatEuro(ticket.discountCents)}</span>
                   </div>
                 ) : null}
-                <div className="flex justify-between pt-2 text-2xl font-extrabold">
+                <div className="flex justify-between pt-2 text-2xl font-semibold">
                   <span>TOTAL</span>
                   <span>{formatEuro(ticket.totalCents)}</span>
                 </div>

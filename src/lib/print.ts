@@ -119,15 +119,14 @@ export function buildEposXml(order: OrderForPrint): string {
   const customer =
     `${order.customerFirstName} ${order.customerLastName}`.trim() || "Client";
 
-  // Uber-style hierarchy on Epson: font_a + bold (em) + taller body text.
-  // Layout pattern unchanged (no QR).
+  // Size hierarchy without heavy bold (em) — lighter stroke on thermal ink.
   const parts: string[] = [];
-  parts.push(`<text lang="fr" font="font_a"/>`);
+  parts.push(`<text lang="fr" font="font_a" em="false"/>`);
 
   // Header — brand once
-  parts.push(`<text align="center" em="true" width="2" height="2"/>`);
+  parts.push(`<text align="center" width="2" height="2"/>`);
   parts.push(line(brand));
-  parts.push(`<text em="false" width="1" height="1"/>`);
+  parts.push(`<text width="1" height="1"/>`);
   if (showRestaurantName) parts.push(line(order.restaurant.name));
   if (!isPlaceholderAddress(order.restaurant.address)) {
     parts.push(line(order.restaurant.address));
@@ -137,26 +136,24 @@ export function buildEposXml(order: OrderForPrint): string {
   );
   if (order.restaurant.phone) parts.push(line(order.restaurant.phone));
 
-  // Order meta — large like Uber header bar
+  // Order meta
   parts.push(`<feed unit="12"/>`);
-  parts.push(`<text align="center" em="true" width="2" height="2"/>`);
+  parts.push(`<text align="center" width="2" height="2"/>`);
   parts.push(line(`#${order.orderNumber}`));
   parts.push(`<text width="1" height="2"/>`);
   parts.push(line(orderTypeLabel(order.type)));
-  parts.push(`<text em="false" width="1" height="1"/>`);
+  parts.push(`<text width="1" height="1"/>`);
   parts.push(line(whenFr));
 
-  // Customer — bold / tall
+  // Customer — tall, regular weight
   parts.push(`<text align="left"/>`);
   parts.push(line(rule()));
-  parts.push(`<text em="true" width="1" height="2"/>`);
+  parts.push(`<text width="1" height="2"/>`);
   parts.push(line(customer));
-  parts.push(`<text em="false" width="1" height="1"/>`);
+  parts.push(`<text width="1" height="1"/>`);
   parts.push(line(order.customerPhone));
   if (order.type === "DELIVERY") {
-    parts.push(`<text em="true"/>`);
     parts.push(line("LIVRAISON"));
-    parts.push(`<text em="false"/>`);
     if (order.deliveryStreet) parts.push(line(order.deliveryStreet));
     if (order.deliveryComplement) parts.push(line(order.deliveryComplement));
     parts.push(
@@ -167,10 +164,10 @@ export function buildEposXml(order: OrderForPrint): string {
     if (order.deliveryNotes) parts.push(line(`Note: ${order.deliveryNotes}`));
   }
 
-  // Items — bold + taller, price same line
+  // Items — taller, regular weight, price same line
   parts.push(line(rule()));
   for (const item of order.items) {
-    parts.push(`<text em="true" width="1" height="2"/>`);
+    parts.push(`<text width="1" height="2"/>`);
     parts.push(
       line(
         pairLine(
@@ -179,7 +176,7 @@ export function buildEposXml(order: OrderForPrint): string {
         ),
       ),
     );
-    parts.push(`<text em="false" width="1" height="1"/>`);
+    parts.push(`<text width="1" height="1"/>`);
     for (const a of item.addons) {
       const addonLeft = `   ${a.addonNameSnapshot}`;
       const addonRight =
@@ -211,9 +208,9 @@ export function buildEposXml(order: OrderForPrint): string {
       line(pairLine("Remise", `-${formatEuro(order.discountCents)}`)),
     );
   }
-  parts.push(`<text em="true" width="1" height="2"/>`);
+  parts.push(`<text width="1" height="2"/>`);
   parts.push(line(pairLine("TOTAL", formatEuro(order.totalCents))));
-  parts.push(`<text em="false" width="1" height="1"/>`);
+  parts.push(`<text width="1" height="1"/>`);
   parts.push(line("Paye - Stripe"));
 
   if (order.notes) {
@@ -252,36 +249,30 @@ export function buildEscPosBase64(order: OrderForPrint): string {
 
   push(new Uint8Array([0x1b, 0x40])); // init
   push(new Uint8Array([0x1b, 0x4d, 0x00])); // Font A
+  push(new Uint8Array([0x1b, 0x45, 0x00])); // regular weight
   push(new Uint8Array([0x1b, 0x61, 0x01])); // center
-  push(new Uint8Array([0x1b, 0x45, 0x01])); // bold
   push(new Uint8Array([0x1d, 0x21, 0x11])); // double W+H
   push(`${brand}\n`);
   push(new Uint8Array([0x1d, 0x21, 0x00]));
-  push(new Uint8Array([0x1b, 0x45, 0x00]));
   if (showRestaurantName) push(`${order.restaurant.name}\n`);
   if (!isPlaceholderAddress(order.restaurant.address)) {
     push(`${order.restaurant.address}\n`);
   }
   push(`${order.restaurant.postalCode} ${order.restaurant.city}\n`);
   if (order.restaurant.phone) push(`${order.restaurant.phone}\n`);
-  push(new Uint8Array([0x1b, 0x45, 0x01]));
   push(new Uint8Array([0x1d, 0x21, 0x11]));
   push(`#${order.orderNumber}\n`);
   push(new Uint8Array([0x1d, 0x21, 0x01])); // double height
   push(`${orderTypeLabel(order.type)}\n`);
   push(new Uint8Array([0x1d, 0x21, 0x00]));
-  push(new Uint8Array([0x1b, 0x45, 0x00]));
   push(new Uint8Array([0x1b, 0x61, 0x00])); // left
   push(`${rule()}\n`);
-  push(new Uint8Array([0x1b, 0x45, 0x01]));
   push(new Uint8Array([0x1d, 0x21, 0x01]));
   push(`${customer}\n`);
   push(new Uint8Array([0x1d, 0x21, 0x00]));
-  push(new Uint8Array([0x1b, 0x45, 0x00]));
   push(`${order.customerPhone}\n`);
   push(`${rule()}\n`);
   for (const item of order.items) {
-    push(new Uint8Array([0x1b, 0x45, 0x01]));
     push(new Uint8Array([0x1d, 0x21, 0x01]));
     push(
       `${pairLine(
@@ -290,7 +281,6 @@ export function buildEscPosBase64(order: OrderForPrint): string {
       )}\n`,
     );
     push(new Uint8Array([0x1d, 0x21, 0x00]));
-    push(new Uint8Array([0x1b, 0x45, 0x00]));
     for (const a of item.addons) {
       push(
         a.priceSnapshot > 0
@@ -303,11 +293,9 @@ export function buildEscPosBase64(order: OrderForPrint): string {
   push(
     `${pairLine("Sous-total", formatEuro(order.productsSubtotalCents))}\n`,
   );
-  push(new Uint8Array([0x1b, 0x45, 0x01]));
   push(new Uint8Array([0x1d, 0x21, 0x11]));
   push(`${pairLine("TOTAL", formatEuro(order.totalCents), 24)}\n`);
   push(new Uint8Array([0x1d, 0x21, 0x00]));
-  push(new Uint8Array([0x1b, 0x45, 0x00]));
   push("Paye - Stripe\n\n");
   push(new Uint8Array([0x1b, 0x61, 0x01]));
   push("Merci et bon appetit !\n\n\n");

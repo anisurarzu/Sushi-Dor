@@ -676,7 +676,7 @@ button:disabled,
 
   .print-station-ticket h1 {
     font-size: 26px;
-    font-weight: 800;
+    font-weight: 600;
     letter-spacing: 0.02em;
     text-align: center;
     margin: 0 0 6px;
@@ -694,14 +694,14 @@ button:disabled,
 
   .print-station-ticket .big {
     font-size: 24px;
-    font-weight: 800;
+    font-weight: 600;
     text-align: center;
     margin: 6px 0;
   }
 
   .print-station-ticket .order-type {
     font-size: 18px;
-    font-weight: 700;
+    font-weight: 500;
     text-align: center;
     letter-spacing: 0.04em;
     margin: 2px 0 6px;
@@ -709,7 +709,7 @@ button:disabled,
 
   .print-station-ticket .customer {
     font-size: 20px;
-    font-weight: 800;
+    font-weight: 600;
     text-align: left;
     margin: 4px 0 2px;
   }
@@ -752,7 +752,7 @@ button:disabled,
   .print-station-ticket li {
     margin: 7px 0;
     font-size: 16px;
-    font-weight: 700;
+    font-weight: 500;
   }
 
   .print-station-ticket .addon {
