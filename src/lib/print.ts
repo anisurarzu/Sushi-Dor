@@ -126,7 +126,8 @@ export function buildEposXml(order: OrderForPrint): string {
     timeZone: "Europe/Paris",
   }).format(when);
 
-  const brand = "SUSHI D'OR";
+  // Brand always uppercase on ticket: SUSHI D'OR
+  const brand = "Sushi D'or".toUpperCase();
   const customer =
     `${order.customerFirstName} ${order.customerLastName}`.trim() || "Client";
 
@@ -246,7 +247,7 @@ export function buildEscPosBase64(order: OrderForPrint): string {
   const push = (s: string | Uint8Array) => {
     chunks.push(typeof s === "string" ? enc.encode(s) : s);
   };
-  const brand = "SUSHI D'OR";
+  const brand = "Sushi D'or".toUpperCase();
 
   const customer =
     `${order.customerFirstName} ${order.customerLastName}`.trim() || "Client";
