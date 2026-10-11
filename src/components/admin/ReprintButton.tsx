@@ -42,9 +42,17 @@ export type TicketPreview = {
 };
 
 function typeLabel(type: string) {
-  if (type === "DELIVERY") return "Livraison";
-  if (type === "DINE_IN") return "Sur place";
-  return "À emporter";
+  if (type === "DELIVERY") return "LIVRAISON";
+  if (type === "DINE_IN") return "SUR PLACE";
+  return "A EMPORTER";
+}
+
+function shortName(first: string, last: string) {
+  const f = first.trim();
+  const l = last.trim();
+  if (!f && !l) return "Client";
+  if (!l) return f;
+  return `${f} ${l.charAt(0).toUpperCase()}.`;
 }
 
 export function ReprintButton({ ticket }: { ticket: TicketPreview }) {
@@ -74,8 +82,15 @@ export function ReprintButton({ ticket }: { ticket: TicketPreview }) {
     }
   }
 
-  const when = new Date(ticket.paidAt || ticket.createdAt).toLocaleString(
-    "fr-FR",
+  const when = new Intl.DateTimeFormat("fr-FR", {
+    day: "numeric",
+    month: "long",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(ticket.paidAt || ticket.createdAt));
+  const customer = shortName(
+    ticket.customerFirstName,
+    ticket.customerLastName,
   );
 
   return (
@@ -112,55 +127,35 @@ export function ReprintButton({ ticket }: { ticket: TicketPreview }) {
               </p>
             </div>
 
-            {/* Receipt-style preview */}
-            <div className="bg-[#f7f2e8] px-5 py-5 font-mono text-[0.95rem] font-semibold leading-relaxed text-[#0c0a08]">
-              <div className="text-center">
-                <p className="text-xl font-bold tracking-wide">
+            {/* Uber Eats–style preview (no QR) */}
+            <div className="bg-white px-5 py-5 font-sans text-[15px] leading-snug text-[#111]">
+              <div className="flex items-baseline justify-between gap-3">
+                <p className="text-[1.35rem] font-extrabold tracking-tight">
                   SUSHI D&apos;OR
                 </p>
-                {ticket.restaurant.name
-                  .normalize("NFD")
-                  .replace(/[\u0300-\u036f]/g, "")
-                  .replace(/['’]/g, "")
-                  .toLowerCase()
-                  .includes("sushi d") ? null : (
-                  <p className="mt-1">{ticket.restaurant.name}</p>
-                )}
-                {ticket.restaurant.address &&
-                !/^à préciser$/i.test(ticket.restaurant.address.trim()) ? (
-                  <p className="mt-1 text-sm font-normal">
-                    {ticket.restaurant.address}
-                  </p>
-                ) : null}
-                <p className="text-sm font-normal">
-                  {ticket.restaurant.postalCode} {ticket.restaurant.city}
+                <p className="text-[0.95rem] font-semibold uppercase tracking-wide text-[#333]">
+                  {typeLabel(ticket.type)}
                 </p>
-                {ticket.restaurant.phone ? (
-                  <p className="text-sm font-normal">
-                    {ticket.restaurant.phone}
-                  </p>
-                ) : null}
               </div>
-
-              <div className="my-3 border-t border-dashed border-[#0c0a08]/35" />
-
-              <p className="text-center text-2xl font-bold">
-                #{ticket.orderNumber}
+              {ticket.restaurant.address &&
+              !/^à préciser$/i.test(ticket.restaurant.address.trim()) ? (
+                <p className="mt-1 text-[13px] text-[#444]">
+                  {ticket.restaurant.address}
+                </p>
+              ) : null}
+              <p className="text-[13px] text-[#444]">
+                {ticket.restaurant.postalCode} {ticket.restaurant.city}
               </p>
-              <p className="text-center text-lg font-bold uppercase">
-                {typeLabel(ticket.type)}
-              </p>
-              <p className="mt-1 text-center text-sm">{when}</p>
 
-              <div className="my-3 border-t border-dashed border-[#0c0a08]/35" />
-
-              <p>
-                {ticket.customerFirstName} {ticket.customerLastName}
-              </p>
-              <p>{ticket.customerPhone}</p>
+              <div className="mt-3 flex items-center justify-between gap-3 bg-[#2a2a2a] px-3 py-2.5 text-white">
+                <p className="text-[1.15rem] font-bold">{customer}</p>
+                <p className="text-[1.25rem] font-extrabold">
+                  #{ticket.orderNumber}
+                </p>
+              </div>
+              <p className="mt-2 text-[13px]">Tel: {ticket.customerPhone}</p>
               {ticket.type === "DELIVERY" ? (
-                <div className="mt-2">
-                  <p className="font-semibold">Adresse livraison</p>
+                <div className="mt-1 text-[13px] text-[#333]">
                   {ticket.deliveryStreet ? <p>{ticket.deliveryStreet}</p> : null}
                   {ticket.deliveryComplement ? (
                     <p>{ticket.deliveryComplement}</p>
@@ -174,71 +169,92 @@ export function ReprintButton({ ticket }: { ticket: TicketPreview }) {
                 </div>
               ) : null}
 
-              <div className="my-3 border-t border-dashed border-[#0c0a08]/35" />
+              <div className="my-3 border-t border-[#ccc]" />
 
-              <ul className="space-y-2">
+              <ul className="space-y-2.5">
                 {ticket.items.map((item, i) => (
                   <li key={i}>
-                    <div className="flex justify-between gap-2">
+                    <div className="flex justify-between gap-3 text-[1.05rem] font-bold">
                       <span>
-                        {item.quantity}× {item.productNameSnapshot}
+                        {item.quantity} x {item.productNameSnapshot}
                       </span>
                       <span className="shrink-0 tabular-nums">
                         {formatEuro(item.lineTotalCents)}
                       </span>
                     </div>
                     {item.addons.map((a, j) => (
-                      <p key={j} className="pl-3 text-[0.7rem] opacity-80">
-                        + {a.addonNameSnapshot}
-                        {a.priceSnapshot > 0
-                          ? ` ${formatEuro(a.priceSnapshot)}`
-                          : ""}
-                      </p>
+                      <div
+                        key={j}
+                        className="mt-0.5 flex justify-between gap-3 pl-3 text-[13px] text-[#444]"
+                      >
+                        <span>{a.addonNameSnapshot}</span>
+                        {a.priceSnapshot > 0 ? (
+                          <span className="shrink-0 tabular-nums">
+                            {formatEuro(a.priceSnapshot)}
+                          </span>
+                        ) : null}
+                      </div>
                     ))}
                   </li>
                 ))}
               </ul>
 
-              <div className="my-3 border-t border-dashed border-[#0c0a08]/35" />
+              <div className="my-3 border-t border-[#ccc]" />
 
-              <div className="space-y-1">
-                <div className="flex justify-between">
+              <div className="space-y-1.5">
+                <div className="flex justify-between text-[14px]">
                   <span>Sous-total</span>
-                  <span>{formatEuro(ticket.productsSubtotalCents)}</span>
+                  <span className="tabular-nums">
+                    {formatEuro(ticket.productsSubtotalCents)}
+                  </span>
                 </div>
                 {ticket.addonsSubtotalCents > 0 ? (
-                  <div className="flex justify-between">
+                  <div className="flex justify-between text-[14px]">
                     <span>Options</span>
-                    <span>{formatEuro(ticket.addonsSubtotalCents)}</span>
+                    <span className="tabular-nums">
+                      {formatEuro(ticket.addonsSubtotalCents)}
+                    </span>
                   </div>
                 ) : null}
                 {ticket.deliveryFeeCents > 0 ? (
-                  <div className="flex justify-between">
+                  <div className="flex justify-between text-[14px]">
                     <span>Livraison</span>
-                    <span>{formatEuro(ticket.deliveryFeeCents)}</span>
+                    <span className="tabular-nums">
+                      {formatEuro(ticket.deliveryFeeCents)}
+                    </span>
                   </div>
                 ) : null}
                 {ticket.discountCents > 0 ? (
-                  <div className="flex justify-between">
+                  <div className="flex justify-between text-[14px]">
                     <span>Remise</span>
-                    <span>-{formatEuro(ticket.discountCents)}</span>
+                    <span className="tabular-nums">
+                      -{formatEuro(ticket.discountCents)}
+                    </span>
                   </div>
                 ) : null}
-                <div className="flex justify-between pt-2 text-xl font-bold">
-                  <span>TOTAL</span>
-                  <span>{formatEuro(ticket.totalCents)}</span>
+                <div className="flex justify-between pt-1 text-[1.2rem] font-extrabold">
+                  <span>Montant payé</span>
+                  <span className="tabular-nums">
+                    {formatEuro(ticket.totalCents)}
+                  </span>
                 </div>
-                <p className="pt-1">Payé — Stripe</p>
+                <p className="pt-0.5 text-[13px] text-[#444]">Payé — Stripe</p>
               </div>
 
               {ticket.notes ? (
                 <>
-                  <div className="my-3 border-t border-dashed border-[#0c0a08]/35" />
-                  <p>Note: {ticket.notes}</p>
+                  <div className="my-3 border-t border-[#ccc]" />
+                  <p className="text-[13px]">Note: {ticket.notes}</p>
                 </>
               ) : null}
 
-              <p className="mt-4 text-center">Merci et bon appétit !</p>
+              <div className="my-3 border-t border-[#ccc]" />
+              <p className="text-[13px] text-[#444]">Effectuée le {when}</p>
+              <p className="mt-3 text-center text-[13px] text-[#333]">
+                Merci pour votre commande
+                <br />
+                Sushi D&apos;or
+              </p>
             </div>
 
             <div className="space-y-2 border-t border-[color:var(--line)] p-4">

@@ -664,41 +664,96 @@ button:disabled,
     top: 0;
     width: 72mm;
     max-width: 100%;
-    padding: 4mm;
+    padding: 3mm 4mm;
     color: #000 !important;
     background: #fff !important;
-    font-family: ui-monospace, Menlo, monospace;
-    font-size: 16px;
-    line-height: 1.4;
-    font-weight: 600;
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica,
+      Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.35;
+    font-weight: 500;
   }
 
-  .print-station-ticket h1 {
-    font-size: 22px;
-    text-align: center;
-    margin: 0 0 6px;
+  .print-station-ticket .ticket-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 4px;
   }
 
-  .print-station-ticket p {
+  .print-station-ticket .brand {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  .print-station-ticket .type {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .print-station-ticket .banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin: 8px 0 4px;
+    padding: 6px 8px;
+    background: #222 !important;
+    color: #fff !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    font-size: 17px;
+    font-weight: 800;
+  }
+
+  .print-station-ticket .meta {
+    margin: 2px 0;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .print-station-ticket .row {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
     margin: 3px 0;
   }
 
-  .print-station-ticket .big {
-    font-size: 22px;
+  .print-station-ticket .row.item {
+    font-size: 16px;
     font-weight: 800;
-    text-align: center;
-    margin: 8px 0;
+  }
+
+  .print-station-ticket .row.total {
+    margin-top: 6px;
+    font-size: 18px;
+    font-weight: 800;
+  }
+
+  .print-station-ticket .row.addon {
+    padding-left: 10px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .print-station-ticket p {
+    margin: 2px 0;
   }
 
   .print-station-ticket .thanks {
     text-align: center;
-    margin-top: 12px;
-    font-size: 16px;
+    margin-top: 10px;
+    font-size: 12px;
+    font-weight: 500;
   }
 
   .print-station-ticket hr {
     border: none;
-    border-top: 2px dashed #000;
+    border-top: 1px solid #bbb;
     margin: 8px 0;
   }
 
@@ -709,13 +764,7 @@ button:disabled,
   }
 
   .print-station-ticket li {
-    margin: 6px 0;
-    font-size: 16px;
-  }
-
-  .print-station-ticket .addon {
-    padding-left: 8px;
-    font-size: 14px;
+    margin: 7px 0;
   }
 
   @page {

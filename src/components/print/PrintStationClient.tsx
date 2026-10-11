@@ -56,9 +56,17 @@ type Saved = {
 };
 
 function typeLabel(type: string) {
-  if (type === "DELIVERY") return "Livraison";
-  if (type === "DINE_IN") return "Sur place";
-  return "À emporter";
+  if (type === "DELIVERY") return "LIVRAISON";
+  if (type === "DINE_IN") return "SUR PLACE";
+  return "A EMPORTER";
+}
+
+function shortName(first: string, last: string) {
+  const f = first.trim();
+  const l = last.trim();
+  if (!f && !l) return "Client";
+  if (!l) return f;
+  return `${f} ${l.charAt(0).toUpperCase()}.`;
 }
 
 function playChime() {
@@ -451,34 +459,30 @@ export function PrintStationClient() {
         </p>
       </div>
 
-      {/* AirPrint sheet */}
+      {/* AirPrint sheet — Uber Eats pattern, no QR */}
       {order ? (
         <article className="print-station-ticket" aria-hidden={!busy}>
-          <h1>SUSHI D&apos;OR</h1>
+          <div className="ticket-head">
+            <span className="brand">SUSHI D&apos;OR</span>
+            <span className="type">{typeLabel(order.type)}</span>
+          </div>
           {order.restaurant.address &&
           !/^à préciser$/i.test(order.restaurant.address.trim()) ? (
-            <p>{order.restaurant.address}</p>
+            <p className="meta">{order.restaurant.address}</p>
           ) : null}
-          <p>
+          <p className="meta">
             {order.restaurant.postalCode} {order.restaurant.city}
           </p>
-          {order.restaurant.phone ? <p>{order.restaurant.phone}</p> : null}
-          <hr />
-          <p className="big">#{order.orderNumber}</p>
-          <p className="big" style={{ fontSize: "18px" }}>
-            {typeLabel(order.type).toUpperCase()}
-          </p>
-          <p>
-            {new Date(order.paidAt || order.createdAt).toLocaleString("fr-FR")}
-          </p>
-          <hr />
-          <p>
-            {order.customerFirstName} {order.customerLastName}
-            <br />
-            {order.customerPhone}
-          </p>
+
+          <div className="banner">
+            <span>
+              {shortName(order.customerFirstName, order.customerLastName)}
+            </span>
+            <span>#{order.orderNumber}</span>
+          </div>
+          <p className="meta">Tel: {order.customerPhone}</p>
           {order.type === "DELIVERY" ? (
-            <p>
+            <p className="meta">
               {order.deliveryStreet}
               {order.deliveryComplement ? (
                 <>
@@ -490,48 +494,72 @@ export function PrintStationClient() {
               {order.deliveryPostalCode} {order.deliveryCity}
             </p>
           ) : null}
+
           <hr />
           <ul>
             {order.items.map((item, i) => (
               <li key={i}>
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    gap: "8px",
-                  }}
-                >
+                <div className="row item">
                   <span>
-                    {item.quantity}× {item.productNameSnapshot}
+                    {item.quantity} x {item.productNameSnapshot}
                   </span>
                   <span>{formatEuro(item.lineTotalCents)}</span>
                 </div>
                 {item.addons.map((a, j) => (
-                  <div key={j} className="addon">
-                    + {a.addonNameSnapshot}
-                    {a.priceSnapshot > 0
-                      ? ` ${formatEuro(a.priceSnapshot)}`
-                      : ""}
+                  <div key={j} className="row addon">
+                    <span>{a.addonNameSnapshot}</span>
+                    {a.priceSnapshot > 0 ? (
+                      <span>{formatEuro(a.priceSnapshot)}</span>
+                    ) : null}
                   </div>
                 ))}
               </li>
             ))}
           </ul>
           <hr />
-          <p>Sous-total {formatEuro(order.productsSubtotalCents)}</p>
+          <div className="row">
+            <span>Sous-total</span>
+            <span>{formatEuro(order.productsSubtotalCents)}</span>
+          </div>
           {order.addonsSubtotalCents > 0 ? (
-            <p>Options {formatEuro(order.addonsSubtotalCents)}</p>
+            <div className="row">
+              <span>Options</span>
+              <span>{formatEuro(order.addonsSubtotalCents)}</span>
+            </div>
           ) : null}
           {order.deliveryFeeCents > 0 ? (
-            <p>Livraison {formatEuro(order.deliveryFeeCents)}</p>
+            <div className="row">
+              <span>Livraison</span>
+              <span>{formatEuro(order.deliveryFeeCents)}</span>
+            </div>
           ) : null}
           {order.discountCents > 0 ? (
-            <p>Remise -{formatEuro(order.discountCents)}</p>
+            <div className="row">
+              <span>Remise</span>
+              <span>-{formatEuro(order.discountCents)}</span>
+            </div>
           ) : null}
-          <p className="big">TOTAL {formatEuro(order.totalCents)}</p>
-          <p>Payé — Stripe</p>
-          {order.notes ? <p>Note: {order.notes}</p> : null}
-          <p className="thanks">Merci et bon appétit !</p>
+          <div className="row total">
+            <span>Montant payé</span>
+            <span>{formatEuro(order.totalCents)}</span>
+          </div>
+          <p className="meta">Payé — Stripe</p>
+          {order.notes ? <p className="meta">Note: {order.notes}</p> : null}
+          <hr />
+          <p className="meta">
+            Effectuée le{" "}
+            {new Intl.DateTimeFormat("fr-FR", {
+              day: "numeric",
+              month: "long",
+              hour: "2-digit",
+              minute: "2-digit",
+            }).format(new Date(order.paidAt || order.createdAt))}
+          </p>
+          <p className="thanks">
+            Merci pour votre commande
+            <br />
+            Sushi D&apos;or
+          </p>
         </article>
       ) : null}
     </main>
