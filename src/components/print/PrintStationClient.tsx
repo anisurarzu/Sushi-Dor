@@ -391,7 +391,7 @@ export function PrintStationClient() {
               Nouveau ticket
             </p>
             <h2 className="mt-2 font-[family-name:var(--font-display)] text-3xl text-champagne">
-              #{order.orderNumber}
+              {order.orderNumber}
             </h2>
             <p className="mt-1 text-gold">{typeLabel(order.type)}</p>
             <p className="mt-3 text-sm">

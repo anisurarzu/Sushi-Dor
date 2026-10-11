@@ -1,22 +1,22 @@
 import { prisma } from "@/lib/prisma";
 
-/** Paris calendar parts for order numbers: SD-DD-MM-YYYY-NN */
+/** Paris date parts → compact prefix SD + DD + MM + YY (e.g. SD111026). */
 export function orderNumberPrefix(date = new Date()): string {
   const parts = new Intl.DateTimeFormat("en-GB", {
     timeZone: "Europe/Paris",
     day: "2-digit",
     month: "2-digit",
-    year: "numeric",
+    year: "2-digit",
   }).formatToParts(date);
   const day = parts.find((p) => p.type === "day")?.value ?? "01";
   const month = parts.find((p) => p.type === "month")?.value ?? "01";
-  const year = parts.find((p) => p.type === "year")?.value ?? "1970";
-  return `SD-${day}-${month}-${year}-`;
+  const year = parts.find((p) => p.type === "year")?.value ?? "00";
+  return `SD${day}${month}${year}`;
 }
 
 /**
- * Next daily sequence: SD-11-10-2026-01, SD-11-10-2026-02, …
- * Retries on rare unique collisions.
+ * Next daily sequence: SD11102601, SD11102602, …
+ * (SD + day + month + year2 + seq)
  */
 export async function nextOrderNumber(): Promise<string> {
   const prefix = orderNumberPrefix();
@@ -26,7 +26,10 @@ export async function nextOrderNumber(): Promise<string> {
   });
   let max = 0;
   for (const o of todays) {
-    const n = Number.parseInt(o.orderNumber.slice(prefix.length), 10);
+    const rest = o.orderNumber.slice(prefix.length);
+    // Only count compact numeric tails (ignore old random codes)
+    if (!/^\d+$/.test(rest)) continue;
+    const n = Number.parseInt(rest, 10);
     if (Number.isFinite(n) && n > max) max = n;
   }
   for (let i = 1; i <= 30; i++) {
