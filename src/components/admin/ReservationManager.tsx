@@ -3,6 +3,12 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AdminSelect } from "@/components/admin/AdminSelect";
+import {
+  BulkDeleteToolbar,
+  RowCheckbox,
+  RowDeleteButtons,
+  useBulkDelete,
+} from "@/components/admin/BulkDeleteControls";
 
 type Reservation = {
   id: string;
@@ -32,6 +38,11 @@ export function ReservationManager({ initial, restaurants }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
   const [pending, setPending] = useState(false);
+  const bulk = useBulkDelete({
+    resource: "reservations",
+    ids: rows.map((r) => r.id),
+    label: "réservation(s)",
+  });
   const [form, setForm] = useState({
     restaurantId: restaurants[0]?.id || "",
     date: "",
@@ -228,14 +239,38 @@ export function ReservationManager({ initial, restaurants }: Props) {
         </p>
       ) : (
         <div className="space-y-3">
+          <BulkDeleteToolbar
+            allSelected={bulk.allSelected}
+            toggleAll={bulk.toggleAll}
+            selectedCount={bulk.selectedCount}
+            pending={bulk.pending}
+            msg={bulk.msg}
+            onSoft={() => bulk.run("soft")}
+            onHard={() => bulk.run("hard")}
+            idsCount={rows.length}
+          />
           {rows.map((r) => (
             <article
               key={r.id}
               className="space-y-2 border border-[#c4a35a]/20 bg-[#12100e] p-4 text-sm"
             >
-              <div className="flex flex-wrap justify-between gap-2">
-                <p className="text-[#e0c878]">{r.confirmationCode}</p>
-                <span className="text-[#c4a35a]">{r.status}</span>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-3">
+                  <RowCheckbox
+                    checked={bulk.selected.has(r.id)}
+                    onChange={() => bulk.toggle(r.id)}
+                    disabled={bulk.pending}
+                  />
+                  <p className="text-[#e0c878]">{r.confirmationCode}</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-[#c4a35a]">{r.status}</span>
+                  <RowDeleteButtons
+                    id={r.id}
+                    resource="reservations"
+                    label={r.confirmationCode}
+                  />
+                </div>
               </div>
               <div className="grid gap-2 sm:grid-cols-3">
                 <input

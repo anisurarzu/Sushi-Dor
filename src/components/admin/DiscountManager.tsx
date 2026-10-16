@@ -4,6 +4,12 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { formatEuro } from "@/lib/pricing";
 import { AdminSelect } from "@/components/admin/AdminSelect";
+import {
+  BulkDeleteToolbar,
+  RowCheckbox,
+  RowDeleteButtons,
+  useBulkDelete,
+} from "@/components/admin/BulkDeleteControls";
 
 type Discount = {
   id: string;
@@ -24,6 +30,11 @@ export function DiscountManager({ initial }: { initial: Discount[] }) {
   const [rows, setRows] = useState(initial);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const bulk = useBulkDelete({
+    resource: "discounts",
+    ids: rows.map((d) => d.id),
+    label: "code(s) promo",
+  });
   const [code, setCode] = useState("");
   const [kind, setKind] = useState<"percent" | "fixed">("percent");
   const [value, setValue] = useState("10");
@@ -63,18 +74,6 @@ export function DiscountManager({ initial }: { initial: Discount[] }) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ isActive: !isActive }),
     });
-    const data = await res.json();
-    if (!res.ok) {
-      setError(data.error || "Erreur");
-      return;
-    }
-    setRows((prev) => prev.map((d) => (d.id === id ? data.discount : d)));
-    router.refresh();
-  }
-
-  async function archive(id: string) {
-    if (!confirm("Archiver ce code promo ?")) return;
-    const res = await fetch(`/api/admin/discounts/${id}`, { method: "DELETE" });
     const data = await res.json();
     if (!res.ok) {
       setError(data.error || "Erreur");
@@ -142,40 +141,57 @@ export function DiscountManager({ initial }: { initial: Discount[] }) {
       {rows.length === 0 ? (
         <p className="text-sm text-[#a89f8e]">Aucun code promo.</p>
       ) : (
-        <ul className="space-y-2 text-sm">
-          {rows.map((d) => (
-            <li
-              key={d.id}
-              className="flex flex-wrap items-center justify-between gap-3 border border-[#c4a35a]/20 bg-[#12100e] p-3"
-            >
-              <div>
-                <span className="text-[#e0c878]">{d.code}</span> —{" "}
-                {d.percentOff
-                  ? `${d.percentOff}%`
-                  : formatEuro(d.amountOffCents || 0)}{" "}
-                · min {formatEuro(d.minOrderCents)} ·{" "}
-                {d.isActive ? "actif" : "inactif"} · utilisé {d.usedCount}
-                {d.maxUses ? `/${d.maxUses}` : ""}
-              </div>
-              <div className="flex gap-2 text-xs">
-                <button
-                  type="button"
-                  className="text-[#c4a35a]"
-                  onClick={() => void toggle(d.id, d.isActive)}
-                >
-                  {d.isActive ? "Désactiver" : "Activer"}
-                </button>
-                <button
-                  type="button"
-                  className="text-red-300"
-                  onClick={() => void archive(d.id)}
-                >
-                  Archiver
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
+        <div className="space-y-3">
+          <BulkDeleteToolbar
+            allSelected={bulk.allSelected}
+            toggleAll={bulk.toggleAll}
+            selectedCount={bulk.selectedCount}
+            pending={bulk.pending}
+            msg={bulk.msg}
+            onSoft={() => bulk.run("soft")}
+            onHard={() => bulk.run("hard")}
+            idsCount={rows.length}
+          />
+          <ul className="space-y-2 text-sm">
+            {rows.map((d) => (
+              <li
+                key={d.id}
+                className="flex flex-wrap items-center justify-between gap-3 border border-[#c4a35a]/20 bg-[#12100e] p-3"
+              >
+                <div className="flex items-start gap-3">
+                  <RowCheckbox
+                    checked={bulk.selected.has(d.id)}
+                    onChange={() => bulk.toggle(d.id)}
+                    disabled={bulk.pending}
+                  />
+                  <div>
+                    <span className="text-[#e0c878]">{d.code}</span> —{" "}
+                    {d.percentOff
+                      ? `${d.percentOff}%`
+                      : formatEuro(d.amountOffCents || 0)}{" "}
+                    · min {formatEuro(d.minOrderCents)} ·{" "}
+                    {d.isActive ? "actif" : "inactif"} · utilisé {d.usedCount}
+                    {d.maxUses ? `/${d.maxUses}` : ""}
+                  </div>
+                </div>
+                <div className="flex gap-2 text-xs">
+                  <button
+                    type="button"
+                    className="text-[#c4a35a]"
+                    onClick={() => void toggle(d.id, d.isActive)}
+                  >
+                    {d.isActive ? "Désactiver" : "Activer"}
+                  </button>
+                  <RowDeleteButtons
+                    id={d.id}
+                    resource="discounts"
+                    label={d.code}
+                  />
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
     </div>
   );

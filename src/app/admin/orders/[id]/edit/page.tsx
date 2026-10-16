@@ -17,7 +17,7 @@ export default async function AdminOrderEditPage({ params }: Props) {
       include: { items: { include: { addons: true } } },
     }),
     prisma.product.findMany({
-      where: { isAvailable: true },
+      where: { isAvailable: true, deletedStatus: 0 },
       orderBy: { nameFr: "asc" },
       include: {
         addonGroups: {

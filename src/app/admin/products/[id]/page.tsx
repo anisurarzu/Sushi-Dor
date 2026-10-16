@@ -28,7 +28,7 @@ export default async function AdminProductPage({ params }: Props) {
       },
     }),
     prisma.category.findMany({
-      where: { isActive: true },
+      where: { isActive: true, deletedStatus: 0 },
       orderBy: { sortOrder: "asc" },
     }),
   ]);

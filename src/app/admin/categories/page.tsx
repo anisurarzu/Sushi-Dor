@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
+import { notDeleted } from "@/lib/soft-delete";
 import { CategoryManager } from "@/components/admin/CategoryManager";
 
 export const dynamic = "force-dynamic";
@@ -8,8 +9,11 @@ export const dynamic = "force-dynamic";
 export default async function AdminCategoriesPage() {
   await requireAdmin("ADMIN");
   const categories = await prisma.category.findMany({
+    where: notDeleted,
     orderBy: { sortOrder: "asc" },
-    include: { _count: { select: { products: true } } },
+    include: {
+      _count: { select: { products: { where: notDeleted } } },
+    },
   });
   return (
     <div className="space-y-6">

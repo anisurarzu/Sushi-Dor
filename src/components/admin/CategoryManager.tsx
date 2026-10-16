@@ -2,6 +2,12 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import {
+  BulkDeleteToolbar,
+  RowCheckbox,
+  RowDeleteButtons,
+  useBulkDelete,
+} from "@/components/admin/BulkDeleteControls";
 
 type Cat = {
   id: string;
@@ -17,6 +23,11 @@ export function CategoryManager({ initial }: { initial: Cat[] }) {
   const router = useRouter();
   const [nameFr, setNameFr] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const bulk = useBulkDelete({
+    resource: "categories",
+    ids: initial.map((c) => c.id),
+    label: "catégorie(s)",
+  });
 
   async function create(e: React.FormEvent) {
     e.preventDefault();
@@ -59,25 +70,53 @@ export function CategoryManager({ initial }: { initial: Cat[] }) {
         </button>
       </form>
       {error ? <p className="text-sm text-red-300">{error}</p> : null}
+
+      {initial.length > 0 ? (
+        <BulkDeleteToolbar
+          allSelected={bulk.allSelected}
+          toggleAll={bulk.toggleAll}
+          selectedCount={bulk.selectedCount}
+          pending={bulk.pending}
+          msg={bulk.msg}
+          onSoft={() => bulk.run("soft")}
+          onHard={() => bulk.run("hard")}
+          idsCount={initial.length}
+        />
+      ) : null}
+
       <div className="space-y-2">
         {initial.map((c) => (
           <div
             key={c.id}
             className="flex flex-wrap items-center justify-between gap-3 border border-[#c4a35a]/20 bg-[#12100e] px-4 py-3 text-sm"
           >
-            <div>
-              <p className="text-[#f0e6c8]">{c.nameFr}</p>
-              <p className="text-xs text-[#a89f8e]">
-                {c.slug} · {c.productCount} produit(s) · ordre {c.sortOrder}
-              </p>
+            <div className="flex items-start gap-3">
+              <RowCheckbox
+                checked={bulk.selected.has(c.id)}
+                onChange={() => bulk.toggle(c.id)}
+                disabled={bulk.pending}
+              />
+              <div>
+                <p className="text-[#f0e6c8]">{c.nameFr}</p>
+                <p className="text-xs text-[#a89f8e]">
+                  {c.slug} · {c.productCount} produit(s) · ordre {c.sortOrder}
+                </p>
+              </div>
             </div>
-            <button
-              type="button"
-              onClick={() => toggle(c.id, c.isActive)}
-              className="text-xs text-[#c4a35a]"
-            >
-              {c.isActive ? "Archiver" : "Réactiver"}
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => toggle(c.id, c.isActive)}
+                className="text-xs text-[#c4a35a]"
+              >
+                {c.isActive ? "Archiver" : "Réactiver"}
+              </button>
+              <RowDeleteButtons
+                id={c.id}
+                resource="categories"
+                label={c.nameFr}
+              />
+            </div>
           </div>
         ))}
       </div>

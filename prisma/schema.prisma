@@ -83,6 +83,8 @@ model User {
   phone           String?
   role            Role      @default(CUSTOMER)
   isActive        Boolean   @default(true)
+  /// 0 = active, 255 = soft-deleted (hidden from UI, kept in DB)
+  deletedStatus   Int       @default(0)
   marketingOptIn  Boolean   @default(false)
   loyaltyPoints   Int       @default(0)
   emailVerifiedAt DateTime?
@@ -185,16 +187,20 @@ model DiningTable {
 }
 
 model Category {
-  id          String    @id @default(cuid())
-  slug        String    @unique
-  nameFr      String
-  description String?
-  imageUrl    String?
-  sortOrder   Int       @default(0)
-  isActive    Boolean   @default(true)
-  products    Product[]
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id            String    @id @default(cuid())
+  slug          String    @unique
+  nameFr        String
+  description   String?
+  imageUrl      String?
+  sortOrder     Int       @default(0)
+  isActive      Boolean   @default(true)
+  /// 0 = active, 255 = soft-deleted (hidden from UI, kept in DB)
+  deletedStatus Int       @default(0)
+  products      Product[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([deletedStatus])
 }
 
 model Allergen {
@@ -232,6 +238,8 @@ model Product {
   isSpicy          Boolean  @default(false)
   sortOrder        Int      @default(0)
   pieces           Int?
+  /// 0 = active, 255 = soft-deleted (hidden from UI, kept in DB)
+  deletedStatus    Int      @default(0)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
@@ -244,6 +252,7 @@ model Product {
 
   @@index([categoryId])
   @@index([isAvailable, isFeatured, featuredOrder])
+  @@index([deletedStatus])
 }
 
 model ProductImage {
@@ -345,7 +354,11 @@ model Discount {
   maxUses        Int?
   usedCount      Int       @default(0)
   isActive       Boolean   @default(true)
+  /// 0 = active, 255 = soft-deleted (hidden from UI, kept in DB)
+  deletedStatus  Int       @default(0)
   createdAt      DateTime  @default(now())
+
+  @@index([deletedStatus])
 }
 
 model CustomerAddress {
@@ -445,6 +458,8 @@ model Order {
   stripeSessionId      String?       @unique
   stripePaymentIntentId String?      @unique
   paidAt               DateTime?
+  /// 0 = active, 255 = soft-deleted (hidden from UI, kept in DB)
+  deletedStatus        Int           @default(0)
   createdAt            DateTime      @default(now())
   updatedAt            DateTime      @updatedAt
 
@@ -456,6 +471,7 @@ model Order {
   @@index([restaurantId, createdAt])
   @@index([status])
   @@index([customerEmail])
+  @@index([deletedStatus])
 }
 
 model PrintJob {
@@ -562,12 +578,15 @@ model Reservation {
   phone            String
   occasion         String?
   specialRequest   String?
+  /// 0 = active, 255 = soft-deleted (hidden from UI, kept in DB)
+  deletedStatus    Int               @default(0)
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
 
   @@index([restaurantId, date, startTime])
   @@index([email])
   @@index([status])
+  @@index([deletedStatus])
 }
 
 model NewsletterSubscription {

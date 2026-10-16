@@ -27,7 +27,8 @@ export async function getAdminUser(): Promise<AdminUser | null> {
     !session ||
     session.expiresAt < new Date() ||
     !STAFF_LIKE.includes(session.user.role) ||
-    !session.user.isActive
+    !session.user.isActive ||
+    session.user.deletedStatus === 255
   ) {
     return null;
   }

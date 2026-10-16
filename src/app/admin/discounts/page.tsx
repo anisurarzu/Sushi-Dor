@@ -1,5 +1,6 @@
 import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
+import { notDeleted } from "@/lib/soft-delete";
 import { DiscountManager } from "@/components/admin/DiscountManager";
 
 export const dynamic = "force-dynamic";
@@ -7,6 +8,7 @@ export const dynamic = "force-dynamic";
 export default async function AdminDiscountsPage() {
   await requireAdmin("discounts.view");
   const discounts = await prisma.discount.findMany({
+    where: notDeleted,
     orderBy: { createdAt: "desc" },
   });
   return (

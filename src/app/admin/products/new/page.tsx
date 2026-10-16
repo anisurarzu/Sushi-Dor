@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 export default async function AdminNewProductPage() {
   await requireAdmin("products.create");
   const categories = await prisma.category.findMany({
-    where: { isActive: true },
+    where: { isActive: true, deletedStatus: 0 },
     orderBy: { sortOrder: "asc" },
   });
   return (

@@ -9,7 +9,11 @@ export default async function AdminAnalyticsPage() {
   const since = new Date();
   since.setDate(since.getDate() - 30);
   const orders = await prisma.order.findMany({
-    where: { paymentStatus: "PAID", createdAt: { gte: since } },
+    where: {
+      paymentStatus: "PAID",
+      createdAt: { gte: since },
+      deletedStatus: 0,
+    },
     include: { items: true },
   });
   const revenue = orders.reduce((s, o) => s + o.totalCents, 0);
@@ -24,7 +28,9 @@ export default async function AdminAnalyticsPage() {
     }
   }
   const popular = [...productCount.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8);
-  const reservations = await prisma.reservation.count({ where: { createdAt: { gte: since } } });
+  const reservations = await prisma.reservation.count({
+    where: { createdAt: { gte: since }, deletedStatus: 0 },
+  });
   return (
     <div className="space-y-6">
       <div>

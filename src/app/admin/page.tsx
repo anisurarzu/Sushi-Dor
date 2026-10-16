@@ -26,6 +26,7 @@ export default async function AdminDashboardPage() {
   ] = await Promise.all([
     prisma.order.findMany({
       where: {
+        deletedStatus: 0,
         paymentStatus: "PAID",
         createdAt: { gte: today },
       },
@@ -33,16 +34,22 @@ export default async function AdminDashboardPage() {
     }),
     prisma.order.count({
       where: {
+        deletedStatus: 0,
         paymentStatus: "PAID",
         status: { in: ["PAID", "CONFIRMED", "PREPARING", "READY"] },
       },
     }),
     prisma.reservation.count({
-      where: { date: today },
+      where: { date: today, deletedStatus: 0 },
     }),
-    prisma.product.count({ where: { isAvailable: true } }),
-    prisma.user.count({ where: { role: "CUSTOMER" } }),
+    prisma.product.count({
+      where: { isAvailable: true, deletedStatus: 0 },
+    }),
+    prisma.user.count({
+      where: { role: "CUSTOMER", deletedStatus: 0 },
+    }),
     prisma.order.findMany({
+      where: { deletedStatus: 0 },
       orderBy: { createdAt: "desc" },
       take: 12,
       include: { items: true },

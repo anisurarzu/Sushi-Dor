@@ -10,7 +10,10 @@ export default async function AdminReservationsPage() {
   today.setHours(0, 0, 0, 0);
   const [reservations, restaurants] = await Promise.all([
     prisma.reservation.findMany({
-      where: { date: { gte: today } },
+      where: {
+        date: { gte: today },
+        deletedStatus: 0,
+      },
       orderBy: [{ date: "asc" }, { startTime: "asc" }],
       take: 100,
       include: { restaurant: true },

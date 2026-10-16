@@ -66,11 +66,11 @@ export default async function MenuPage() {
   if (await dbAvailable()) {
     try {
       const rows = await prisma.category.findMany({
-        where: { isActive: true },
+        where: { isActive: true, deletedStatus: 0 },
         orderBy: { sortOrder: "asc" },
         include: {
           products: {
-            where: { isAvailable: true },
+            where: { isAvailable: true, deletedStatus: 0 },
             orderBy: { sortOrder: "asc" },
             include: {
               addonGroups: {

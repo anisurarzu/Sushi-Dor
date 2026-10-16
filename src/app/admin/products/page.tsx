@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
-import { formatEuro } from "@/lib/pricing";
+import { notDeleted } from "@/lib/soft-delete";
 import { ProductsFilters } from "@/components/admin/ProductsFilters";
+import { ProductsDeleteList } from "@/components/admin/ProductsDeleteList";
 
 export const dynamic = "force-dynamic";
 
@@ -21,10 +22,14 @@ export default async function AdminProductsPage({ searchParams }: Props) {
   const q = sp.q?.trim() || "";
 
   const [categories, products] = await Promise.all([
-    prisma.category.findMany({ orderBy: { sortOrder: "asc" } }),
+    prisma.category.findMany({
+      where: notDeleted,
+      orderBy: { sortOrder: "asc" },
+    }),
     prisma.product.findMany({
       where: {
         AND: [
+          notDeleted,
           q
             ? {
                 OR: [
@@ -40,7 +45,7 @@ export default async function AdminProductsPage({ searchParams }: Props) {
         ],
       },
       orderBy: [{ sortOrder: "asc" }, { nameFr: "asc" }],
-      include: { category: true, _count: { select: { orderItems: true } } },
+      include: { category: true },
     }),
   ]);
 
@@ -66,60 +71,17 @@ export default async function AdminProductsPage({ searchParams }: Props) {
         categories={categories.map((c) => ({ id: c.id, nameFr: c.nameFr }))}
       />
 
-      {products.length === 0 ? (
-        <p className="border border-[#c4a35a]/20 p-8 text-center text-sm text-[#a89f8e]">
-          Aucun produit disponible.{" "}
-          <Link href="/admin/products/new" className="text-[#c4a35a]">
-            Créer un produit
-          </Link>
-        </p>
-      ) : (
-        <div className="overflow-x-auto border border-[#c4a35a]/20">
-          <table className="w-full min-w-[800px] text-left text-sm">
-            <thead className="bg-[#12100e] text-[0.65rem] uppercase tracking-[0.12em] text-[#a89f8e]">
-              <tr>
-                <th className="px-3 py-3">Produit</th>
-                <th className="px-3 py-3">Catégorie</th>
-                <th className="px-3 py-3">Prix</th>
-                <th className="px-3 py-3">Dispo</th>
-                <th className="px-3 py-3">Featured</th>
-                <th className="px-3 py-3 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {products.map((p) => (
-                <tr
-                  key={p.id}
-                  className="border-t border-[#c4a35a]/15 hover:bg-white/[0.02]"
-                >
-                  <td className="px-3 py-3">
-                    <Link
-                      href={`/admin/products/${p.id}`}
-                      className="text-[#e0c878]"
-                    >
-                      {p.nameFr}
-                    </Link>
-                  </td>
-                  <td className="px-3 py-3 text-[#c4bbaa]">{p.category.nameFr}</td>
-                  <td className="px-3 py-3">{formatEuro(p.priceCents)}</td>
-                  <td className="px-3 py-3">
-                    {p.isAvailable ? "Oui" : "Non"}
-                  </td>
-                  <td className="px-3 py-3">{p.isFeatured ? "Oui" : "—"}</td>
-                  <td className="px-3 py-3 text-right">
-                    <Link
-                      href={`/admin/products/${p.id}`}
-                      className="border border-[#c4a35a]/40 px-2.5 py-1 text-xs text-[#e0c878]"
-                    >
-                      Éditer
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+      <ProductsDeleteList
+        products={products.map((p) => ({
+          id: p.id,
+          nameFr: p.nameFr,
+          imageUrl: p.imageUrl,
+          categoryName: p.category.nameFr,
+          priceCents: p.priceCents,
+          isAvailable: p.isAvailable,
+          isFeatured: p.isFeatured,
+        }))}
+      />
     </div>
   );
 }

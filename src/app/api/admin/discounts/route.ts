@@ -25,6 +25,7 @@ export async function GET() {
     return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
   }
   const discounts = await prisma.discount.findMany({
+    where: { deletedStatus: 0 },
     orderBy: { createdAt: "desc" },
   });
   return NextResponse.json({ discounts });

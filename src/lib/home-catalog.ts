@@ -74,7 +74,7 @@ export async function getHomeCatalog(): Promise<HomeCatalog> {
     try {
       const [featuredRows, categoryRows] = await Promise.all([
         prisma.product.findMany({
-          where: { isAvailable: true, isFeatured: true },
+          where: { isAvailable: true, isFeatured: true, deletedStatus: 0 },
           orderBy: [{ featuredOrder: "asc" }, { sortOrder: "asc" }],
           take: HOMEPAGE_PRODUCTS_PER_CATEGORY,
           include: {
@@ -85,11 +85,11 @@ export async function getHomeCatalog(): Promise<HomeCatalog> {
           },
         }),
         prisma.category.findMany({
-          where: { isActive: true },
+          where: { isActive: true, deletedStatus: 0 },
           orderBy: { sortOrder: "asc" },
           include: {
             products: {
-              where: { isAvailable: true },
+              where: { isAvailable: true, deletedStatus: 0 },
               orderBy: { sortOrder: "asc" },
               take: HOMEPAGE_PRODUCTS_PER_CATEGORY,
               include: {
@@ -100,7 +100,11 @@ export async function getHomeCatalog(): Promise<HomeCatalog> {
               },
             },
             _count: {
-              select: { products: { where: { isAvailable: true } } },
+              select: {
+                products: {
+                  where: { isAvailable: true, deletedStatus: 0 },
+                },
+              },
             },
           },
         }),
