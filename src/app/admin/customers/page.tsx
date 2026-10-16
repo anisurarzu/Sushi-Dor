@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
 import { formatEuro } from "@/lib/pricing";
+import { notDeleted } from "@/lib/soft-delete";
 
 export const dynamic = "force-dynamic";
 
@@ -9,6 +10,7 @@ export default async function AdminCustomersPage() {
   await requireAdmin();
   const orders = await prisma.order.groupBy({
     by: ["customerEmail"],
+    where: notDeleted,
     _count: { _all: true },
     _sum: { totalCents: true },
     _max: { createdAt: true },
@@ -16,7 +18,7 @@ export default async function AdminCustomersPage() {
   const profiles = await Promise.all(
     orders.map(async (o) => {
       const last = await prisma.order.findFirst({
-        where: { customerEmail: o.customerEmail },
+        where: { customerEmail: o.customerEmail, ...notDeleted },
         orderBy: { createdAt: "desc" },
       });
       return {
