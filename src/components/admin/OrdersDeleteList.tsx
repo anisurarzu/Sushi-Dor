@@ -4,6 +4,7 @@ import Link from "next/link";
 import { formatEuro } from "@/lib/pricing";
 import {
   BulkDeleteToolbar,
+  DeleteListShell,
   RowCheckbox,
   RowDeleteButtons,
   useBulkDelete,
@@ -46,11 +47,12 @@ export function OrdersDeleteList({ orders }: { orders: OrderListRow[] }) {
         selectedCount={bulk.selectedCount}
         pending={bulk.pending}
         msg={bulk.msg}
-        onSoft={() => bulk.run("soft")}
-        onHard={() => bulk.run("hard")}
+        onSoft={() => void bulk.run("soft")}
+        onHard={() => void bulk.run("hard")}
         idsCount={orders.length}
       />
 
+      <DeleteListShell pending={bulk.pending} skeletonCols={8}>
       <div className="space-y-3 lg:hidden">
         {orders.map((o) => (
           <div
@@ -168,6 +170,7 @@ export function OrdersDeleteList({ orders }: { orders: OrderListRow[] }) {
           </tbody>
         </table>
       </div>
+      </DeleteListShell>
     </div>
   );
 }

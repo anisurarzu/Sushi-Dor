@@ -45,7 +45,10 @@ export default async function AdminProductsPage({ searchParams }: Props) {
         ],
       },
       orderBy: [{ sortOrder: "asc" }, { nameFr: "asc" }],
-      include: { category: true },
+      include: {
+        category: true,
+        images: { orderBy: { displayOrder: "asc" }, take: 1 },
+      },
     }),
   ]);
 
@@ -75,7 +78,7 @@ export default async function AdminProductsPage({ searchParams }: Props) {
         products={products.map((p) => ({
           id: p.id,
           nameFr: p.nameFr,
-          imageUrl: p.imageUrl,
+          imageUrl: p.imageUrl || p.images[0]?.url || null,
           categoryName: p.category.nameFr,
           priceCents: p.priceCents,
           isAvailable: p.isAvailable,

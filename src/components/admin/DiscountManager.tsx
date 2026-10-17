@@ -6,6 +6,7 @@ import { formatEuro } from "@/lib/pricing";
 import { AdminSelect } from "@/components/admin/AdminSelect";
 import {
   BulkDeleteToolbar,
+  DeleteListShell,
   RowCheckbox,
   RowDeleteButtons,
   useBulkDelete,
@@ -148,10 +149,11 @@ export function DiscountManager({ initial }: { initial: Discount[] }) {
             selectedCount={bulk.selectedCount}
             pending={bulk.pending}
             msg={bulk.msg}
-            onSoft={() => bulk.run("soft")}
-            onHard={() => bulk.run("hard")}
+            onSoft={() => void bulk.run("soft")}
+            onHard={() => void bulk.run("hard")}
             idsCount={rows.length}
           />
+          <DeleteListShell pending={bulk.pending} skeletonCols={3}>
           <ul className="space-y-2 text-sm">
             {rows.map((d) => (
               <li
@@ -191,6 +193,7 @@ export function DiscountManager({ initial }: { initial: Discount[] }) {
               </li>
             ))}
           </ul>
+          </DeleteListShell>
         </div>
       )}
     </div>

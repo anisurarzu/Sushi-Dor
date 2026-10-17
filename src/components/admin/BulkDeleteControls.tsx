@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useState, useTransition } from "react";
 import type { BulkDeleteResource } from "@/lib/soft-delete";
+import { useConfirm } from "@/components/ui/ConfirmDialog";
+import { ListSkeleton } from "@/components/ui/ListSkeleton";
 
 type Options = {
   resource: BulkDeleteResource;
@@ -12,6 +14,7 @@ type Options = {
 
 export function useBulkDelete({ resource, ids, label = "éléments" }: Options) {
   const router = useRouter();
+  const confirm = useConfirm();
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [pending, startTransition] = useTransition();
   const [msg, setMsg] = useState<string | null>(null);
@@ -35,13 +38,27 @@ export function useBulkDelete({ resource, ids, label = "éléments" }: Options) 
   }, [ids]);
 
   const run = useCallback(
-    (mode: "soft" | "hard") => {
+    async (mode: "soft" | "hard") => {
       if (selectedIds.length === 0) return;
-      const verb =
+      const n = selectedIds.length;
+      const ok = await confirm(
         mode === "soft"
-          ? `Masquer ${selectedIds.length} ${label} (soft delete) ?`
-          : `Supprimer définitivement ${selectedIds.length} ${label} ? Cette action est irréversible.`;
-      if (!window.confirm(verb)) return;
+          ? {
+              title: `Masquer ${n} ${label} ?`,
+              description:
+                "Soft delete : masqué dans l’interface, conservé en base (status 255).",
+              confirmLabel: "Soft delete",
+              tone: "warn",
+            }
+          : {
+              title: `Supprimer définitivement ${n} ${label} ?`,
+              description:
+                "Hard delete : suppression définitive de la base. Action irréversible.",
+              confirmLabel: "Hard delete",
+              tone: "danger",
+            },
+      );
+      if (!ok) return;
 
       setMsg(null);
       startTransition(async () => {
@@ -69,7 +86,7 @@ export function useBulkDelete({ resource, ids, label = "éléments" }: Options) 
         }
       });
     },
-    [label, resource, router, selectedIds],
+    [confirm, label, resource, router, selectedIds],
   );
 
   return {
@@ -135,7 +152,12 @@ export function BulkDeleteToolbar({
       >
         Hard delete
       </button>
-      {msg ? <span className="text-xs text-[#a89f8e]">{msg}</span> : null}
+      {pending ? (
+        <span className="text-xs text-[#c4a35a]">Actualisation…</span>
+      ) : null}
+      {msg && !pending ? (
+        <span className="text-xs text-[#a89f8e]">{msg}</span>
+      ) : null}
     </div>
   );
 }
@@ -172,14 +194,29 @@ export function RowDeleteButtons({
   label?: string;
 }) {
   const router = useRouter();
+  const confirm = useConfirm();
   const [pending, startTransition] = useTransition();
 
-  function run(mode: "soft" | "hard") {
-    const verb =
+  async function run(mode: "soft" | "hard") {
+    const name = label || "cet élément";
+    const ok = await confirm(
       mode === "soft"
-        ? `Soft delete ${label || "cet élément"} ?`
-        : `Hard delete ${label || "cet élément"} ? Irréversible.`;
-    if (!window.confirm(verb)) return;
+        ? {
+            title: `Masquer ${name} ?`,
+            description:
+              "Soft delete : masqué dans l’interface, conservé en base (status 255).",
+            confirmLabel: "Soft delete",
+            tone: "warn",
+          }
+        : {
+            title: `Supprimer ${name} ?`,
+            description:
+              "Hard delete : suppression définitive. Action irréversible.",
+            confirmLabel: "Hard delete",
+            tone: "danger",
+          },
+    );
+    if (!ok) return;
     startTransition(async () => {
       const res = await fetch("/api/admin/bulk-delete", {
         method: "POST",
@@ -190,7 +227,13 @@ export function RowDeleteButtons({
       if (res.ok) router.refresh();
       else {
         const data = await res.json().catch(() => ({}));
-        window.alert(data.error || "Échec");
+        await confirm({
+          title: "Échec",
+          description: data.error || "La suppression a échoué.",
+          confirmLabel: "OK",
+          cancelLabel: "Fermer",
+          tone: "danger",
+        });
       }
     });
   }
@@ -200,7 +243,7 @@ export function RowDeleteButtons({
       <button
         type="button"
         disabled={pending}
-        onClick={() => run("soft")}
+        onClick={() => void run("soft")}
         className="text-[0.65rem] uppercase tracking-wide text-[#c4a35a] hover:text-[#e0c878] disabled:opacity-40"
       >
         Soft
@@ -208,11 +251,25 @@ export function RowDeleteButtons({
       <button
         type="button"
         disabled={pending}
-        onClick={() => run("hard")}
+        onClick={() => void run("hard")}
         className="text-[0.65rem] uppercase tracking-wide text-red-300/90 hover:text-red-200 disabled:opacity-40"
       >
         Hard
       </button>
     </div>
   );
+}
+
+/** Wrap list body — shows skeleton while refresh is pending */
+export function DeleteListShell({
+  pending,
+  children,
+  skeletonCols = 6,
+}: {
+  pending: boolean;
+  children: React.ReactNode;
+  skeletonCols?: number;
+}) {
+  if (pending) return <ListSkeleton cols={skeletonCols} rows={7} />;
+  return <>{children}</>;
 }

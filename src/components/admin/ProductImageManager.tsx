@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
+import { useConfirm } from "@/components/ui/ConfirmDialog";
 
 type ImageRow = {
   id: string;
@@ -18,6 +19,7 @@ type Props = {
 
 export function ProductImageManager({ productId, initialImages }: Props) {
   const router = useRouter();
+  const confirm = useConfirm();
   const inputRef = useRef<HTMLInputElement>(null);
   const [images, setImages] = useState(initialImages);
   const [pending, setPending] = useState(false);
@@ -60,7 +62,13 @@ export function ProductImageManager({ productId, initialImages }: Props) {
   }
 
   async function remove(imageId: string) {
-    if (!confirm("Supprimer cette image ?")) return;
+    const ok = await confirm({
+      title: "Supprimer cette image ?",
+      description: "L’image sera retirée du produit.",
+      confirmLabel: "Supprimer",
+      tone: "danger",
+    });
+    if (!ok) return;
     setPending(true);
     setError(null);
     const res = await fetch(

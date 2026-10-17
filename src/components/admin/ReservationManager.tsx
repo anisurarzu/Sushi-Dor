@@ -5,6 +5,7 @@ import { useState } from "react";
 import { AdminSelect } from "@/components/admin/AdminSelect";
 import {
   BulkDeleteToolbar,
+  DeleteListShell,
   RowCheckbox,
   RowDeleteButtons,
   useBulkDelete,
@@ -245,10 +246,11 @@ export function ReservationManager({ initial, restaurants }: Props) {
             selectedCount={bulk.selectedCount}
             pending={bulk.pending}
             msg={bulk.msg}
-            onSoft={() => bulk.run("soft")}
-            onHard={() => bulk.run("hard")}
+            onSoft={() => void bulk.run("soft")}
+            onHard={() => void bulk.run("hard")}
             idsCount={rows.length}
           />
+          <DeleteListShell pending={bulk.pending} skeletonCols={4}>
           {rows.map((r) => (
             <article
               key={r.id}
@@ -401,6 +403,7 @@ export function ReservationManager({ initial, restaurants }: Props) {
               </div>
             </article>
           ))}
+          </DeleteListShell>
         </div>
       )}
     </div>

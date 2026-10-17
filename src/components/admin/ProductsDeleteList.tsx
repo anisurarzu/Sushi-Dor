@@ -4,6 +4,7 @@ import Link from "next/link";
 import { formatEuro } from "@/lib/pricing";
 import {
   BulkDeleteToolbar,
+  DeleteListShell,
   RowCheckbox,
   RowDeleteButtons,
   useBulkDelete,
@@ -49,10 +50,11 @@ export function ProductsDeleteList({
         selectedCount={bulk.selectedCount}
         pending={bulk.pending}
         msg={bulk.msg}
-        onSoft={() => bulk.run("soft")}
-        onHard={() => bulk.run("hard")}
+        onSoft={() => void bulk.run("soft")}
+        onHard={() => void bulk.run("hard")}
         idsCount={products.length}
       />
+      <DeleteListShell pending={bulk.pending} skeletonCols={7}>
       <div className="overflow-x-auto border border-[#c4a35a]/20">
         <table className="w-full min-w-[800px] text-left text-sm">
           <thead className="bg-[#12100e] text-[0.65rem] uppercase tracking-[0.12em] text-[#a89f8e]">
@@ -86,11 +88,13 @@ export function ProductsDeleteList({
                     <img
                       src={p.imageUrl}
                       alt={p.nameFr}
-                      className="h-12 w-12 object-cover border border-[#c4a35a]/25 bg-[#0c0a08]"
+                      loading="lazy"
+                      referrerPolicy="no-referrer"
+                      className="h-14 w-14 shrink-0 rounded-sm object-cover border border-[#c4a35a]/30 bg-[#0c0a08]"
                     />
                   ) : (
                     <div
-                      className="flex h-12 w-12 items-center justify-center border border-[#c4a35a]/20 bg-[#0c0a08] text-[0.55rem] uppercase tracking-wide text-[#a89f8e]"
+                      className="flex h-14 w-14 shrink-0 items-center justify-center border border-[#c4a35a]/20 bg-[#0c0a08] text-[0.55rem] uppercase tracking-wide text-[#a89f8e]"
                       aria-hidden
                     >
                       —
@@ -129,6 +133,7 @@ export function ProductsDeleteList({
           </tbody>
         </table>
       </div>
+      </DeleteListShell>
     </div>
   );
 }

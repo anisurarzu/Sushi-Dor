@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AdminSelect } from "@/components/admin/AdminSelect";
+import { useConfirm } from "@/components/ui/ConfirmDialog";
 
 const STATUSES = [
   "PENDING_PAYMENT",
@@ -33,26 +34,34 @@ type Props = { orderId: string; current: string };
 
 export function OrderStatusForm({ orderId, current }: Props) {
   const router = useRouter();
+  const confirmDialog = useConfirm();
   const [status, setStatus] = useState(current);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function save(confirm = false) {
+  async function save(confirmed = false) {
     setPending(true);
     setError(null);
     const res = await fetch(`/api/admin/orders/${orderId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status, confirm }),
+      body: JSON.stringify({ status, confirm: confirmed }),
     });
     const data = await res.json();
     setPending(false);
     if (res.status === 409 && data.requiresConfirm) {
-      const ok = window.confirm(
-        status === "CANCELLED"
-          ? "Êtes-vous sûr de vouloir annuler cette commande ?"
-          : `${data.error}\nConfirmer quand même ?`,
-      );
+      const ok = await confirmDialog({
+        title:
+          status === "CANCELLED"
+            ? "Annuler cette commande ?"
+            : "Confirmation requise",
+        description:
+          status === "CANCELLED"
+            ? "Êtes-vous sûr de vouloir annuler cette commande ?"
+            : data.error || "Confirmer quand même ?",
+        confirmLabel: "Confirmer",
+        tone: status === "CANCELLED" ? "danger" : "warn",
+      });
       if (ok) return save(true);
       return;
     }

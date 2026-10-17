@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {
   BulkDeleteToolbar,
+  DeleteListShell,
   RowCheckbox,
   RowDeleteButtons,
   useBulkDelete,
@@ -78,48 +79,50 @@ export function CategoryManager({ initial }: { initial: Cat[] }) {
           selectedCount={bulk.selectedCount}
           pending={bulk.pending}
           msg={bulk.msg}
-          onSoft={() => bulk.run("soft")}
-          onHard={() => bulk.run("hard")}
+          onSoft={() => void bulk.run("soft")}
+          onHard={() => void bulk.run("hard")}
           idsCount={initial.length}
         />
       ) : null}
 
-      <div className="space-y-2">
-        {initial.map((c) => (
-          <div
-            key={c.id}
-            className="flex flex-wrap items-center justify-between gap-3 border border-[#c4a35a]/20 bg-[#12100e] px-4 py-3 text-sm"
-          >
-            <div className="flex items-start gap-3">
-              <RowCheckbox
-                checked={bulk.selected.has(c.id)}
-                onChange={() => bulk.toggle(c.id)}
-                disabled={bulk.pending}
-              />
-              <div>
-                <p className="text-[#f0e6c8]">{c.nameFr}</p>
-                <p className="text-xs text-[#a89f8e]">
-                  {c.slug} · {c.productCount} produit(s) · ordre {c.sortOrder}
-                </p>
+      <DeleteListShell pending={bulk.pending} skeletonCols={3}>
+        <div className="space-y-2">
+          {initial.map((c) => (
+            <div
+              key={c.id}
+              className="flex flex-wrap items-center justify-between gap-3 border border-[#c4a35a]/20 bg-[#12100e] px-4 py-3 text-sm"
+            >
+              <div className="flex items-start gap-3">
+                <RowCheckbox
+                  checked={bulk.selected.has(c.id)}
+                  onChange={() => bulk.toggle(c.id)}
+                  disabled={bulk.pending}
+                />
+                <div>
+                  <p className="text-[#f0e6c8]">{c.nameFr}</p>
+                  <p className="text-xs text-[#a89f8e]">
+                    {c.slug} · {c.productCount} produit(s) · ordre {c.sortOrder}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => toggle(c.id, c.isActive)}
+                  className="text-xs text-[#c4a35a]"
+                >
+                  {c.isActive ? "Archiver" : "Réactiver"}
+                </button>
+                <RowDeleteButtons
+                  id={c.id}
+                  resource="categories"
+                  label={c.nameFr}
+                />
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => toggle(c.id, c.isActive)}
-                className="text-xs text-[#c4a35a]"
-              >
-                {c.isActive ? "Archiver" : "Réactiver"}
-              </button>
-              <RowDeleteButtons
-                id={c.id}
-                resource="categories"
-                label={c.nameFr}
-              />
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      </DeleteListShell>
     </div>
   );
 }

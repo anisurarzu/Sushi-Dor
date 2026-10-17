@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useConfirm } from "@/components/ui/ConfirmDialog";
 
 type Restaurant = {
   id: string;
@@ -21,6 +22,7 @@ type Restaurant = {
 
 function RestaurantCard({ restaurant }: { restaurant: Restaurant }) {
   const router = useRouter();
+  const confirm = useConfirm();
   const [r, setR] = useState(restaurant);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -63,7 +65,13 @@ function RestaurantCard({ restaurant }: { restaurant: Restaurant }) {
   }
 
   async function archive() {
-    if (!confirm("Archiver ce restaurant ?")) return;
+    const ok = await confirm({
+      title: "Archiver ce restaurant ?",
+      description: "Le restaurant ne sera plus visible côté boutique.",
+      confirmLabel: "Archiver",
+      tone: "warn",
+    });
+    if (!ok) return;
     const res = await fetch(`/api/admin/restaurants/${r.id}`, {
       method: "DELETE",
     });

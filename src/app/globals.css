@@ -783,3 +783,210 @@ button:disabled,
   }
 }
 
+/* —— Shared confirm modal (site-wide) —— */
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  background: rgba(6, 5, 4, 0.72);
+  backdrop-filter: blur(10px);
+  animation: confirm-fade 0.18s ease-out;
+}
+
+.confirm-panel {
+  width: min(100%, 26rem);
+  border: 1px solid color-mix(in srgb, var(--gold) 35%, transparent);
+  background:
+    linear-gradient(180deg, #16130f 0%, #0f0d0b 100%);
+  box-shadow:
+    0 0 0 1px rgba(224, 200, 120, 0.06),
+    0 24px 60px rgba(0, 0, 0, 0.55);
+  padding: 1.5rem 1.4rem 1.25rem;
+  animation: confirm-pop 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.confirm-panel--danger {
+  border-color: color-mix(in srgb, #f87171 45%, transparent);
+}
+
+.confirm-panel--warn {
+  border-color: color-mix(in srgb, var(--gold) 55%, transparent);
+}
+
+.confirm-icon {
+  display: grid;
+  place-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  margin-bottom: 0.9rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--gold) 40%, transparent);
+  color: var(--gold-bright);
+  font-family: var(--font-display), serif;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.confirm-panel--danger .confirm-icon {
+  border-color: color-mix(in srgb, #f87171 50%, transparent);
+  color: #fca5a5;
+  background: color-mix(in srgb, #f87171 12%, transparent);
+}
+
+.confirm-panel--warn .confirm-icon {
+  background: color-mix(in srgb, var(--gold) 12%, transparent);
+}
+
+.confirm-title {
+  margin: 0;
+  font-family: var(--font-display), serif;
+  font-size: 1.45rem;
+  line-height: 1.2;
+  color: var(--champagne);
+}
+
+.confirm-desc {
+  margin: 0.65rem 0 0;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--mist);
+}
+
+.confirm-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.55rem;
+  margin-top: 1.35rem;
+}
+
+.confirm-btn {
+  cursor: pointer;
+  border: 1px solid transparent;
+  padding: 0.55rem 1rem;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.confirm-btn--ghost {
+  border-color: color-mix(in srgb, var(--gold) 28%, transparent);
+  background: transparent;
+  color: var(--mist);
+}
+
+.confirm-btn--ghost:hover {
+  color: var(--champagne);
+  border-color: color-mix(in srgb, var(--gold) 55%, transparent);
+}
+
+.confirm-btn--gold {
+  border-color: color-mix(in srgb, var(--gold) 60%, transparent);
+  background: linear-gradient(135deg, var(--gold-deep), var(--gold) 55%, var(--gold-bright));
+  color: var(--ink);
+}
+
+.confirm-btn--warn {
+  border-color: color-mix(in srgb, var(--gold) 50%, transparent);
+  background: color-mix(in srgb, var(--gold) 18%, transparent);
+  color: var(--gold-bright);
+}
+
+.confirm-btn--warn:hover {
+  background: color-mix(in srgb, var(--gold) 28%, transparent);
+}
+
+.confirm-btn--danger {
+  border-color: color-mix(in srgb, #f87171 55%, transparent);
+  background: color-mix(in srgb, #ef4444 22%, transparent);
+  color: #fecaca;
+}
+
+.confirm-btn--danger:hover {
+  background: color-mix(in srgb, #ef4444 34%, transparent);
+}
+
+@keyframes confirm-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes confirm-pop {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* —— List skeleton (refresh) —— */
+.list-skeleton {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.list-skeleton-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--gold) 25%, transparent);
+  background: #12100e;
+}
+
+.sk {
+  display: inline-block;
+  border-radius: 2px;
+  background: linear-gradient(
+    90deg,
+    rgba(196, 163, 90, 0.08) 0%,
+    rgba(224, 200, 120, 0.18) 45%,
+    rgba(196, 163, 90, 0.08) 100%
+  );
+  background-size: 200% 100%;
+  animation: sk-shine 1.15s ease-in-out infinite;
+}
+
+.sk-chip {
+  width: 5.5rem;
+  height: 1.35rem;
+}
+
+.sk-line {
+  height: 0.7rem;
+  width: 100%;
+  max-width: 9rem;
+}
+
+.sk-line-sm { max-width: 3.5rem; }
+.sk-line-md { max-width: 6rem; }
+.sk-line-lg { max-width: 12rem; }
+
+.sk-thumb {
+  width: 3rem;
+  height: 3rem;
+  max-width: none;
+}
+
+@keyframes sk-shine {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .confirm-overlay,
+  .confirm-panel,
+  .sk {
+    animation: none;
+  }
+}
+

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import {
   BulkDeleteToolbar,
+  DeleteListShell,
   RowCheckbox,
   RowDeleteButtons,
   useBulkDelete,
@@ -36,10 +37,11 @@ export function UsersDeleteList({ users }: { users: UserListRow[] }) {
         selectedCount={bulk.selectedCount}
         pending={bulk.pending}
         msg={bulk.msg}
-        onSoft={() => bulk.run("soft")}
-        onHard={() => bulk.run("hard")}
+        onSoft={() => void bulk.run("soft")}
+        onHard={() => void bulk.run("hard")}
         idsCount={users.length}
       />
+      <DeleteListShell pending={bulk.pending} skeletonCols={5}>
       <div className="overflow-x-auto border border-[#c4a35a]/20">
         <table className="w-full min-w-[640px] text-left text-sm">
           <thead className="bg-[#12100e] text-[0.65rem] uppercase tracking-wider text-[#c4a35a]">
@@ -90,6 +92,7 @@ export function UsersDeleteList({ users }: { users: UserListRow[] }) {
           </tbody>
         </table>
       </div>
+      </DeleteListShell>
     </div>
   );
 }

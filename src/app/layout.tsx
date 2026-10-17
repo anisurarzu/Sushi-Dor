@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Cormorant_Garamond, Outfit } from "next/font/google";
 import { CartFlyLayer } from "@/components/cart/CartFlyLayer";
 import { CartProvider } from "@/components/cart/CartProvider";
+import { ConfirmProvider } from "@/components/ui/ConfirmDialog";
 import "./globals.css";
 
 const display = Cormorant_Garamond({
@@ -30,10 +31,12 @@ export default function RootLayout({
   return (
     <html lang="fr" className={`${display.variable} ${body.variable} h-full`}>
       <body className="min-h-full antialiased">
-        <CartProvider>
-          {children}
-          <CartFlyLayer />
-        </CartProvider>
+        <ConfirmProvider>
+          <CartProvider>
+            {children}
+            <CartFlyLayer />
+          </CartProvider>
+        </ConfirmProvider>
       </body>
     </html>
   );
