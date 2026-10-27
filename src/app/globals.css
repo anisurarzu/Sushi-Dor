@@ -735,6 +735,55 @@ button:disabled,
   }
 }
 
+/* Header Panier + Commander — same footprint */
+.header-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-height: 2.5rem;
+  min-width: 6.75rem;
+  padding: 0.55rem 1rem;
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  line-height: 1;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.header-action--gold {
+  border: 1px solid var(--gold);
+  background: linear-gradient(
+    135deg,
+    var(--gold-deep),
+    var(--gold) 45%,
+    var(--gold-bright)
+  );
+  color: var(--ink);
+  transition:
+    transform 0.2s ease,
+    filter 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.header-action--gold:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+  box-shadow: 0 10px 28px rgba(196, 163, 90, 0.25);
+}
+
+@media (min-width: 640px) {
+  .header-action {
+    min-height: 2.65rem;
+    min-width: 7.5rem;
+    padding: 0.6rem 1.15rem;
+    font-size: 0.68rem;
+    letter-spacing: 0.16em;
+  }
+}
+
 .cart-badge-pulse {
   animation: cartBadgePulse 0.55s ease;
 }

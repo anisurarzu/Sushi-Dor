@@ -30,10 +30,7 @@ export function SiteHeader() {
 
         <div className="flex items-center gap-2 sm:gap-3">
           <CartBadge />
-          <Link
-            href="/menu"
-            className="btn-gold shrink-0 px-3 py-2 text-[0.62rem] sm:text-[0.68rem]"
-          >
+          <Link href="/menu" className="header-action header-action--gold">
             Commander
           </Link>
         </div>

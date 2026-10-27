@@ -12,7 +12,7 @@ export function CartBadge() {
     <Link
       href="/cart"
       data-cart-badge
-      className="cart-badge relative cursor-pointer border border-[color:var(--line)] px-3 py-2 text-[0.62rem] uppercase tracking-[0.12em] text-champagne transition-colors hover:border-gold sm:px-4"
+      className="header-action cart-badge relative cursor-pointer border border-[color:var(--line)] text-champagne transition-colors hover:border-gold"
       aria-label={`Panier, ${units} articles, ${total}`}
     >
       Panier
