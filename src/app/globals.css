@@ -146,6 +146,7 @@ body {
 }
 
 .dor-fire__fill {
+  --fire-tile: 1.4em;
   display: inline-block;
   font: inherit;
   font-weight: inherit;
@@ -166,34 +167,35 @@ body {
       #c41000 78%,
       #4a0600 100%
     );
+  /* Tile height = animation travel → seamless infinite loop */
   background-size:
-    150% 320%,
-    170% 300%,
+    160% var(--fire-tile),
+    180% var(--fire-tile),
     100% 100%;
   background-position:
-    50% 100%,
-    45% 100%,
+    50% 0,
+    42% calc(var(--fire-tile) / -2),
     0 0;
-  background-repeat: no-repeat, no-repeat, no-repeat;
+  background-repeat: repeat-y, repeat-y, no-repeat;
   -webkit-background-clip: text;
   background-clip: text;
   filter: drop-shadow(0 0 12px rgba(255, 90, 20, 0.4))
     drop-shadow(0 0 24px rgba(255, 50, 0, 0.22));
-  animation: dor-fire-burn 7.5s linear infinite;
+  animation: dor-fire-burn 8s linear infinite;
 }
 
 @keyframes dor-fire-burn {
-  /* Rising: texture scrolls upward (bottom → top) */
+  /* Rise forever: shift exactly one tile (1.4em) so the loop never jumps */
   from {
     background-position:
-      50% -40%,
-      48% -45%,
+      50% 0,
+      42% -0.7em,
       0 0;
   }
   to {
     background-position:
-      50% 140%,
-      42% 145%,
+      50% 1.4em,
+      42% 0.7em,
       0 0;
   }
 }
