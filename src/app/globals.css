@@ -173,8 +173,8 @@ body {
     180% var(--fire-tile),
     100% 100%;
   background-position:
-    50% 0,
-    42% calc(var(--fire-tile) / -2),
+    50% 1.4em,
+    42% 0.7em,
     0 0;
   background-repeat: repeat-y, repeat-y, no-repeat;
   -webkit-background-clip: text;
@@ -185,17 +185,17 @@ body {
 }
 
 @keyframes dor-fire-burn {
-  /* Rise forever: shift exactly one tile (1.4em) so the loop never jumps */
+  /* Rise forever (bottom → top): shift exactly one tile so the loop never jumps */
   from {
     background-position:
-      50% 0,
-      42% -0.7em,
+      50% 1.4em,
+      42% 0.7em,
       0 0;
   }
   to {
     background-position:
-      50% 1.4em,
-      42% 0.7em,
+      50% 0,
+      42% -0.7em,
       0 0;
   }
 }
