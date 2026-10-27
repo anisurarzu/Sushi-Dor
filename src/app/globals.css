@@ -167,8 +167,8 @@ body {
       #4a0600 100%
     );
   background-size:
-    150% 280%,
-    170% 260%,
+    150% 320%,
+    170% 300%,
     100% 100%;
   background-position:
     50% 100%,
@@ -179,20 +179,20 @@ body {
   background-clip: text;
   filter: drop-shadow(0 0 12px rgba(255, 90, 20, 0.4))
     drop-shadow(0 0 24px rgba(255, 50, 0, 0.22));
-  animation: dor-fire-burn 2.4s linear infinite;
+  animation: dor-fire-burn 7.5s linear infinite;
 }
 
 @keyframes dor-fire-burn {
   from {
     background-position:
-      50% 120%,
-      45% 120%,
+      50% 140%,
+      42% 145%,
       0 0;
   }
   to {
     background-position:
-      50% -30%,
-      48% -40%,
+      50% -50%,
+      48% -55%,
       0 0;
   }
 }
