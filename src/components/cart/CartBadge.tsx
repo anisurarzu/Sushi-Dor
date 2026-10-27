@@ -12,14 +12,14 @@ export function CartBadge() {
     <Link
       href="/cart"
       data-cart-badge
-      className="header-action cart-badge relative cursor-pointer border border-[color:var(--line)] text-champagne transition-colors hover:border-gold"
+      className="header-cta header-cta--ghost cart-badge relative cursor-pointer"
       aria-label={`Panier, ${units} articles, ${total}`}
+      title={units > 0 ? `${units} · ${total}` : "Panier"}
     >
       Panier
       {units > 0 ? (
-        <span className="ml-2 inline-flex items-center gap-1 text-gold">
-          <span className="cart-badge-count">{units}</span>
-          <span className="hidden sm:inline">· {total}</span>
+        <span className="header-cta__badge cart-badge-count" aria-hidden>
+          {units > 99 ? "99+" : units}
         </span>
       ) : null}
     </Link>

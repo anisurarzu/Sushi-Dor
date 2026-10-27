@@ -1,16 +1,16 @@
 import Link from "next/link";
 import { BrandLogo } from "@/components/brand/BrandLogo";
-import { HeroVideo } from "@/components/home/HeroVideo";
+import { HeroVideos } from "@/components/home/HeroVideos";
 
 export function Hero() {
   return (
     <section className="grain relative flex min-h-[100svh] items-end overflow-hidden">
-      <HeroVideo />
+      <HeroVideos />
       <div
         className="absolute inset-0"
         style={{
           background:
-            "linear-gradient(180deg, rgba(12,10,8,0.55) 0%, rgba(12,10,8,0.38) 40%, rgba(12,10,8,0.92) 100%), radial-gradient(ellipse at 70% 30%, rgba(196,163,90,0.16), transparent 55%)",
+            "linear-gradient(180deg, rgba(12,10,8,0.55) 0%, rgba(12,10,8,0.4) 35%, rgba(12,10,8,0.92) 100%), radial-gradient(ellipse at 70% 30%, rgba(196,163,90,0.16), transparent 55%)",
         }}
         aria-hidden
       />
