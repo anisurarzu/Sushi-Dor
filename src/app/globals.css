@@ -130,7 +130,7 @@ body {
   margin: 0;
 }
 
-/* Hero: soft candle light in D'or + tiny flames on letter tops */
+/* Hero: fire only inside D'or letterforms */
 .brand-logo--fire {
   max-width: min(100%, 52rem);
   font-size: clamp(2.6rem, 11vw, 7.2rem);
@@ -143,12 +143,9 @@ body {
   display: inline-block;
   line-height: 1;
   vertical-align: baseline;
-  overflow: visible;
 }
 
 .dor-fire__fill {
-  position: relative;
-  z-index: 1;
   display: inline-block;
   font: inherit;
   font-weight: inherit;
@@ -158,181 +155,61 @@ body {
   vertical-align: baseline;
   color: transparent;
   -webkit-text-fill-color: transparent;
-  background-image: linear-gradient(
-    175deg,
-    #fff4c8 0%,
-    #ffd27a 18%,
-    #f0a43a 42%,
-    #e07a18 68%,
-    #b84a0a 100%
-  );
-  background-size: 100% 140%;
-  background-position: 50% 40%;
+  background-image:
+    url("/brand/fire-fill.jpg"),
+    url("/brand/fire-fill-2.jpg"),
+    linear-gradient(
+      180deg,
+      #fff6b0 0%,
+      #ffb020 24%,
+      #ff5a00 52%,
+      #c41000 78%,
+      #4a0600 100%
+    );
+  background-size:
+    150% 280%,
+    170% 260%,
+    100% 100%;
+  background-position:
+    50% 100%,
+    45% 100%,
+    0 0;
+  background-repeat: no-repeat, no-repeat, no-repeat;
   -webkit-background-clip: text;
   background-clip: text;
-  filter: drop-shadow(0 0 10px rgba(255, 170, 60, 0.35))
-    drop-shadow(0 0 22px rgba(255, 120, 20, 0.18));
-  animation: dor-candle-glow 3.6s ease-in-out infinite;
+  filter: drop-shadow(0 0 12px rgba(255, 90, 20, 0.4))
+    drop-shadow(0 0 24px rgba(255, 50, 0, 0.22));
+  animation: dor-fire-burn 2.4s linear infinite;
 }
 
-.dor-fire__candles {
-  pointer-events: none;
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 0;
-  z-index: 2;
-}
-
-.dor-candle {
-  position: absolute;
-  top: 0;
-  width: 0.28em;
-  height: 0.55em;
-  transform: translate(-50%, -78%) scale(var(--scale, 1))
-    rotate(var(--lean, 0deg));
-  transform-origin: 50% 100%;
-  animation: dor-candle-sway var(--dur, 2.6s) ease-in-out infinite;
-  animation-delay: var(--delay, 0s);
-}
-
-.dor-candle__glow {
-  position: absolute;
-  left: 50%;
-  bottom: 10%;
-  width: 180%;
-  height: 90%;
-  transform: translateX(-50%);
-  border-radius: 50%;
-  background: radial-gradient(
-    ellipse at 50% 80%,
-    rgba(255, 190, 90, 0.45) 0%,
-    rgba(255, 120, 30, 0.12) 45%,
-    transparent 70%
-  );
-  filter: blur(4px);
-  animation: dor-candle-flicker calc(var(--dur, 2.6s) * 0.55) ease-in-out
-    infinite;
-  animation-delay: var(--delay, 0s);
-}
-
-.dor-candle__flame {
-  position: absolute;
-  left: 50%;
-  bottom: 0;
-  width: 100%;
-  height: 100%;
-  transform: translateX(-50%);
-  border-radius: 50% 50% 45% 45% / 60% 60% 40% 40%;
-  background: radial-gradient(
-    ellipse at 50% 70%,
-    #fff6d0 0%,
-    #ffd078 28%,
-    #ff9a2a 58%,
-    #e85a00 82%,
-    transparent 100%
-  );
-  filter: blur(0.4px);
-  opacity: 0.92;
-  animation: dor-candle-flicker calc(var(--dur, 2.6s) * 0.45) ease-in-out
-    infinite;
-  animation-delay: var(--delay, 0s);
-  mix-blend-mode: screen;
-}
-
-.dor-candle__core {
-  position: absolute;
-  left: 50%;
-  bottom: 8%;
-  width: 28%;
-  height: 42%;
-  transform: translateX(-50%);
-  border-radius: 50%;
-  background: radial-gradient(
-    circle at 50% 60%,
-    #fffef5 0%,
-    #ffe9a8 55%,
-    transparent 100%
-  );
-  filter: blur(0.5px);
-  opacity: 0.85;
-  animation: dor-candle-core calc(var(--dur, 2.6s) * 0.4) ease-in-out infinite;
-  animation-delay: var(--delay, 0s);
-}
-
-@keyframes dor-candle-glow {
-  0%,
-  100% {
-    background-position: 50% 35%;
-    filter: drop-shadow(0 0 10px rgba(255, 170, 60, 0.32))
-      drop-shadow(0 0 20px rgba(255, 120, 20, 0.16));
+@keyframes dor-fire-burn {
+  from {
+    background-position:
+      50% 120%,
+      45% 120%,
+      0 0;
   }
-  50% {
-    background-position: 50% 55%;
-    filter: drop-shadow(0 0 14px rgba(255, 190, 80, 0.42))
-      drop-shadow(0 0 26px rgba(255, 130, 30, 0.22));
-  }
-}
-
-@keyframes dor-candle-sway {
-  0%,
-  100% {
-    transform: translate(-50%, -78%) scale(var(--scale, 1))
-      rotate(var(--lean, 0deg));
-  }
-  40% {
-    transform: translate(-50%, -80%) scale(calc(var(--scale, 1) * 1.04))
-      rotate(calc(var(--lean, 0deg) + 4deg));
-  }
-  70% {
-    transform: translate(-50%, -77%) scale(calc(var(--scale, 1) * 0.96))
-      rotate(calc(var(--lean, 0deg) - 3deg));
-  }
-}
-
-@keyframes dor-candle-flicker {
-  0%,
-  100% {
-    opacity: 0.78;
-    transform: translateX(-50%) scaleY(1);
-  }
-  30% {
-    opacity: 1;
-    transform: translateX(-50%) scaleY(1.06);
-  }
-  55% {
-    opacity: 0.85;
-    transform: translateX(-50%) scaleY(0.94);
-  }
-  80% {
-    opacity: 0.95;
-    transform: translateX(-50%) scaleY(1.03);
-  }
-}
-
-@keyframes dor-candle-core {
-  0%,
-  100% {
-    opacity: 0.7;
-    transform: translateX(-50%) scale(1);
-  }
-  50% {
-    opacity: 1;
-    transform: translateX(-50%) scale(1.12);
+  to {
+    background-position:
+      50% -30%,
+      48% -40%,
+      0 0;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .dor-fire__fill,
-  .dor-candle,
-  .dor-candle__glow,
-  .dor-candle__flame,
-  .dor-candle__core {
+  .dor-fire__fill {
     animation: none;
-  }
-  .dor-fire__candles {
-    display: none;
+    background-image: linear-gradient(
+      180deg,
+      #fff6b0 0%,
+      #ffb020 24%,
+      #ff5a00 52%,
+      #c41000 78%,
+      #4a0600 100%
+    );
+    background-size: 100% 100%;
+    background-position: 0 0;
   }
 }
 
