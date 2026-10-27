@@ -65,25 +65,41 @@ body {
 
 /* —— Brand logo —— */
 .brand-logo {
-  display: inline-block;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.22em;
   margin: 0;
   font-family: var(--font-display), Georgia, serif;
   font-weight: 600;
   line-height: 1;
+  white-space: nowrap;
   vertical-align: middle;
 }
 
-/* Hero main title: clean gold — no fire */
+.brand-logo__sushi,
+.brand-logo__dor {
+  display: inline-block;
+  font: inherit;
+  font-weight: inherit;
+  letter-spacing: inherit;
+  line-height: 1;
+  vertical-align: baseline;
+}
+
+.brand-logo__sushi {
+  color: #f0e6c8;
+}
+
+/* Hero / header / footer sizes */
 .brand-logo--plain.brand-logo--hero {
   font-size: clamp(2.6rem, 11vw, 7.2rem);
   letter-spacing: -0.01em;
-  line-height: 0.92;
   color: #f0e6c8;
 }
 
 .brand-logo--plain.brand-logo--header {
   font-size: 1.25rem;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   color: #f0e6c8;
 }
 
@@ -101,22 +117,24 @@ body {
 
 .brand-logo--plain.brand-logo--footer {
   font-size: 1.5rem;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   color: #f0e6c8;
 }
 
-/* Hero: fire inside D'or + rising tongues above */
+/* Gold fill must not shift baseline vs Sushi */
+.brand-logo .gold-text {
+  display: inline-block;
+  line-height: 1;
+  vertical-align: baseline;
+  padding: 0;
+  margin: 0;
+}
+
+/* Hero: fire inside D'or, flames bottom → top */
 .brand-logo--fire {
-  display: block;
   max-width: min(100%, 52rem);
   font-size: clamp(2.6rem, 11vw, 7.2rem);
   letter-spacing: -0.01em;
-  line-height: 1;
-  color: #f0e6c8;
-  white-space: nowrap;
-}
-
-.brand-logo__sushi {
   color: #f0e6c8;
 }
 
@@ -127,7 +145,7 @@ body {
   vertical-align: baseline;
   overflow: visible;
   filter: drop-shadow(0 0 14px rgba(255, 80, 0, 0.55))
-    drop-shadow(0 -10px 26px rgba(255, 40, 0, 0.4));
+    drop-shadow(0 -12px 28px rgba(255, 40, 0, 0.42));
 }
 
 .dor-fire__fill {
@@ -135,43 +153,46 @@ body {
   z-index: 1;
   display: inline-block;
   font: inherit;
+  font-weight: inherit;
   letter-spacing: inherit;
-  line-height: inherit;
+  line-height: 1;
   white-space: nowrap;
+  vertical-align: baseline;
   color: transparent;
   -webkit-text-fill-color: transparent;
   background-image:
     url("/brand/fire-fill.jpg"),
     url("/brand/fire-fill-2.jpg"),
     linear-gradient(
-      185deg,
+      180deg,
       #fff6b0 0%,
-      #ffb020 22%,
-      #ff5a00 48%,
+      #ffb020 24%,
+      #ff5a00 52%,
       #c41000 78%,
       #4a0600 100%
     );
   background-size:
-    160% 240%,
-    180% 220%,
+    150% 280%,
+    170% 260%,
     100% 100%;
   background-position:
-    50% 85%,
-    40% 70%,
+    50% 100%,
+    45% 100%,
     0 0;
   background-repeat: no-repeat, no-repeat, no-repeat;
   -webkit-background-clip: text;
   background-clip: text;
-  animation: dor-fire-burn 2.8s linear infinite;
+  /* Bottom → top only */
+  animation: dor-fire-burn 2.4s linear infinite;
 }
 
 .dor-fire__canvas {
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 35%;
-  width: 100%;
-  height: 120%;
+  left: 50%;
+  bottom: 0;
+  width: 110%;
+  height: 175%;
+  transform: translateX(-50%);
   pointer-events: none;
   z-index: 2;
   display: block;
@@ -179,22 +200,16 @@ body {
 }
 
 @keyframes dor-fire-burn {
-  0% {
+  from {
     background-position:
-      48% 100%,
-      42% 90%,
+      50% 120%,
+      45% 120%,
       0 0;
   }
-  50% {
+  to {
     background-position:
-      52% 40%,
-      38% 30%,
-      0 0;
-  }
-  100% {
-    background-position:
-      50% -10%,
-      45% -20%,
+      50% -30%,
+      48% -40%,
       0 0;
   }
 }
@@ -203,14 +218,15 @@ body {
   .dor-fire__fill {
     animation: none;
     background-image: linear-gradient(
-      185deg,
+      180deg,
       #fff6b0 0%,
-      #ffb020 22%,
-      #ff5a00 48%,
+      #ffb020 24%,
+      #ff5a00 52%,
       #c41000 78%,
       #4a0600 100%
     );
     background-size: 100% 100%;
+    background-position: 0 0;
   }
   .dor-fire__canvas {
     display: none;

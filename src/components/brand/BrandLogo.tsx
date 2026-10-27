@@ -3,13 +3,13 @@ import { InfernoTitle } from "@/components/brand/InfernoTitle";
 type BrandLogoProps = {
   as?: "h1" | "span" | "p";
   size?: "hero" | "header" | "footer";
-  /** Photoreal Inferno fire — hero title only */
+  /** Animated fire inside D'or — hero title only */
   fire?: boolean;
   className?: string;
 };
 
 /**
- * Brand wordmark. Hero fire uses Inferno title art; header/footer stay clean.
+ * Brand wordmark. Never translate "Sushi D'or" (browsers turn D'or → Gold).
  */
 export function BrandLogo({
   as: Tag = "span",
@@ -23,9 +23,12 @@ export function BrandLogo({
 
   return (
     <Tag
-      className={`brand-logo brand-logo--${size} brand-logo--plain ${className}`.trim()}
+      className={`brand-logo brand-logo--${size} brand-logo--plain notranslate ${className}`.trim()}
+      translate="no"
+      lang="fr"
     >
-      Sushi <span className="gold-text">D&apos;or</span>
+      <span className="brand-logo__sushi">Sushi</span>
+      <span className="brand-logo__dor gold-text">D&apos;or</span>
     </Tag>
   );
 }

@@ -3,8 +3,9 @@
 import { useEffect, useRef } from "react";
 
 /**
- * Hero: "Sushi" plain + "D'or" filled with animated fire (CSS clip),
- * plus live flame tongues rising above the letters (canvas).
+ * Hero: "Sushi" + "D'or" on one baseline.
+ * Fire fills D'or and rises bottom → top, with tongues above the letters.
+ * Brand is not translated (D'or must not become "Gold").
  */
 export function InfernoTitle({ className = "" }: { className?: string }) {
   const wrapRef = useRef<HTMLSpanElement>(null);
@@ -30,7 +31,6 @@ export function InfernoTitle({ className = "" }: { className?: string }) {
 
     type Tongue = {
       x: number;
-      base: number;
       h: number;
       w: number;
       phase: number;
@@ -52,9 +52,9 @@ export function InfernoTitle({ className = "" }: { className?: string }) {
 
     const resize = () => {
       const rect = wrap.getBoundingClientRect();
-      w = Math.max(2, Math.ceil(rect.width));
-      // Plume band sits on the upper half of the glyph + above
-      h = Math.max(2, Math.ceil(rect.height * 1.15));
+      w = Math.max(2, Math.ceil(rect.width * 1.08));
+      // Full glyph height + extra headroom so flames climb out the top
+      h = Math.max(2, Math.ceil(rect.height * 1.75));
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       canvas.width = Math.floor(w * dpr);
       canvas.height = Math.floor(h * dpr);
@@ -62,58 +62,60 @@ export function InfernoTitle({ className = "" }: { className?: string }) {
       canvas.style.height = `${h}px`;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-      const count = Math.max(8, Math.floor(w / 28));
+      const count = Math.max(10, Math.floor(w / 22));
       tongues = Array.from({ length: count }, (_, i) => ({
         x: ((i + 0.5) / count) * w,
-        base: rect.height * 0.22,
-        h: rect.height * (0.35 + Math.random() * 0.55),
-        w: 6 + Math.random() * 14,
+        h: h * (0.55 + Math.random() * 0.4),
+        w: 7 + Math.random() * 16,
         phase: Math.random() * Math.PI * 2,
-        speed: 1.6 + Math.random() * 2.2,
-        lean: (Math.random() - 0.5) * 0.35,
+        speed: 1.8 + Math.random() * 2.4,
+        lean: (Math.random() - 0.5) * 0.4,
       }));
     };
 
     const spawnEmber = () => {
+      // Start near letter bottom, drift upward
       embers.push({
-        x: Math.random() * w,
-        y: h * (0.55 + Math.random() * 0.25),
-        vx: (Math.random() - 0.5) * 0.6,
-        vy: -(1.2 + Math.random() * 2.4),
+        x: w * 0.08 + Math.random() * w * 0.84,
+        y: h * (0.72 + Math.random() * 0.2),
+        vx: (Math.random() - 0.5) * 0.7,
+        vy: -(1.6 + Math.random() * 2.8),
         life: 0,
-        max: 40 + Math.random() * 50,
-        r: 1 + Math.random() * 2.2,
+        max: 45 + Math.random() * 55,
+        r: 1.1 + Math.random() * 2.4,
       });
     };
 
     const drawTongue = (tongue: Tongue, time: number) => {
-      const flicker = 0.85 + 0.15 * Math.sin(time * tongue.speed + tongue.phase);
+      const flicker =
+        0.82 + 0.18 * Math.sin(time * tongue.speed + tongue.phase);
       const height = tongue.h * flicker;
-      const baseY = h - tongue.base;
+      // Root at bottom of canvas (letter feet) → tip toward / past top
+      const baseY = h * 0.94;
       const tipX =
         tongue.x +
-        Math.sin(time * tongue.speed * 0.9 + tongue.phase) * tongue.w * 0.8 +
+        Math.sin(time * tongue.speed * 0.9 + tongue.phase) * tongue.w * 0.85 +
         tongue.lean * height;
       const tipY = baseY - height;
 
       const grad = ctx.createLinearGradient(tongue.x, baseY, tipX, tipY);
-      grad.addColorStop(0, "rgba(255, 60, 0, 0)");
-      grad.addColorStop(0.15, "rgba(255, 70, 0, 0.55)");
-      grad.addColorStop(0.45, "rgba(255, 140, 20, 0.85)");
-      grad.addColorStop(0.75, "rgba(255, 220, 90, 0.9)");
-      grad.addColorStop(1, "rgba(255, 250, 220, 0.35)");
+      grad.addColorStop(0, "rgba(180, 30, 0, 0)");
+      grad.addColorStop(0.12, "rgba(255, 60, 0, 0.5)");
+      grad.addColorStop(0.4, "rgba(255, 120, 10, 0.9)");
+      grad.addColorStop(0.7, "rgba(255, 210, 70, 0.95)");
+      grad.addColorStop(1, "rgba(255, 250, 220, 0.4)");
 
       ctx.beginPath();
       ctx.moveTo(tongue.x - tongue.w * 0.55, baseY);
       ctx.quadraticCurveTo(
-        tongue.x - tongue.w * 0.2 + Math.sin(time + tongue.phase) * 4,
-        baseY - height * 0.45,
+        tongue.x - tongue.w * 0.15 + Math.sin(time + tongue.phase) * 5,
+        baseY - height * 0.42,
         tipX,
         tipY,
       );
       ctx.quadraticCurveTo(
-        tongue.x + tongue.w * 0.2 - Math.sin(time + tongue.phase) * 4,
-        baseY - height * 0.45,
+        tongue.x + tongue.w * 0.15 - Math.sin(time + tongue.phase) * 5,
+        baseY - height * 0.42,
         tongue.x + tongue.w * 0.55,
         baseY,
       );
@@ -121,29 +123,28 @@ export function InfernoTitle({ className = "" }: { className?: string }) {
       ctx.fillStyle = grad;
       ctx.fill();
 
-      // Hot core
       ctx.beginPath();
-      ctx.moveTo(tongue.x - tongue.w * 0.18, baseY);
+      ctx.moveTo(tongue.x - tongue.w * 0.16, baseY);
       ctx.quadraticCurveTo(
         tongue.x,
-        tipY + height * 0.25,
+        tipY + height * 0.28,
         tipX,
-        tipY + height * 0.12,
+        tipY + height * 0.1,
       );
       ctx.quadraticCurveTo(
         tongue.x,
-        tipY + height * 0.25,
-        tongue.x + tongue.w * 0.18,
+        tipY + height * 0.28,
+        tongue.x + tongue.w * 0.16,
         baseY,
       );
       ctx.closePath();
-      ctx.fillStyle = "rgba(255, 245, 180, 0.55)";
+      ctx.fillStyle = "rgba(255, 245, 190, 0.6)";
       ctx.fill();
     };
 
     const draw = () => {
       if (!running) return;
-      t += 0.05;
+      t += 0.055;
       ctx.clearRect(0, 0, w, h);
 
       ctx.globalCompositeOperation = "lighter";
@@ -151,16 +152,16 @@ export function InfernoTitle({ className = "" }: { className?: string }) {
         drawTongue(tongue, t);
       }
 
-      if (embers.length < 28 && Math.random() > 0.55) spawnEmber();
-      embers = embers.filter((e) => e.life < e.max);
+      if (embers.length < 32 && Math.random() > 0.5) spawnEmber();
+      embers = embers.filter((e) => e.life < e.max && e.y > -10);
       for (const e of embers) {
         e.life += 1;
-        e.x += e.vx + Math.sin(t + e.y) * 0.15;
+        e.x += e.vx + Math.sin(t * 2 + e.y * 0.05) * 0.2;
         e.y += e.vy;
         const a = 1 - e.life / e.max;
         ctx.beginPath();
         ctx.arc(e.x, e.y, e.r * a, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255, ${180 + ((1 - a) * 60) | 0}, 80, ${0.85 * a})`;
+        ctx.fillStyle = `rgba(255, ${170 + ((1 - a) * 70) | 0}, 70, ${0.9 * a})`;
         ctx.fill();
       }
       ctx.globalCompositeOperation = "source-over";
@@ -182,11 +183,13 @@ export function InfernoTitle({ className = "" }: { className?: string }) {
 
   return (
     <h1
-      className={`brand-logo brand-logo--hero brand-logo--fire ${className}`.trim()}
+      className={`brand-logo brand-logo--hero brand-logo--fire notranslate ${className}`.trim()}
+      translate="no"
+      lang="fr"
     >
       <span className="sr-only">Sushi D&apos;or</span>
       <span className="brand-logo__sushi" aria-hidden="true">
-        Sushi{"\u00A0"}
+        Sushi
       </span>
       <span ref={wrapRef} className="dor-fire" aria-hidden="true">
         <canvas ref={canvasRef} className="dor-fire__canvas" />
