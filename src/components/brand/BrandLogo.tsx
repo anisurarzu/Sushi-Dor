@@ -1,15 +1,15 @@
-import { InfernoLogo } from "@/components/brand/InfernoLogo";
+import { InfernoTitle } from "@/components/brand/InfernoTitle";
 
 type BrandLogoProps = {
   as?: "h1" | "span" | "p";
   size?: "hero" | "header" | "footer";
-  /** INFERNO fire — hero big title only */
+  /** Photoreal Inferno fire — hero title only */
   fire?: boolean;
   className?: string;
 };
 
 /**
- * Brand wordmark. Fire only on the large hero title.
+ * Brand wordmark. Hero fire uses Inferno title art; header/footer stay clean.
  */
 export function BrandLogo({
   as: Tag = "span",
@@ -18,13 +18,7 @@ export function BrandLogo({
   className = "",
 }: BrandLogoProps) {
   if (fire && size === "hero") {
-    return (
-      <Tag
-        className={`brand-logo brand-logo--hero brand-logo--inferno ${className}`.trim()}
-      >
-        <InfernoLogo text="Sushi D'or" hero />
-      </Tag>
-    );
+    return <InfernoTitle className={className} />;
   }
 
   return (
