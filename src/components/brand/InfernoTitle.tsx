@@ -153,17 +153,22 @@ export function InfernoTitle({ className = "" }: { className?: string }) {
       }
 
       if (embers.length < 32 && Math.random() > 0.5) spawnEmber();
-      embers = embers.filter((e) => e.life < e.max && e.y > -10);
+      const nextEmbers: typeof embers = [];
       for (const e of embers) {
         e.life += 1;
         e.x += e.vx + Math.sin(t * 2 + e.y * 0.05) * 0.2;
         e.y += e.vy;
-        const a = 1 - e.life / e.max;
+        if (e.life >= e.max || e.y < -10) continue;
+        const a = Math.max(0, 1 - e.life / e.max);
+        const radius = Math.max(0, e.r * a);
+        if (radius <= 0) continue;
         ctx.beginPath();
-        ctx.arc(e.x, e.y, e.r * a, 0, Math.PI * 2);
+        ctx.arc(e.x, e.y, radius, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(255, ${170 + ((1 - a) * 70) | 0}, 70, ${0.9 * a})`;
         ctx.fill();
+        nextEmbers.push(e);
       }
+      embers = nextEmbers;
       ctx.globalCompositeOperation = "source-over";
 
       raf = requestAnimationFrame(draw);
