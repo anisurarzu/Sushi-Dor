@@ -63,105 +63,123 @@ body {
   color: transparent;
 }
 
-/* —— Brand logo: molten gold + ember fire 3D —— */
+/* —— Brand logo: real flames on top of the letters —— */
 .brand-logo {
   display: inline-block;
   margin: 0;
   font-family: var(--font-display), Georgia, serif;
   font-weight: 600;
   letter-spacing: 0.04em;
-  line-height: 0.92;
-  perspective: 900px;
+  line-height: 1;
 }
 
-.brand-logo__stack {
+.brand-logo__stage {
   position: relative;
   display: inline-block;
-  transform-style: preserve-3d;
-  transform: rotateX(8deg) rotateY(-6deg);
-  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.group:hover .brand-logo__stack,
-.brand-logo--hero:hover .brand-logo__stack {
-  transform: rotateX(4deg) rotateY(-2deg) translateZ(6px);
-}
-
-.brand-logo__depth,
-.brand-logo__glow,
-.brand-logo__face {
-  display: block;
+  padding-top: 0.55em;
   white-space: nowrap;
 }
 
-.brand-logo__depth {
+.brand-logo__flames {
   position: absolute;
-  inset: 0;
-  color: #3a2410;
-  transform: translate3d(0.045em, 0.07em, -0.12em);
-  text-shadow:
-    0.01em 0.02em 0 #2a1808,
-    0.02em 0.04em 0 #241406,
-    0.03em 0.055em 0 #1a0f04,
-    0.045em 0.08em 0.02em rgba(0, 0, 0, 0.55);
-  user-select: none;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 0.7em;
   pointer-events: none;
+  z-index: 2;
+  overflow: visible;
 }
 
-.brand-logo__glow {
+.brand-logo__flame {
   position: absolute;
-  inset: 0;
-  color: transparent;
-  background: linear-gradient(
-    115deg,
-    #8a3a12 0%,
-    #c45a1a 18%,
-    #e0c878 36%,
-    #ff8a3d 52%,
-    #c4a35a 68%,
-    #ff6b2c 84%,
-    #8a6f2f 100%
+  bottom: 0;
+  width: 0.28em;
+  height: 0.62em;
+  margin-left: -0.14em;
+  border-radius: 50% 50% 20% 20% / 60% 60% 30% 30%;
+  background: radial-gradient(
+    ellipse at 50% 80%,
+    #fff6c8 0%,
+    #ffe08a 18%,
+    #ff9a2e 42%,
+    #ff4d12 68%,
+    #b91c0c 88%,
+    transparent 100%
   );
-  background-size: 280% 280%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  filter: blur(10px) saturate(1.25);
-  opacity: 0.55;
-  animation: brand-fire-flow 5.5s ease-in-out infinite alternate,
-    brand-fire-flicker 2.4s ease-in-out infinite;
-  user-select: none;
+  box-shadow:
+    0 0 0.12em rgba(255, 180, 60, 0.85),
+    0 -0.08em 0.22em rgba(255, 80, 20, 0.55);
+  transform-origin: 50% 100%;
+  animation-name: brand-flame-dance;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  mix-blend-mode: screen;
+  opacity: 0.95;
+}
+
+.brand-logo__flame:nth-child(odd) {
+  width: 0.22em;
+  height: 0.5em;
+  margin-left: -0.11em;
+}
+
+.brand-logo__flame:nth-child(3n) {
+  height: 0.78em;
+  filter: hue-rotate(-8deg);
+}
+
+.brand-logo__embers {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -0.15em;
+  height: 1.1em;
   pointer-events: none;
-  z-index: 0;
+  z-index: 3;
+  overflow: visible;
+}
+
+.brand-logo__ember {
+  position: absolute;
+  bottom: 0.2em;
+  width: 0.08em;
+  height: 0.08em;
+  border-radius: 50%;
+  background: #ffd27a;
+  box-shadow: 0 0 0.14em #ff6b2c;
+  animation-name: brand-ember-rise;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  opacity: 0;
 }
 
 .brand-logo__face {
   position: relative;
   z-index: 1;
+  display: block;
   color: #f0e6c8;
   text-shadow:
-    0 0 0.02em rgba(255, 220, 160, 0.35),
-    0 0.02em 0.04em rgba(60, 30, 8, 0.45);
+    0 0.03em 0.05em rgba(40, 18, 4, 0.55),
+    0 0 0.15em rgba(255, 140, 40, 0.25);
 }
 
-.brand-logo__accent {
+.brand-logo__fire {
   background: linear-gradient(
-    118deg,
-    #6b3a12 0%,
-    #c45a1a 14%,
-    #e8b84a 28%,
-    #fff1c2 42%,
-    #ff8f3a 55%,
-    #e0c878 70%,
-    #ff6b2c 85%,
-    #8a6f2f 100%
+    180deg,
+    #fff3c4 0%,
+    #ffcc66 22%,
+    #ff8a2b 48%,
+    #ff4e12 72%,
+    #c41e08 100%
   );
-  background-size: 300% 300%;
+  background-size: 100% 200%;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  animation: brand-fire-flow 4.8s ease-in-out infinite alternate;
-  filter: drop-shadow(0 0 0.12em rgba(255, 120, 40, 0.35))
-    drop-shadow(0 0 0.28em rgba(224, 200, 120, 0.28));
+  animation: brand-fire-letters 2.8s ease-in-out infinite alternate;
+  filter: drop-shadow(0 0 0.15em rgba(255, 90, 20, 0.65))
+    drop-shadow(0 -0.06em 0.2em rgba(255, 160, 40, 0.45));
 }
 
 .brand-logo--hero {
@@ -169,20 +187,37 @@ body {
   letter-spacing: -0.01em;
 }
 
-.brand-logo--hero .brand-logo__glow {
-  filter: blur(14px) saturate(1.35);
-  opacity: 0.62;
+.brand-logo--hero .brand-logo__stage {
+  padding-top: 0.72em;
 }
 
-.brand-logo--hero .brand-logo__accent {
-  filter: drop-shadow(0 0 0.18em rgba(255, 110, 35, 0.45))
-    drop-shadow(0 0 0.42em rgba(224, 200, 120, 0.35))
-    drop-shadow(0 0.04em 0.08em rgba(40, 18, 4, 0.5));
+.brand-logo--hero .brand-logo__flames {
+  height: 0.85em;
+}
+
+.brand-logo--hero .brand-logo__flame {
+  width: 0.34em;
+  height: 0.78em;
+  margin-left: -0.17em;
 }
 
 .brand-logo--header {
   font-size: 1.25rem;
   letter-spacing: 0.06em;
+}
+
+.brand-logo--header .brand-logo__stage {
+  padding-top: 0.42em;
+}
+
+.brand-logo--header .brand-logo__flames {
+  height: 0.48em;
+}
+
+.brand-logo--header .brand-logo__flame {
+  width: 0.2em;
+  height: 0.42em;
+  margin-left: -0.1em;
 }
 
 @media (min-width: 640px) {
@@ -202,49 +237,66 @@ body {
   letter-spacing: 0.05em;
 }
 
-@keyframes brand-fire-flow {
-  0% {
-    background-position: 0% 40%;
+.brand-logo--footer .brand-logo__stage {
+  padding-top: 0.45em;
+}
+
+@keyframes brand-flame-dance {
+  0%,
+  100% {
+    transform: scaleY(0.88) scaleX(1) skewX(-4deg) translateY(0);
+    opacity: 0.75;
+  }
+  25% {
+    transform: scaleY(1.18) scaleX(0.85) skewX(6deg) translateY(-0.04em);
+    opacity: 1;
   }
   50% {
-    background-position: 70% 55%;
+    transform: scaleY(0.95) scaleX(1.12) skewX(-7deg) translateY(-0.02em);
+    opacity: 0.85;
   }
-  100% {
-    background-position: 100% 45%;
+  75% {
+    transform: scaleY(1.22) scaleX(0.9) skewX(5deg) translateY(-0.06em);
+    opacity: 1;
   }
 }
 
-@keyframes brand-fire-flicker {
-  0%,
+@keyframes brand-ember-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(1);
+  }
+  15% {
+    opacity: 1;
+  }
   100% {
-    opacity: 0.42;
-    transform: scale(1);
+    opacity: 0;
+    transform: translateY(-1.1em) translateX(0.15em) scale(0.35);
   }
-  35% {
-    opacity: 0.68;
-    transform: scale(1.015);
+}
+
+@keyframes brand-fire-letters {
+  0% {
+    background-position: 50% 0%;
+    filter: drop-shadow(0 0 0.12em rgba(255, 90, 20, 0.55))
+      drop-shadow(0 -0.05em 0.18em rgba(255, 160, 40, 0.4));
   }
-  55% {
-    opacity: 0.5;
-    transform: scale(0.995);
-  }
-  75% {
-    opacity: 0.72;
-    transform: scale(1.02);
+  100% {
+    background-position: 50% 100%;
+    filter: drop-shadow(0 0 0.22em rgba(255, 70, 10, 0.75))
+      drop-shadow(0 -0.1em 0.28em rgba(255, 180, 50, 0.55));
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .brand-logo__glow,
-  .brand-logo__accent {
+  .brand-logo__flame,
+  .brand-logo__ember,
+  .brand-logo__fire {
     animation: none;
   }
-  .brand-logo__stack {
-    transform: none;
-  }
-  .group:hover .brand-logo__stack,
-  .brand-logo--hero:hover .brand-logo__stack {
-    transform: none;
+  .brand-logo__flames,
+  .brand-logo__embers {
+    display: none;
   }
 }
 

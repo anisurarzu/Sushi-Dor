@@ -28,14 +28,7 @@ export function Hero() {
       </div>
 
       <div className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-12 pt-32 sm:px-6 sm:pb-16 sm:pt-36 md:px-10 md:pb-24">
-        <p className="animate-rise mb-3 text-[0.62rem] uppercase tracking-[0.22em] text-gold sm:mb-5 sm:text-[0.72rem] sm:tracking-[0.35em]">
-          Annemasse · Thonon-les-Bains · Haute-Savoie
-        </p>
-        <BrandLogo
-          as="h1"
-          size="hero"
-          className="animate-rise-delay"
-        />
+        <BrandLogo as="h1" size="hero" className="animate-rise" />
         <p className="animate-rise-delay-2 mt-4 max-w-xl text-sm leading-relaxed text-champagne/85 sm:mt-6 sm:text-base md:text-lg">
           Cuisine japonaise à Annemasse et Thonon-les-Bains. Découvrez notre
           carte — le site de commande en ligne arrive bientôt.
