@@ -130,7 +130,7 @@ body {
   margin: 0;
 }
 
-/* Hero: fire only inside D'or letterforms */
+/* Hero: soft 3D D'or + living fire fill + fading sparks */
 .brand-logo--fire {
   max-width: min(100%, 52rem);
   font-size: clamp(2.6rem, 11vw, 7.2rem);
@@ -143,10 +143,34 @@ body {
   display: inline-block;
   line-height: 1;
   vertical-align: baseline;
+  isolation: isolate;
+}
+
+.dor-fire__depth {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 0;
+  font: inherit;
+  font-weight: inherit;
+  letter-spacing: inherit;
+  line-height: 1;
+  white-space: nowrap;
+  color: #5a1608;
+  user-select: none;
+  pointer-events: none;
+  text-shadow:
+    0.012em 0.018em 0 #4a1006,
+    0.024em 0.034em 0 #3a0c05,
+    0.036em 0.05em 0 #2c0904,
+    0.048em 0.066em 0.01em rgba(12, 4, 0, 0.45);
+  transform: translate(0.01em, 0.015em);
 }
 
 .dor-fire__fill {
   --fire-tile: 1.4em;
+  position: relative;
+  z-index: 1;
   display: inline-block;
   font: inherit;
   font-weight: inherit;
@@ -167,7 +191,6 @@ body {
       #c41000 78%,
       #4a0600 100%
     );
-  /* Tile height = animation travel → seamless infinite loop */
   background-size:
     160% var(--fire-tile),
     180% var(--fire-tile),
@@ -179,13 +202,37 @@ body {
   background-repeat: repeat-y, repeat-y, no-repeat;
   -webkit-background-clip: text;
   background-clip: text;
-  filter: drop-shadow(0 0 12px rgba(255, 90, 20, 0.4))
-    drop-shadow(0 0 24px rgba(255, 50, 0, 0.22));
+  filter: drop-shadow(0 -0.5px 0 rgba(255, 230, 170, 0.35))
+    drop-shadow(0 1px 0 rgba(90, 20, 0, 0.25))
+    drop-shadow(0 0 10px rgba(255, 90, 20, 0.38))
+    drop-shadow(0 0 22px rgba(255, 50, 0, 0.2));
   animation: dor-fire-burn 8s linear infinite;
 }
 
+.dor-fire__sparks {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: visible;
+}
+
+.dor-spark {
+  position: absolute;
+  width: 0.045em;
+  height: 0.045em;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff6d0 0%, #ffb14a 55%, transparent 75%);
+  box-shadow:
+    0 0 0.08em rgba(255, 200, 100, 0.85),
+    0 0 0.18em rgba(255, 100, 30, 0.35);
+  opacity: 0;
+  animation-name: dor-spark-rise;
+  animation-timing-function: cubic-bezier(0.22, 0.6, 0.3, 1);
+  animation-iteration-count: infinite;
+}
+
 @keyframes dor-fire-burn {
-  /* Rise forever (bottom → top): shift exactly one tile so the loop never jumps */
   from {
     background-position:
       50% 1.4em,
@@ -197,6 +244,23 @@ body {
       50% 0,
       42% -0.7em,
       0 0;
+  }
+}
+
+@keyframes dor-spark-rise {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0.15em, 0) scale(0.55);
+  }
+  12% {
+    opacity: 0.9;
+  }
+  55% {
+    opacity: 0.45;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(0.08em, -1.15em, 0) scale(0.2);
   }
 }
 
@@ -213,6 +277,9 @@ body {
     );
     background-size: 100% 100%;
     background-position: 0 0;
+  }
+  .dor-fire__sparks {
+    display: none;
   }
 }
 
