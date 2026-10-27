@@ -2,11 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 
+/** Cache-busted so browsers don't keep old wrong clips (kids VR / dough). */
 const CLIPS = [
-  "/media/sushi-prep.mp4",
-  "/media/sushi-flame.mp4",
-  "/media/sushi-torch.mp4",
-  "/media/sushi-plating.mp4",
+  "/media/sushi-prep.mp4?v=3",
+  "/media/sushi-flame.mp4?v=3",
+  "/media/sushi-torch.mp4?v=3",
+  "/media/sushi-restaurant.mp4?v=3",
 ] as const;
 
 const POSTER =
@@ -14,6 +15,7 @@ const POSTER =
 
 /**
  * Cycles 4 muted hero clips — when one ends, the next crossfades in.
+ * Only professional sushi scenes (prep, flame, torch, restaurant nigiri).
  */
 export function HeroVideos() {
   const [index, setIndex] = useState(0);
