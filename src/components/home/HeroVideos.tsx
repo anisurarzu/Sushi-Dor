@@ -4,9 +4,9 @@ import { useEffect, useRef, useState } from "react";
 
 const CLIPS = [
   "/media/sushi-prep.mp4",
-  "/media/sushi-nigiri.mp4",
+  "/media/sushi-flame.mp4",
+  "/media/sushi-torch.mp4",
   "/media/sushi-plating.mp4",
-  "/media/sushi-bar.mp4",
 ] as const;
 
 const POSTER =
