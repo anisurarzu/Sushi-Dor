@@ -28,7 +28,7 @@ export function Hero() {
       </div>
 
       <div className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-12 pt-32 sm:px-6 sm:pb-16 sm:pt-36 md:px-10 md:pb-24">
-        <BrandLogo as="h1" size="hero" className="animate-rise" />
+        <BrandLogo as="h1" size="hero" className="animate-rise" fire />
         <p className="animate-rise-delay-2 mt-4 max-w-xl text-sm leading-relaxed text-champagne/85 sm:mt-6 sm:text-base md:text-lg">
           Cuisine japonaise à Annemasse et Thonon-les-Bains. Découvrez notre
           carte — le site de commande en ligne arrive bientôt.

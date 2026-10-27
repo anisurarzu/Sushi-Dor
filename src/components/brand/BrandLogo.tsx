@@ -1,69 +1,37 @@
-"use client";
-
-import type { CSSProperties } from "react";
+import { InfernoLogo } from "@/components/brand/InfernoLogo";
 
 type BrandLogoProps = {
   as?: "h1" | "span" | "p";
   size?: "hero" | "header" | "footer";
+  /** INFERNO fire — hero big title only */
+  fire?: boolean;
   className?: string;
 };
 
-const FLAME_COUNT = {
-  hero: 18,
-  header: 10,
-  footer: 10,
-} as const;
-
 /**
- * Sushi D'or wordmark with real flame tongues burning along the letter tops.
+ * Brand wordmark. Fire only on the large hero title.
  */
 export function BrandLogo({
   as: Tag = "span",
   size = "header",
+  fire = false,
   className = "",
 }: BrandLogoProps) {
-  const count = FLAME_COUNT[size];
+  if (fire && size === "hero") {
+    return (
+      <Tag
+        className={`brand-logo brand-logo--hero brand-logo--inferno ${className}`.trim()}
+      >
+        <InfernoLogo text="Sushi D'or" hero />
+      </Tag>
+    );
+  }
 
   return (
-    <Tag className={`brand-logo brand-logo--${size} ${className}`.trim()}>
-      <span className="brand-logo__stage">
-        <span className="brand-logo__flames" aria-hidden="true">
-          {Array.from({ length: count }, (_, i) => (
-            <span
-              key={i}
-              className="brand-logo__flame"
-              style={
-                {
-                  "--i": i,
-                  "--n": count,
-                  left: `${((i + 0.5) / count) * 100}%`,
-                  animationDelay: `${(i % 7) * -0.28}s`,
-                  animationDuration: `${0.85 + (i % 5) * 0.18}s`,
-                } as CSSProperties
-              }
-            />
-          ))}
-        </span>
-        <span className="brand-logo__embers" aria-hidden="true">
-          {Array.from({ length: size === "hero" ? 14 : 6 }, (_, i) => (
-            <span
-              key={i}
-              className="brand-logo__ember"
-              style={
-                {
-                  "--i": i,
-                  left: `${8 + ((i * 17) % 84)}%`,
-                  animationDelay: `${i * -0.35}s`,
-                  animationDuration: `${2.2 + (i % 4) * 0.4}s`,
-                } as CSSProperties
-              }
-            />
-          ))}
-        </span>
-        <span className="brand-logo__face">
-          Sushi <span className="brand-logo__fire">D&apos;or</span>
-        </span>
-      </span>
+    <Tag
+      className={`brand-logo brand-logo--${size} brand-logo--plain ${className}`.trim()}
+    >
+      Sushi <span className="gold-text">D&apos;or</span>
     </Tag>
   );
 }
