@@ -9,19 +9,21 @@ const CLIPS = [
       "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=2400&q=80",
   },
   {
+    // Korai / wok with visible open flame while cooking
     src: "/media/wok-fire.mp4",
     poster:
-      "https://images.unsplash.com/photo-1553621042-f6e147245754?auto=format&fit=crop&w=2400&q=80",
+      "https://images.unsplash.com/photo-1555126634-323283e090fa?auto=format&fit=crop&w=2400&q=80",
+  },
+  {
+    // Close-up Asian stir-fry over open flame
+    src: "/media/wok-flame-close.mp4",
+    poster:
+      "https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=2400&q=80",
   },
   {
     src: "/media/sushi-flame.mp4",
     poster:
       "https://images.unsplash.com/photo-1617196034796-73dfa7b1fd56?auto=format&fit=crop&w=2400&q=80",
-  },
-  {
-    src: "/media/sushi-torch.mp4",
-    poster:
-      "https://images.unsplash.com/photo-1583623025817-d180a2225852?auto=format&fit=crop&w=2400&q=80",
   },
 ] as const;
 
