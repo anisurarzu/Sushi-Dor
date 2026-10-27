@@ -183,16 +183,17 @@ body {
 }
 
 @keyframes dor-fire-burn {
+  /* Rising: texture scrolls upward (bottom → top) */
   from {
     background-position:
-      50% 140%,
-      42% 145%,
+      50% -40%,
+      48% -45%,
       0 0;
   }
   to {
     background-position:
-      50% -50%,
-      48% -55%,
+      50% 140%,
+      42% 145%,
       0 0;
   }
 }
