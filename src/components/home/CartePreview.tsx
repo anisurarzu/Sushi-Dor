@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { CategoryFireTitle } from "@/components/brand/CategoryFireTitle";
+import { CategoryNav } from "@/components/home/CategoryNav";
 import { ProductCardDb } from "@/components/menu/ProductCardDb";
 import {
   getHomeCatalog,
@@ -56,9 +58,12 @@ function CategorySection({
     <section id={anchorId} className="scroll-mt-28">
       <div className="mb-5 flex flex-col gap-3 sm:mb-8 sm:flex-row sm:items-end sm:justify-between">
         <div className="max-w-2xl">
-          <h3 className="font-[family-name:var(--font-display)] text-2xl text-champagne sm:text-3xl md:text-4xl">
+          <CategoryFireTitle
+            id={anchorId}
+            className="font-[family-name:var(--font-display)] text-2xl text-champagne sm:text-3xl md:text-4xl"
+          >
             {title}
-          </h3>
+          </CategoryFireTitle>
           {description ? (
             <p className="mt-2 text-sm text-[#c4bbaa] sm:text-base">
               {description}
@@ -77,49 +82,13 @@ function CategorySection({
   );
 }
 
-function CategoryNav({
-  featured,
-  categories,
-}: {
-  featured: HomeProduct[];
-  categories: HomeCategory[];
-}) {
-  const links = [
-    ...(featured.length > 0
-      ? [{ href: "#incontournables", label: "Incontournables" }]
-      : []),
-    ...categories.map((c) => ({
-      href: `#cat-${c.slug}`,
-      label: c.nameFr,
-    })),
-    { href: "/menu", label: "Tous" },
-  ];
-
-  return (
-    <nav
-      className="-mx-3 mb-10 flex gap-2 overflow-x-auto px-3 pb-1 scrollbar-none sm:mx-0 sm:mb-14 sm:flex-wrap sm:overflow-visible sm:px-0"
-      aria-label="Catégories"
-    >
-      {links.map((link) => (
-        <a
-          key={link.href}
-          href={link.href}
-          className="shrink-0 border border-[color:var(--line)] px-3 py-2 text-[0.62rem] uppercase tracking-[0.14em] text-mist transition-colors hover:border-gold hover:text-gold"
-        >
-          {link.label}
-        </a>
-      ))}
-    </nav>
-  );
-}
-
 export async function CartePreview() {
   const { featured, categories, fromDb } = await getHomeCatalog();
 
   return (
     <section
       id="carte"
-      className="relative bg-ink px-3 py-16 sm:px-6 sm:py-24 md:px-10 md:py-28"
+      className="relative bg-ink px-3 py-12 sm:px-6 sm:py-20 md:px-10 md:py-24"
     >
       <div className="mx-auto max-w-7xl">
         <div className="mb-8 max-w-2xl px-1 sm:mb-10">
@@ -155,7 +124,7 @@ export async function CartePreview() {
             />
           ) : null}
 
-          {categories.map((cat) => (
+          {categories.map((cat: HomeCategory) => (
             <CategorySection
               key={cat.id}
               anchorId={`cat-${cat.slug}`}

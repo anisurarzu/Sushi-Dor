@@ -1,3 +1,4 @@
+import { CategoryFireTitle } from "@/components/brand/CategoryFireTitle";
 import { SiteFooter } from "@/components/home/SiteFooter";
 import { SiteHeader } from "@/components/home/SiteHeader";
 import { ProductCardDb } from "@/components/menu/ProductCardDb";
@@ -140,9 +141,13 @@ export default async function MenuPage() {
           return (
             <section key={cat.slug} id={cat.slug} className="scroll-mt-24">
               <div className="mb-4 flex items-end justify-between gap-3 px-1 sm:mb-8">
-                <h2 className="font-[family-name:var(--font-display)] text-2xl text-champagne sm:text-3xl md:text-4xl">
+                <CategoryFireTitle
+                  id={cat.slug}
+                  as="h2"
+                  className="font-[family-name:var(--font-display)] text-2xl text-champagne sm:text-3xl md:text-4xl"
+                >
                   {cat.nameFr}
-                </h2>
+                </CategoryFireTitle>
                 <Link
                   href={`/menu/${cat.slug}`}
                   className="text-[0.65rem] uppercase tracking-[0.14em] text-gold sm:text-xs"

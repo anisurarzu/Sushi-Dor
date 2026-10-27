@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { FireText } from "@/components/brand/FireText";
 import { SiteFooter } from "@/components/home/SiteFooter";
 import { SiteHeader } from "@/components/home/SiteHeader";
 import { ProductCardDb } from "@/components/menu/ProductCardDb";
@@ -27,7 +28,7 @@ export function CategoryMenuPage({ category, products }: Props) {
               ← La carte
             </Link>
             <h1 className="mt-4 font-[family-name:var(--font-display)] text-4xl sm:text-5xl md:text-6xl">
-              {category.nameFr}
+              <FireText sparks={32}>{category.nameFr}</FireText>
             </h1>
             {category.description ? (
               <p className="mt-3 max-w-xl text-sm text-[#c4bbaa] sm:text-base">
