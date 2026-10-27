@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 
 export function Hero() {
   return (
@@ -30,9 +31,11 @@ export function Hero() {
         <p className="animate-rise mb-3 text-[0.62rem] uppercase tracking-[0.22em] text-gold sm:mb-5 sm:text-[0.72rem] sm:tracking-[0.35em]">
           Annemasse · Thonon-les-Bains · Haute-Savoie
         </p>
-        <h1 className="animate-rise-delay font-[family-name:var(--font-display)] text-[clamp(2.6rem,11vw,7.2rem)] leading-[0.92] tracking-tight text-bone">
-          Sushi <span className="gold-text">D&apos;or</span>
-        </h1>
+        <BrandLogo
+          as="h1"
+          size="hero"
+          className="animate-rise-delay"
+        />
         <p className="animate-rise-delay-2 mt-4 max-w-xl text-sm leading-relaxed text-champagne/85 sm:mt-6 sm:text-base md:text-lg">
           Cuisine japonaise à Annemasse et Thonon-les-Bains. Découvrez notre
           carte — le site de commande en ligne arrive bientôt.

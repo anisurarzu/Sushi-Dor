@@ -1,13 +1,12 @@
 import Link from "next/link";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 
 export function SiteFooter() {
   return (
     <footer id="contact" className="border-t border-[color:var(--line)] bg-ink">
       <div className="mx-auto grid max-w-7xl gap-12 px-6 py-16 md:grid-cols-2 md:px-10">
         <div>
-          <p className="font-[family-name:var(--font-display)] text-2xl text-champagne">
-            Sushi <span className="gold-text">D&apos;or</span>
-          </p>
+          <BrandLogo as="p" size="footer" />
           <p className="mt-4 max-w-xs text-sm leading-relaxed text-mist">
             Cuisine japonaise à Annemasse et Thonon-les-Bains (Haute-Savoie).
             Site en construction.

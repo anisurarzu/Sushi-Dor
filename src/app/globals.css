@@ -63,6 +63,191 @@ body {
   color: transparent;
 }
 
+/* —— Brand logo: molten gold + ember fire 3D —— */
+.brand-logo {
+  display: inline-block;
+  margin: 0;
+  font-family: var(--font-display), Georgia, serif;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 0.92;
+  perspective: 900px;
+}
+
+.brand-logo__stack {
+  position: relative;
+  display: inline-block;
+  transform-style: preserve-3d;
+  transform: rotateX(8deg) rotateY(-6deg);
+  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.group:hover .brand-logo__stack,
+.brand-logo--hero:hover .brand-logo__stack {
+  transform: rotateX(4deg) rotateY(-2deg) translateZ(6px);
+}
+
+.brand-logo__depth,
+.brand-logo__glow,
+.brand-logo__face {
+  display: block;
+  white-space: nowrap;
+}
+
+.brand-logo__depth {
+  position: absolute;
+  inset: 0;
+  color: #3a2410;
+  transform: translate3d(0.045em, 0.07em, -0.12em);
+  text-shadow:
+    0.01em 0.02em 0 #2a1808,
+    0.02em 0.04em 0 #241406,
+    0.03em 0.055em 0 #1a0f04,
+    0.045em 0.08em 0.02em rgba(0, 0, 0, 0.55);
+  user-select: none;
+  pointer-events: none;
+}
+
+.brand-logo__glow {
+  position: absolute;
+  inset: 0;
+  color: transparent;
+  background: linear-gradient(
+    115deg,
+    #8a3a12 0%,
+    #c45a1a 18%,
+    #e0c878 36%,
+    #ff8a3d 52%,
+    #c4a35a 68%,
+    #ff6b2c 84%,
+    #8a6f2f 100%
+  );
+  background-size: 280% 280%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  filter: blur(10px) saturate(1.25);
+  opacity: 0.55;
+  animation: brand-fire-flow 5.5s ease-in-out infinite alternate,
+    brand-fire-flicker 2.4s ease-in-out infinite;
+  user-select: none;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.brand-logo__face {
+  position: relative;
+  z-index: 1;
+  color: #f0e6c8;
+  text-shadow:
+    0 0 0.02em rgba(255, 220, 160, 0.35),
+    0 0.02em 0.04em rgba(60, 30, 8, 0.45);
+}
+
+.brand-logo__accent {
+  background: linear-gradient(
+    118deg,
+    #6b3a12 0%,
+    #c45a1a 14%,
+    #e8b84a 28%,
+    #fff1c2 42%,
+    #ff8f3a 55%,
+    #e0c878 70%,
+    #ff6b2c 85%,
+    #8a6f2f 100%
+  );
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: brand-fire-flow 4.8s ease-in-out infinite alternate;
+  filter: drop-shadow(0 0 0.12em rgba(255, 120, 40, 0.35))
+    drop-shadow(0 0 0.28em rgba(224, 200, 120, 0.28));
+}
+
+.brand-logo--hero {
+  font-size: clamp(2.6rem, 11vw, 7.2rem);
+  letter-spacing: -0.01em;
+}
+
+.brand-logo--hero .brand-logo__glow {
+  filter: blur(14px) saturate(1.35);
+  opacity: 0.62;
+}
+
+.brand-logo--hero .brand-logo__accent {
+  filter: drop-shadow(0 0 0.18em rgba(255, 110, 35, 0.45))
+    drop-shadow(0 0 0.42em rgba(224, 200, 120, 0.35))
+    drop-shadow(0 0.04em 0.08em rgba(40, 18, 4, 0.5));
+}
+
+.brand-logo--header {
+  font-size: 1.25rem;
+  letter-spacing: 0.06em;
+}
+
+@media (min-width: 640px) {
+  .brand-logo--header {
+    font-size: 1.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .brand-logo--header {
+    font-size: 1.7rem;
+  }
+}
+
+.brand-logo--footer {
+  font-size: 1.5rem;
+  letter-spacing: 0.05em;
+}
+
+@keyframes brand-fire-flow {
+  0% {
+    background-position: 0% 40%;
+  }
+  50% {
+    background-position: 70% 55%;
+  }
+  100% {
+    background-position: 100% 45%;
+  }
+}
+
+@keyframes brand-fire-flicker {
+  0%,
+  100% {
+    opacity: 0.42;
+    transform: scale(1);
+  }
+  35% {
+    opacity: 0.68;
+    transform: scale(1.015);
+  }
+  55% {
+    opacity: 0.5;
+    transform: scale(0.995);
+  }
+  75% {
+    opacity: 0.72;
+    transform: scale(1.02);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand-logo__glow,
+  .brand-logo__accent {
+    animation: none;
+  }
+  .brand-logo__stack {
+    transform: none;
+  }
+  .group:hover .brand-logo__stack,
+  .brand-logo--hero:hover .brand-logo__stack {
+    transform: none;
+  }
+}
+
 .gold-rule {
   height: 1px;
   background: linear-gradient(

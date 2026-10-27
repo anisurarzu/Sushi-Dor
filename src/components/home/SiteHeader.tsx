@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 import { CartBadge } from "@/components/cart/CartBadge";
 
 const links = [
@@ -12,9 +13,7 @@ export function SiteHeader() {
     <header className="absolute inset-x-0 top-0 z-30">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-4 sm:px-6 sm:py-6 md:px-10">
         <Link href="/" className="group relative z-10 min-w-0">
-          <span className="font-[family-name:var(--font-display)] text-xl tracking-[0.06em] text-champagne sm:text-2xl md:text-[1.7rem]">
-            Sushi <span className="gold-text">D&apos;or</span>
-          </span>
+          <BrandLogo size="header" />
         </Link>
 
         <nav className="hidden items-center gap-8 lg:flex">
