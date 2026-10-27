@@ -3,7 +3,8 @@
 import { useEffect, useRef } from "react";
 
 /**
- * Hero mark: "Sushi" plain + "D'or" filled with live fire (clipped to letters only).
+ * Hero mark: "Sushi" plain + "D'or" with live fire inside letters,
+ * flames rising and licking a little above the glyph tops.
  */
 export function InfernoTitle({ className = "" }: { className?: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -32,6 +33,14 @@ export function InfernoTitle({ className = "" }: { className?: string }) {
     let fireBuf: HTMLCanvasElement | null = null;
     let fireCtx: CanvasRenderingContext2D | null = null;
     let imgData: ImageData | null = null;
+    let cssW = 0;
+    let cssH = 0;
+    let textH = 0;
+    let plumeH = 0;
+    let textBaseline = 0;
+    let textX = 0;
+    let fontCss = "";
+    let fontPx = 48;
 
     const img = new Image();
     img.decoding = "async";
@@ -43,19 +52,38 @@ export function InfernoTitle({ className = "" }: { className?: string }) {
 
     const palette = buildPalette();
 
+    const measure = () => {
+      const styles = getComputedStyle(ghost);
+      fontCss = `${styles.fontWeight} ${styles.fontSize} ${styles.fontFamily}`;
+      fontPx = parseFloat(styles.fontSize) || 48;
+      ctx.font = fontCss;
+      ctx.textBaseline = "alphabetic";
+      ctx.textAlign = "left";
+      const metrics = ctx.measureText("D'or");
+      const ascent =
+        metrics.actualBoundingBoxAscent || fontPx * 0.78;
+      const descent = metrics.actualBoundingBoxDescent || fontPx * 0.12;
+      textH = Math.ceil(ascent + descent);
+      plumeH = Math.ceil(fontPx * 0.55);
+      cssW = Math.max(2, Math.ceil(Math.max(ghost.offsetWidth, metrics.width)));
+      cssH = textH + plumeH;
+      textX = (cssW - metrics.width) / 2;
+      // baseline sits in the lower text band (below plume)
+      textBaseline = plumeH + ascent;
+      return metrics.width;
+    };
+
     const resize = () => {
-      const rect = ghost.getBoundingClientRect();
-      const w = Math.max(2, Math.ceil(rect.width));
-      const h = Math.max(2, Math.ceil(rect.height * 1.28));
+      measure();
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width = Math.floor(w * dpr);
-      canvas.height = Math.floor(h * dpr);
-      canvas.style.width = `${w}px`;
-      canvas.style.height = `${h}px`;
+      canvas.width = Math.floor(cssW * dpr);
+      canvas.height = Math.floor(cssH * dpr);
+      canvas.style.width = `${cssW}px`;
+      canvas.style.height = `${cssH}px`;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-      fireW = Math.max(56, Math.floor(w / 2.5));
-      fireH = Math.max(36, Math.floor(h / 2.5));
+      fireW = Math.max(64, Math.floor(cssW / 2.2));
+      fireH = Math.max(48, Math.floor(cssH / 2.2));
       heat = new Float32Array(fireW * fireH);
       fireBuf = document.createElement("canvas");
       fireBuf.width = fireW;
@@ -64,76 +92,121 @@ export function InfernoTitle({ className = "" }: { className?: string }) {
       imgData = fireCtx ? fireCtx.createImageData(fireW, fireH) : null;
     };
 
+    /** Seed heat under the letter tops so flames climb upward into the plume. */
     const stepFire = () => {
       if (!heat) return;
       const w = fireW;
       const h = fireH;
+      // Letter band in fire-buffer coords (below plume)
+      const letterTop = Math.floor((plumeH / cssH) * h);
+      const letterBot = h - 1;
+      const fuelY = Math.min(
+        letterBot - 1,
+        Math.floor(letterTop + (letterBot - letterTop) * 0.72),
+      );
 
+      // Fuel line near upper-middle of glyphs — heat rises to top
       for (let x = 0; x < w; x++) {
-        const edge = Math.min(x, w - 1 - x) / (w * 0.5);
-        const boost = 0.5 + 0.5 * Math.max(0, Math.min(1, edge + 0.15));
-        heat[(h - 1) * w + x] = (0.7 + Math.random() * 0.3) * boost;
-        if (Math.random() > 0.88) {
-          heat[(h - 2) * w + x] = 0.5 + Math.random() * 0.5;
+        const nx = x / (w - 1);
+        // Stronger under D and o peaks
+        const shape =
+          0.55 +
+          0.45 *
+            Math.max(
+              Math.exp(-Math.pow((nx - 0.18) * 4.2, 2)),
+              Math.exp(-Math.pow((nx - 0.48) * 5.5, 2)),
+              Math.exp(-Math.pow((nx - 0.78) * 4.8, 2)),
+            );
+        heat[fuelY * w + x] = Math.max(
+          heat[fuelY * w + x],
+          (0.75 + Math.random() * 0.25) * shape,
+        );
+        if (Math.random() > 0.82) {
+          heat[Math.max(0, fuelY - 1) * w + x] = 0.55 + Math.random() * 0.45;
+        }
+        // Extra jets that break above the letter top
+        if (Math.random() > 0.93) {
+          const jy = Math.max(0, letterTop - 2 - ((Math.random() * 4) | 0));
+          heat[jy * w + x] = 0.45 + Math.random() * 0.55;
         }
       }
 
+      // Rise upward (copy from below → above)
       for (let y = 0; y < h - 1; y++) {
         for (let x = 0; x < w; x++) {
           const below =
-            heat[(y + 1) * w + x] * 0.34 +
-            heat[(y + 1) * w + ((x - 1 + w) % w)] * 0.26 +
-            heat[(y + 1) * w + ((x + 1) % w)] * 0.26 +
-            (y + 2 < h ? heat[(y + 2) * w + x] * 0.14 : 0);
-          const wind = (Math.random() - 0.5) * 0.045;
-          heat[y * w + x] = Math.max(
-            0,
-            below * (0.965 + wind) - Math.random() * 0.022,
-          );
+            heat[(y + 1) * w + x] * 0.32 +
+            heat[(y + 1) * w + ((x - 1 + w) % w)] * 0.24 +
+            heat[(y + 1) * w + ((x + 1) % w)] * 0.24 +
+            (y + 2 < h ? heat[(y + 2) * w + x] * 0.2 : 0);
+          // Cool faster high in the plume so tips fade
+          const inPlume = y < letterTop;
+          const cool = inPlume ? 0.04 + Math.random() * 0.03 : 0.018;
+          const wind = (Math.random() - 0.5) * 0.05;
+          heat[y * w + x] = Math.max(0, below * (0.97 + wind) - cool);
         }
       }
     };
 
-    const fillTextClip = (cssW: number, cssH: number) => {
-      const styles = getComputedStyle(ghost);
-      ctx.font = `${styles.fontWeight} ${styles.fontSize} ${styles.fontFamily}`;
+    const drawLetterMask = (alpha = 1) => {
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.font = fontCss;
       ctx.textBaseline = "alphabetic";
       ctx.textAlign = "left";
-      const metrics = ctx.measureText("D'or");
-      const ascent =
-        metrics.actualBoundingBoxAscent || parseFloat(styles.fontSize) * 0.72;
-      const descent = metrics.actualBoundingBoxDescent || 0;
-      const textW = metrics.width;
-      const textX = (cssW - textW) / 2;
-      const baseline = (cssH + ascent - descent) / 2;
-      return { textX, baseline, styles };
+      ctx.fillStyle = "#fff";
+      ctx.fillText("D'or", textX, textBaseline);
+      ctx.restore();
     };
 
-    const paintStatic = () => {
-      const cssW = canvas.clientWidth;
-      const cssH = canvas.clientHeight;
-      ctx.clearRect(0, 0, cssW, cssH);
-      const { textX, baseline, styles } = fillTextClip(cssW, cssH);
-      const grad = ctx.createLinearGradient(0, 0, 0, cssH);
-      grad.addColorStop(0, "#fff6b0");
-      grad.addColorStop(0.35, "#ff8a1a");
-      grad.addColorStop(0.7, "#d02000");
-      grad.addColorStop(1, "#4a0800");
-      ctx.fillStyle = grad;
-      ctx.font = `${styles.fontWeight} ${styles.fontSize} ${styles.fontFamily}`;
+    /** Soft upward flame tongues above the glyph tops (outside the letters). */
+    const drawPlumeMask = () => {
+      ctx.save();
+      ctx.font = fontCss;
       ctx.textBaseline = "alphabetic";
-      ctx.fillText("D'or", textX, baseline);
+      ctx.textAlign = "left";
+
+      // Soft silhouette stack above the letters
+      for (let i = 0; i < 7; i++) {
+        const t = i / 6;
+        const lift = plumeH * (0.12 + t * 0.9);
+        const squash = 1 - t * 0.55;
+        const a = (1 - t) * (1 - t) * 0.55;
+        ctx.save();
+        ctx.translate(cssW / 2, textBaseline);
+        ctx.scale(squash * (0.92 + Math.sin(texOffset * 0.04 + i) * 0.04), 1);
+        ctx.translate(-cssW / 2, -textBaseline - lift);
+        ctx.globalAlpha = a;
+        ctx.fillStyle = "#fff";
+        ctx.fillText("D'or", textX, textBaseline);
+        ctx.restore();
+      }
+
+      // Extra vertical lick blobs along the top edge
+      const topY = textBaseline - fontPx * 0.72;
+      for (let i = 0; i < 10; i++) {
+        const px =
+          textX +
+          (i / 9) * (cssW - textX * 2) +
+          Math.sin(texOffset * 0.07 + i * 1.7) * fontPx * 0.04;
+        const ph =
+          plumeH *
+          (0.35 + 0.55 * Math.abs(Math.sin(texOffset * 0.05 + i * 0.9)));
+        const pw = fontPx * (0.08 + (i % 3) * 0.03);
+        const g = ctx.createRadialGradient(px, topY, 0, px, topY - ph * 0.4, ph);
+        g.addColorStop(0, "rgba(255,255,255,0.85)");
+        g.addColorStop(0.45, "rgba(255,255,255,0.35)");
+        g.addColorStop(1, "rgba(255,255,255,0)");
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.ellipse(px, topY - ph * 0.35, pw, ph * 0.55, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
     };
 
-    const draw = () => {
-      if (!running || !heat || !fireBuf || !fireCtx || !imgData) return;
-      const cssW = canvas.clientWidth;
-      const cssH = canvas.clientHeight;
-      ctx.clearRect(0, 0, cssW, cssH);
-
-      stepFire();
-      texOffset = (texOffset + 1.1) % 1000;
-
+    const paintFireLayer = () => {
+      if (!heat || !fireBuf || !fireCtx || !imgData) return;
       const data = imgData.data;
       for (let i = 0; i < heat.length; i++) {
         const v = Math.min(1, heat[i]);
@@ -150,41 +223,59 @@ export function InfernoTitle({ className = "" }: { className?: string }) {
       if (texReady && texture) {
         const tw = texture.naturalWidth;
         const th = texture.naturalHeight;
-        const scale = Math.max(cssW / tw, (cssH * 1.8) / th) * 1.15;
+        const scale = Math.max(cssW / tw, (cssH * 1.6) / th) * 1.2;
         const dw = tw * scale;
         const dh = th * scale;
         const dx = (cssW - dw) / 2;
-        const shift = ((texOffset * 0.35) % dh) - dh * 0.2;
-        ctx.globalAlpha = 0.95;
-        ctx.drawImage(texture, dx, shift - dh * 0.35, dw, dh);
-        ctx.drawImage(texture, dx, shift - dh * 1.2, dw, dh);
+        // Scroll texture upward (flames climbing)
+        const shift = -((texOffset * 0.55) % dh);
+        ctx.globalAlpha = 0.9;
+        ctx.drawImage(texture, dx, shift + plumeH * 0.2, dw, dh);
+        ctx.drawImage(texture, dx, shift + dh * 0.85 + plumeH * 0.2, dw, dh);
       }
       ctx.globalAlpha = 1;
       ctx.globalCompositeOperation = "screen";
       ctx.imageSmoothingEnabled = true;
       ctx.drawImage(fireBuf, 0, 0, cssW, cssH);
       ctx.restore();
+    };
 
-      // Keep fire only inside letter shapes
-      const { textX, baseline, styles } = fillTextClip(cssW, cssH);
-      ctx.globalCompositeOperation = "destination-in";
-      ctx.fillStyle = "#fff";
-      ctx.font = `${styles.fontWeight} ${styles.fontSize} ${styles.fontFamily}`;
+    const paintStatic = () => {
+      ctx.clearRect(0, 0, cssW, cssH);
+      const grad = ctx.createLinearGradient(0, plumeH, 0, cssH);
+      grad.addColorStop(0, "#fff6b0");
+      grad.addColorStop(0.4, "#ff8a1a");
+      grad.addColorStop(0.75, "#d02000");
+      grad.addColorStop(1, "#4a0800");
+      ctx.font = fontCss;
       ctx.textBaseline = "alphabetic";
-      ctx.fillText("D'or", textX, baseline);
+      ctx.fillStyle = grad;
+      ctx.fillText("D'or", textX, textBaseline);
+    };
+
+    const draw = () => {
+      if (!running || !heat || !fireBuf || !fireCtx || !imgData) return;
+      ctx.clearRect(0, 0, cssW, cssH);
+
+      stepFire();
+      texOffset += 1.15;
+
+      paintFireLayer();
+
+      // Clip: letters solid + soft flames only above the top
+      ctx.globalCompositeOperation = "destination-in";
+      drawLetterMask(1);
+      drawPlumeMask();
       ctx.globalCompositeOperation = "source-over";
 
+      // Readable hot rim on glyphs
       ctx.save();
-      ctx.font = `${styles.fontWeight} ${styles.fontSize} ${styles.fontFamily}`;
+      ctx.font = fontCss;
       ctx.textBaseline = "alphabetic";
       ctx.lineJoin = "round";
-      ctx.lineWidth = Math.max(1.1, parseFloat(styles.fontSize) * 0.016);
-      ctx.strokeStyle = "rgba(255, 200, 110, 0.45)";
-      ctx.strokeText("D'or", textX, baseline);
-      ctx.shadowColor = "rgba(255, 70, 0, 0.55)";
-      ctx.shadowBlur = parseFloat(styles.fontSize) * 0.12;
-      ctx.fillStyle = "rgba(255, 120, 20, 0.08)";
-      ctx.fillText("D'or", textX, baseline);
+      ctx.lineWidth = Math.max(1.1, fontPx * 0.015);
+      ctx.strokeStyle = "rgba(255, 210, 120, 0.42)";
+      ctx.strokeText("D'or", textX, textBaseline);
       ctx.restore();
 
       raf = requestAnimationFrame(draw);
@@ -213,7 +304,7 @@ export function InfernoTitle({ className = "" }: { className?: string }) {
     >
       <span className="sr-only">Sushi D&apos;or</span>
       <span className="brand-logo__sushi" aria-hidden="true">
-        Sushi{" "}
+        Sushi{"\u00A0"}
       </span>
       <span className="dor-fire" aria-hidden="true">
         <canvas ref={canvasRef} className="dor-fire__canvas" />
