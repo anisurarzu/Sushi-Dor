@@ -24,7 +24,7 @@ export function OrderCta() {
         </h2>
         <p className="mx-auto mt-5 max-w-lg text-mist">
           En attendant, consultez notre carte. La commande et la réservation en
-          ligne arrivent bientôt pour Annemasse et Thonon-les-Bains.
+          ligne arrivent bientôt pour Annemasse.
         </p>
         <div className="mt-10 flex flex-wrap justify-center gap-4">
           <Link href="/menu" className="btn-gold">
