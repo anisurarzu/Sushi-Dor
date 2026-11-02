@@ -110,11 +110,13 @@ body {
   height: var(--mark-h);
   background: transparent;
   transform-style: preserve-3d;
+  overflow: visible;
   animation: brand-mark-orbit 6.4s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+  /* Gold glow only — no black plate / dark blob */
   filter:
-    drop-shadow(0 14px 22px rgba(0, 0, 0, 0.58))
-    drop-shadow(0 4px 0 rgba(70, 40, 5, 0.42))
-    drop-shadow(0 0 26px rgba(224, 168, 64, 0.48));
+    drop-shadow(0 0 10px rgba(224, 168, 64, 0.45))
+    drop-shadow(0 0 22px rgba(255, 190, 80, 0.28))
+    drop-shadow(0 6px 14px rgba(196, 140, 40, 0.22));
 }
 
 .brand-mark--header .brand-mark__stage {
@@ -145,9 +147,9 @@ body {
   --mark-w: clamp(7.5rem, 20vw, 11rem);
   --mark-h: clamp(4.2rem, 11.2vw, 6.2rem);
   filter:
-    drop-shadow(0 16px 30px rgba(0, 0, 0, 0.55))
-    drop-shadow(0 3px 0 rgba(90, 55, 10, 0.4))
-    drop-shadow(0 0 34px rgba(224, 168, 64, 0.45));
+    drop-shadow(0 0 14px rgba(224, 168, 64, 0.5))
+    drop-shadow(0 0 28px rgba(255, 190, 80, 0.32))
+    drop-shadow(0 8px 18px rgba(196, 140, 40, 0.24));
 }
 
 .brand-mark__img,
@@ -165,14 +167,15 @@ body {
 .brand-mark__img {
   z-index: 4;
   transform: translateZ(28px);
-  filter: contrast(1.08) saturate(1.12) brightness(1.06);
+  filter: contrast(1.08) saturate(1.12) brightness(1.08);
 }
 
 .brand-mark__depth {
   background: transparent center / contain no-repeat
-    url("/brand/sushi-dor-mark.png");
-  filter: brightness(0.32) sepia(0.6) hue-rotate(-8deg) saturate(1.5);
-  opacity: 0.95;
+    url("/brand/sushi-dor-mark.png?v=5");
+  /* Warm gold extrusion — not black */
+  filter: brightness(0.72) sepia(0.85) saturate(1.6) hue-rotate(-6deg);
+  opacity: 0.85;
 }
 
 .brand-mark__depth--1 {
@@ -183,14 +186,7 @@ body {
 .brand-mark__depth--2 {
   z-index: 2;
   transform: translate3d(1.6px, 3.2px, 9px);
-  opacity: 0.8;
-}
-
-.brand-mark__depth--3 {
-  z-index: 1;
-  transform: translate3d(2.4px, 5px, 0);
-  opacity: 0.62;
-  filter: brightness(0.16) blur(0.35px);
+  opacity: 0.65;
 }
 
 .brand-mark__specular {
@@ -209,8 +205,8 @@ body {
   mix-blend-mode: soft-light;
   transform: translateZ(22px);
   animation: brand-mark-shine 3.4s ease-in-out infinite;
-  -webkit-mask-image: url("/brand/sushi-dor-mark.png");
-  mask-image: url("/brand/sushi-dor-mark.png");
+  -webkit-mask-image: url("/brand/sushi-dor-mark.png?v=5");
+  mask-image: url("/brand/sushi-dor-mark.png?v=5");
   -webkit-mask-size: contain;
   mask-size: contain;
   -webkit-mask-repeat: no-repeat;
@@ -219,21 +215,27 @@ body {
   mask-position: center;
 }
 
-.brand-mark__rim {
+.brand-mark__sparks {
   pointer-events: none;
   position: absolute;
-  inset: 8% 4%;
-  z-index: 0;
-  border-radius: 40%;
-  background: radial-gradient(
-    ellipse at 50% 55%,
-    rgba(224, 168, 64, 0.38) 0%,
-    rgba(224, 168, 64, 0.12) 42%,
-    transparent 72%
-  );
-  filter: blur(12px);
-  transform: translateZ(-8px) scale(1.05);
-  animation: brand-mark-glow 2.8s ease-in-out infinite alternate;
+  inset: -35% -20%;
+  z-index: 6;
+  overflow: visible;
+}
+
+.brand-mark__spark {
+  position: absolute;
+  width: 0.22rem;
+  height: 0.22rem;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff6d0 0%, #ffc86a 55%, transparent 75%);
+  box-shadow:
+    0 0 0.35rem rgba(255, 210, 120, 0.95),
+    0 0 0.7rem rgba(255, 160, 40, 0.45);
+  opacity: 0;
+  animation-name: brand-mark-spark;
+  animation-timing-function: cubic-bezier(0.22, 0.6, 0.3, 1);
+  animation-iteration-count: infinite;
 }
 
 @keyframes brand-mark-orbit {
@@ -264,22 +266,28 @@ body {
   }
 }
 
-@keyframes brand-mark-glow {
-  from {
-    opacity: 0.5;
-    transform: translateZ(-8px) scale(0.96);
+@keyframes brand-mark-spark {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0.2rem, 0) scale(0.4);
   }
-  to {
+  18% {
     opacity: 1;
-    transform: translateZ(-8px) scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(0.15rem, -1.4rem, 0) scale(0.15);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .brand-mark__stage,
   .brand-mark__specular,
-  .brand-mark__rim {
+  .brand-mark__spark {
     animation: none;
+  }
+  .brand-mark__sparks {
+    display: none;
   }
   .brand-mark__stage {
     transform: rotateY(-12deg) rotateX(8deg);
