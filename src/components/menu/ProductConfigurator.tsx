@@ -120,29 +120,34 @@ export function ProductConfigurator({
     }
     setPending(true);
     setError(null);
-    const result = await addItem({
-      productId: product.id,
-      quantity: qty,
-      addonIds: selected,
-      cartItemId,
-    });
-    setPending(false);
-    if (!result.ok) {
-      setError(result.error);
-      return;
+    try {
+      const result = await addItem({
+        productId: product.id,
+        quantity: qty,
+        addonIds: selected,
+        cartItemId,
+      });
+      if (!result.ok) {
+        setError(result.error);
+        return;
+      }
+      setJustAdded(true);
+      window.dispatchEvent(
+        new CustomEvent("sd:cart-fly", {
+          detail: {
+            x: window.innerWidth / 2,
+            y: window.innerHeight - 80,
+          },
+        }),
+      );
+      window.setTimeout(() => {
+        router.push("/cart");
+      }, 650);
+    } catch {
+      setError("Connexion interrompue. Réessayez.");
+    } finally {
+      setPending(false);
     }
-    setJustAdded(true);
-    window.dispatchEvent(
-      new CustomEvent("sd:cart-fly", {
-        detail: {
-          x: window.innerWidth / 2,
-          y: window.innerHeight - 80,
-        },
-      }),
-    );
-    window.setTimeout(() => {
-      router.push(mode === "edit" ? "/cart" : "/cart");
-    }, 650);
   }
 
   return (

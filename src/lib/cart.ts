@@ -7,15 +7,10 @@ export const CART_COOKIE = "sd_cart";
 export async function getOrCreateCart() {
   const jar = await cookies();
   let token = jar.get(CART_COOKIE)?.value;
+  let shouldSetCookie = false;
   if (!token) {
     token = nanoid(32);
-    jar.set(CART_COOKIE, token, {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-      path: "/",
-      maxAge: 60 * 60 * 24 * 30,
-    });
+    shouldSetCookie = true;
   }
 
   let cart = await prisma.cart.findUnique({
@@ -36,6 +31,21 @@ export async function getOrCreateCart() {
       },
       include: cartInclude,
     });
+    shouldSetCookie = true;
+  }
+
+  if (shouldSetCookie) {
+    try {
+      jar.set(CART_COOKIE, token, {
+        httpOnly: true,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+        path: "/",
+        maxAge: 60 * 60 * 24 * 30,
+      });
+    } catch {
+      // Cookie writes can fail outside Route Handlers; cart still works for this request.
+    }
   }
 
   return cart;

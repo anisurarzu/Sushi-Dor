@@ -1,12 +1,33 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { useCart } from "@/components/cart/CartProvider";
 import { OrderTypeToggle } from "@/components/cart/OrderTypeToggle";
 import { formatEuro } from "@/lib/pricing";
 
 export function CartPageClient() {
   const { cart, loading, updateQty, removeItem, setOrderType } = useCart();
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+
+  async function changeQty(cartItemId: string, quantity: number) {
+    if (busyId) return;
+    setBusyId(cartItemId);
+    setActionError(null);
+    const result = await updateQty(cartItemId, quantity);
+    setBusyId(null);
+    if (!result.ok) setActionError(result.error);
+  }
+
+  async function onRemove(cartItemId: string) {
+    if (busyId) return;
+    setBusyId(cartItemId);
+    setActionError(null);
+    const result = await removeItem(cartItemId);
+    setBusyId(null);
+    if (!result.ok) setActionError(result.error);
+  }
 
   if (loading) {
     return <p className="text-mist">Chargement du panier…</p>;
@@ -25,6 +46,11 @@ export function CartPageClient() {
   return (
     <div className="grid min-w-0 gap-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,0.8fr)] lg:gap-10">
       <div className="min-w-0 space-y-4">
+        {actionError ? (
+          <p className="text-sm text-red-300" role="alert">
+            {actionError}
+          </p>
+        ) : null}
         {cart.items.map((item) => (
           <article
             key={item.id}
@@ -66,9 +92,10 @@ export function CartPageClient() {
                   <div className="inline-flex items-stretch overflow-hidden border border-[color:var(--line)] bg-ink">
                     <button
                       type="button"
-                      className="cursor-pointer px-3 py-1.5 text-champagne transition-colors hover:bg-gold/10 hover:text-gold"
+                      className="cursor-pointer px-3 py-1.5 text-champagne transition-colors hover:bg-gold/10 hover:text-gold disabled:cursor-wait disabled:opacity-50"
+                      disabled={busyId === item.id || item.quantity <= 1}
                       onClick={() =>
-                        updateQty(item.id, Math.max(1, item.quantity - 1))
+                        void changeQty(item.id, Math.max(1, item.quantity - 1))
                       }
                       aria-label="Diminuer"
                     >
@@ -79,9 +106,10 @@ export function CartPageClient() {
                     </span>
                     <button
                       type="button"
-                      className="cursor-pointer px-3 py-1.5 text-champagne transition-colors hover:bg-gold/10 hover:text-gold"
+                      className="cursor-pointer px-3 py-1.5 text-champagne transition-colors hover:bg-gold/10 hover:text-gold disabled:cursor-wait disabled:opacity-50"
+                      disabled={busyId === item.id || item.quantity >= 20}
                       onClick={() =>
-                        updateQty(item.id, Math.min(20, item.quantity + 1))
+                        void changeQty(item.id, Math.min(20, item.quantity + 1))
                       }
                       aria-label="Augmenter"
                     >
@@ -96,8 +124,9 @@ export function CartPageClient() {
                   </Link>
                   <button
                     type="button"
-                    onClick={() => removeItem(item.id)}
-                    className="cursor-pointer text-[0.68rem] uppercase tracking-[0.14em] text-mist hover:text-champagne"
+                    disabled={busyId === item.id}
+                    onClick={() => void onRemove(item.id)}
+                    className="cursor-pointer text-[0.68rem] uppercase tracking-[0.14em] text-mist hover:text-champagne disabled:opacity-50"
                   >
                     Supprimer
                   </button>

@@ -16,13 +16,36 @@ export function isRemoteDatabase() {
     url.includes("localhost") ||
     url.includes("127.0.0.1") ||
     url.includes("@localhost:") ||
-    url.includes(":///") 
+    url.includes(":///")
   );
+}
+
+/** Neon pooler needs pgbouncer mode so Prisma does not keep dead prepared statements. */
+function prismaDatasourceUrl() {
+  const raw = process.env.DATABASE_URL?.trim();
+  if (!raw) return undefined;
+  try {
+    const url = new URL(raw);
+    const isPooler =
+      url.hostname.includes("-pooler") || url.hostname.includes("pooler");
+    if (isPooler && !url.searchParams.has("pgbouncer")) {
+      url.searchParams.set("pgbouncer", "true");
+    }
+    if (!url.searchParams.has("connect_timeout")) {
+      url.searchParams.set("connect_timeout", "15");
+    }
+    return url.toString();
+  } catch {
+    return raw;
+  }
 }
 
 export const prisma =
   globalForPrisma.prisma ??
   new PrismaClient({
+    datasources: prismaDatasourceUrl()
+      ? { db: { url: prismaDatasourceUrl() } }
+      : undefined,
     log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
   });
 

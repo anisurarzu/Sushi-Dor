@@ -7,9 +7,9 @@ export function serializeCart(
   const items = cart.items.map((item) => ({
     id: item.id,
     productId: item.productId,
-    slug: item.product.slug,
+    slug: item.product?.slug ?? item.productId,
     nameFr: item.productNameSnapshot,
-    imageUrl: item.product.imageUrl,
+    imageUrl: item.product?.imageUrl ?? null,
     quantity: item.quantity,
     basePriceCents: item.basePriceSnapshot,
     unitPriceCents: item.unitPriceSnapshot,

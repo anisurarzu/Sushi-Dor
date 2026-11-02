@@ -52,27 +52,32 @@ export function ProductAddButton({
     if (pending || added) return;
     setPending(true);
     setError(null);
-    const result = await addItem({
-      productId,
-      quantity: 1,
-      addonIds: [],
-    });
-    setPending(false);
-    if (!result.ok) {
-      setError(result.error);
-      return;
+    try {
+      const result = await addItem({
+        productId,
+        quantity: 1,
+        addonIds: [],
+      });
+      if (!result.ok) {
+        setError(result.error);
+        return;
+      }
+      setAdded(true);
+      const rect = btnRef.current?.getBoundingClientRect();
+      window.dispatchEvent(
+        new CustomEvent("sd:cart-fly", {
+          detail: {
+            x: rect ? rect.left + rect.width / 2 : window.innerWidth / 2,
+            y: rect ? rect.top + rect.height / 2 : window.innerHeight / 2,
+          },
+        }),
+      );
+      window.setTimeout(() => setAdded(false), 1600);
+    } catch {
+      setError("Connexion interrompue. Réessayez.");
+    } finally {
+      setPending(false);
     }
-    setAdded(true);
-    const rect = btnRef.current?.getBoundingClientRect();
-    window.dispatchEvent(
-      new CustomEvent("sd:cart-fly", {
-        detail: {
-          x: rect ? rect.left + rect.width / 2 : window.innerWidth / 2,
-          y: rect ? rect.top + rect.height / 2 : window.innerHeight / 2,
-        },
-      }),
-    );
-    window.setTimeout(() => setAdded(false), 1600);
   }
 
   return (
