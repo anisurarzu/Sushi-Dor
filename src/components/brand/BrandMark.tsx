@@ -19,7 +19,7 @@ const SPARKS = [
 ] as const;
 
 /**
- * Transparent 3D gold mark — orbit animation + sparks rising from the emblem.
+ * Transparent 3D gold mark — static pose + sparks rising from the emblem.
  */
 export function BrandMark({ size = "header", className = "" }: BrandMarkProps) {
   return (
