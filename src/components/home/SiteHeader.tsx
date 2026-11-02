@@ -10,8 +10,8 @@ const links = [
 
 export function SiteHeader() {
   return (
-    <header className="absolute inset-x-0 top-0 z-30">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-4 sm:px-6 sm:py-6 md:px-10">
+    <header className="fixed inset-x-0 top-0 z-50 border-b border-[color:var(--line)]/60 bg-ink/80 backdrop-blur-md">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4 md:px-10">
         <Link href="/" className="group relative z-10 min-w-0">
           <BrandLogo size="header" />
         </Link>
