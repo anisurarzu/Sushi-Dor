@@ -22,7 +22,9 @@ export function Hero() {
       </div>
 
       <div className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-12 pt-32 sm:px-6 sm:pb-16 sm:pt-36 md:px-10 md:pb-24">
-        <BrandLogo as="h1" size="hero" className="animate-rise" fire />
+        <h1 className="animate-rise m-0">
+          <BrandLogo size="hero" fire mark />
+        </h1>
         <p className="animate-rise-delay-2 mt-5 max-w-2xl text-base leading-relaxed text-champagne/90 sm:mt-7 sm:text-lg md:text-xl md:leading-relaxed">
           Cuisine japonaise — fraîcheur, précision et excellence à chaque
           bouchée.

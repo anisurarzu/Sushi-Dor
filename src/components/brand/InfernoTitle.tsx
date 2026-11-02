@@ -1,11 +1,12 @@
 import { FireText } from "@/components/brand/FireText";
 
 /**
- * Hero brand: Sushi + flaming D'or (FireText).
+ * Hero brand wordmark: Sushi + flaming D'or (FireText).
+ * Mark is composed outside via BrandLogo lockup.
  */
 export function InfernoTitle({ className = "" }: { className?: string }) {
   return (
-    <h1
+    <span
       className={`brand-logo brand-logo--hero brand-logo--fire notranslate ${className}`.trim()}
       translate="no"
       lang="fr"
@@ -17,6 +18,6 @@ export function InfernoTitle({ className = "" }: { className?: string }) {
       <FireText className="brand-logo__dor" sparks={36}>
         {"D'or"}
       </FireText>
-    </h1>
+    </span>
   );
 }
