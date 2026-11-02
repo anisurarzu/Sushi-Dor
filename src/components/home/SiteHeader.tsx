@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { CartBadge } from "@/components/cart/CartBadge";
 
@@ -8,10 +11,25 @@ const links = [
   { href: "/#contact", label: "Contact" },
 ];
 
+const SCROLL_THRESHOLD = 24;
+
 export function SiteHeader() {
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => {
+      setScrolled(window.scrollY > SCROLL_THRESHOLD);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
-    <header className="fixed inset-x-0 top-0 z-50 border-b border-[color:var(--line)]/60 bg-ink/80 backdrop-blur-md">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4 md:px-10">
+    <header
+      className={`site-header fixed inset-x-0 top-0 z-50${scrolled ? " site-header--scrolled" : ""}`}
+    >
+      <div className="site-header__inner mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 md:px-10">
         <Link href="/" className="group relative z-10 min-w-0">
           <BrandLogo size="header" />
         </Link>
