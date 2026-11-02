@@ -6,41 +6,46 @@ type BrandLogoProps = {
   size?: "hero" | "header" | "footer";
   /** Animated fire inside D'or — hero title only */
   fire?: boolean;
-  /** Show 3D animated fish mark beside the wordmark */
-  mark?: boolean;
   className?: string;
 };
 
 /**
- * Brand wordmark. Never translate "Sushi D'or" (browsers turn D'or → Gold).
+ * Brand identity:
+ * - header → transparent 3D mark only
+ * - hero fire → flaming wordmark (no mark)
+ * - elsewhere → text wordmark
  */
 export function BrandLogo({
   as: Tag = "span",
   size = "header",
   fire = false,
-  mark = true,
   className = "",
 }: BrandLogoProps) {
-  if (fire && size === "hero") {
+  if (size === "header") {
     return (
-      <span className={`brand-lockup brand-lockup--hero ${className}`.trim()}>
-        {mark ? <BrandMark size="hero" /> : null}
-        <InfernoTitle />
+      <span
+        className={`brand-lockup brand-lockup--header notranslate ${className}`.trim()}
+        translate="no"
+        lang="fr"
+      >
+        <span className="sr-only">Sushi D&apos;or</span>
+        <BrandMark size="header" />
       </span>
     );
   }
 
+  if (fire && size === "hero") {
+    return <InfernoTitle className={className} />;
+  }
+
   return (
     <Tag
-      className={`brand-lockup brand-lockup--${size} brand-logo brand-logo--${size} brand-logo--plain notranslate ${className}`.trim()}
+      className={`brand-logo brand-logo--${size} brand-logo--plain notranslate ${className}`.trim()}
       translate="no"
       lang="fr"
     >
-      {mark ? <BrandMark size={size} /> : null}
-      <span className="brand-logo__wordmark">
-        <span className="brand-logo__sushi">Sushi</span>
-        <span className="brand-logo__dor gold-text">D&apos;or</span>
-      </span>
+      <span className="brand-logo__sushi">Sushi</span>
+      <span className="brand-logo__dor gold-text">D&apos;or</span>
     </Tag>
   );
 }
