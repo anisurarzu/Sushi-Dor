@@ -122,12 +122,12 @@ export function BulkDeleteToolbar({
 }) {
   return (
     <div className="flex flex-wrap items-center gap-2 border border-[#c4a35a]/25 bg-[#12100e] px-3 py-2 text-sm">
-      <label className="flex items-center gap-2 text-[#c4bbaa]">
-        <input
-          type="checkbox"
+      <label className="flex items-center gap-2.5 text-[#c4bbaa]">
+        <AdminCheckbox
           checked={allSelected}
           onChange={toggleAll}
           disabled={idsCount === 0 || pending}
+          label="Tout sélectionner"
         />
         Tout sélectionner
       </label>
@@ -162,6 +162,44 @@ export function BulkDeleteToolbar({
   );
 }
 
+/** Custom gold checkbox used across admin lists */
+export function AdminCheckbox({
+  checked,
+  onChange,
+  disabled,
+  label = "Sélectionner",
+}: {
+  checked: boolean;
+  onChange: () => void;
+  disabled?: boolean;
+  label?: string;
+}) {
+  return (
+    <button
+      type="button"
+      role="checkbox"
+      aria-checked={checked}
+      aria-label={label}
+      disabled={disabled}
+      onClick={onChange}
+      className={`admin-check ${checked ? "admin-check--on" : ""} ${
+        disabled ? "admin-check--disabled" : ""
+      }`}
+    >
+      <svg viewBox="0 0 16 16" className="admin-check__icon" aria-hidden>
+        <path
+          d="M3.2 8.2 6.4 11.2 12.8 4.4"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </button>
+  );
+}
+
 export function RowCheckbox({
   checked,
   onChange,
@@ -172,13 +210,11 @@ export function RowCheckbox({
   disabled?: boolean;
 }) {
   return (
-    <input
-      type="checkbox"
+    <AdminCheckbox
       checked={checked}
       onChange={onChange}
       disabled={disabled}
-      aria-label="Sélectionner"
-      className="cursor-pointer"
+      label="Sélectionner"
     />
   );
 }

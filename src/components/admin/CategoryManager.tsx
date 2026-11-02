@@ -289,11 +289,15 @@ export function CategoryManager({ initial }: { initial: Cat[] }) {
                     <div className="min-w-0 flex-1">
                       {editing ? (
                         <div className="space-y-2">
+                          <p className="text-[0.65rem] uppercase tracking-[0.14em] text-[#c4a35a]">
+                            Modifier la catégorie
+                          </p>
                           <input
                             value={editName}
                             onChange={(e) => setEditName(e.target.value)}
                             className="w-full border border-[#c4a35a]/35 bg-transparent px-2 py-1.5 text-sm text-[#f0e6c8]"
                             disabled={pending}
+                            autoFocus
                           />
                           <textarea
                             value={editDescription}
@@ -303,14 +307,42 @@ export function CategoryManager({ initial }: { initial: Cat[] }) {
                             className="w-full border border-[#c4a35a]/25 bg-transparent px-2 py-1.5 text-xs text-[#c4bbaa]"
                             disabled={pending}
                           />
+                          <div className="flex flex-wrap gap-2 pt-1">
+                            <button
+                              type="button"
+                              onClick={() => void saveEdit(c.id)}
+                              disabled={pending}
+                              className="btn-gold px-3 py-1.5 text-xs"
+                            >
+                              Enregistrer
+                            </button>
+                            <button
+                              type="button"
+                              onClick={cancelEdit}
+                              disabled={pending}
+                              className="border border-[#c4a35a]/30 px-3 py-1.5 text-xs text-[#a89f8e]"
+                            >
+                              Annuler
+                            </button>
+                          </div>
                         </div>
                       ) : (
                         <>
-                          <p className="text-[#f0e6c8]">{c.nameFr}</p>
-                          <p className="text-xs text-[#a89f8e]">
-                            {c.slug} · {c.productCount} produit(s) · #{index + 1}
-                            {!c.isActive ? " · archivée" : ""}
-                          </p>
+                          <button
+                            type="button"
+                            onClick={() => startEdit(c)}
+                            className="group text-left"
+                            disabled={pending}
+                          >
+                            <p className="text-[#f0e6c8] transition-colors group-hover:text-[#e0c878]">
+                              {c.nameFr}
+                            </p>
+                            <p className="text-xs text-[#a89f8e]">
+                              {c.slug} · {c.productCount} produit(s) · #
+                              {index + 1}
+                              {!c.isActive ? " · archivée" : ""}
+                            </p>
+                          </button>
                           {c.description ? (
                             <p className="mt-1 text-xs text-[#c4bbaa]">
                               {c.description}
@@ -340,35 +372,29 @@ export function CategoryManager({ initial }: { initial: Cat[] }) {
                     >
                       ↓
                     </button>
-                    {editing ? (
-                      <>
-                        <button
-                          type="button"
-                          onClick={() => void saveEdit(c.id)}
-                          disabled={pending}
-                          className="btn-gold px-3 py-1 text-xs"
-                        >
-                          Enregistrer
-                        </button>
-                        <button
-                          type="button"
-                          onClick={cancelEdit}
-                          disabled={pending}
-                          className="text-xs text-[#a89f8e]"
-                        >
-                          Annuler
-                        </button>
-                      </>
-                    ) : (
+                    {!editing ? (
                       <button
                         type="button"
                         onClick={() => startEdit(c)}
                         disabled={pending}
-                        className="text-xs text-[#c4a35a]"
+                        className="inline-flex items-center gap-1.5 border border-[#c4a35a]/55 bg-[#c4a35a]/12 px-3 py-1.5 text-xs font-medium uppercase tracking-[0.12em] text-[#e0c878] transition-colors hover:bg-[#c4a35a]/22"
                       >
+                        <svg
+                          viewBox="0 0 16 16"
+                          className="h-3 w-3"
+                          fill="none"
+                          aria-hidden
+                        >
+                          <path
+                            d="M11.5 2.5 13.5 4.5 6 12H4v-2z"
+                            stroke="currentColor"
+                            strokeWidth="1.4"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
                         Modifier
                       </button>
-                    )}
+                    ) : null}
                     <button
                       type="button"
                       onClick={() => void toggle(c.id, c.isActive)}
