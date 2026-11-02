@@ -27,9 +27,20 @@ export function Restaurants() {
           <dl className="mt-8 space-y-4 text-sm text-mist">
             <div>
               <dt className="text-[0.68rem] uppercase tracking-[0.18em] text-gold">
-                Zone
+                Adresse
               </dt>
-              <dd className="mt-1 text-champagne">Annemasse</dd>
+              <dd className="mt-1">
+                <a
+                  href="https://maps.app.goo.gl/38atS75trNpi3Y87A"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-champagne hover:text-gold"
+                >
+                  37 Rue du Chablais
+                  <br />
+                  74100 Annemasse
+                </a>
+              </dd>
             </div>
             <div>
               <dt className="text-[0.68rem] uppercase tracking-[0.18em] text-gold">
@@ -62,14 +73,18 @@ export function Restaurants() {
                 Services
               </dt>
               <dd className="mt-1 text-champagne">
-                À emporter · Sur place (détails à venir)
+                À emporter · Sur place
               </dd>
             </div>
           </dl>
-          <p className="mt-8 text-xs leading-relaxed text-mist">
-            Adresse exacte, horaires et livraison seront publiés ici dès la
-            mise en ligne complète.
-          </p>
+          <a
+            href="https://maps.app.goo.gl/38atS75trNpi3Y87A"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-8 inline-flex text-[0.68rem] uppercase tracking-[0.16em] text-gold hover:text-gold-bright"
+          >
+            Voir sur Google Maps →
+          </a>
         </div>
       </div>
     </section>

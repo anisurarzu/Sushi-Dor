@@ -8,7 +8,17 @@ export function SiteFooter() {
         <div>
           <BrandLogo as="p" size="footer" />
           <p className="mt-4 max-w-xs text-sm leading-relaxed text-mist">
-            Cuisine japonaise à Annemasse (Haute-Savoie). Site en construction.
+            Cuisine japonaise à Annemasse (Haute-Savoie).
+          </p>
+          <p className="mt-3 max-w-xs text-sm text-mist">
+            <a
+              href="https://maps.app.goo.gl/38atS75trNpi3Y87A"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-champagne"
+            >
+              37 Rue du Chablais, 74100 Annemasse
+            </a>
           </p>
         </div>
 
@@ -38,6 +48,16 @@ export function SiteFooter() {
                 className="hover:text-champagne"
               >
                 sushidorannemasse@gmail.com
+              </a>
+            </li>
+            <li>
+              <a
+                href="https://maps.app.goo.gl/38atS75trNpi3Y87A"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-champagne"
+              >
+                Google Maps
               </a>
             </li>
           </ul>
