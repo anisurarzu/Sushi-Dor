@@ -17,8 +17,8 @@ export function BrandMark({ size = "header", className = "" }: BrandMarkProps) {
           src="/brand/sushi-dor-mark.png"
           alt=""
           className="brand-mark__img"
-          width={512}
-          height={512}
+          width={937}
+          height={528}
           decoding="async"
         />
         <span className="brand-mark__shine" />
