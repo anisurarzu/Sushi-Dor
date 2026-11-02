@@ -1,7 +1,4 @@
 const MAPS_LINK = "https://maps.app.goo.gl/38atS75trNpi3Y87A";
-/** Named place + street so the pin lands on Sushi D'or, zoomed in for customers */
-const MAPS_EMBED =
-  "https://www.google.com/maps?q=Sushi+D%27or,+37+Rue+du+Chablais,+74100+Annemasse&hl=fr&z=17&output=embed";
 
 export function Restaurants() {
   return (
@@ -22,103 +19,74 @@ export function Restaurants() {
           </p>
         </div>
 
-        <div className="grid items-stretch gap-6 lg:grid-cols-2 lg:gap-8">
-          <div className="border border-[color:var(--line)] bg-ink p-8 md:p-10">
-            <h3 className="font-[family-name:var(--font-display)] text-3xl text-champagne">
-              Sushi D&apos;or
-            </h3>
-            <p className="mt-3 text-sm uppercase tracking-[0.16em] text-gold">
-              Haute-Savoie · France
-            </p>
-            <dl className="mt-8 space-y-4 text-sm text-mist">
-              <div>
-                <dt className="text-[0.68rem] uppercase tracking-[0.18em] text-gold">
-                  Adresse
-                </dt>
-                <dd className="mt-1">
-                  <a
-                    href={MAPS_LINK}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-champagne hover:text-gold"
-                  >
-                    37 Rue du Chablais
-                    <br />
-                    74100 Annemasse
-                  </a>
-                </dd>
-              </div>
-              <div>
-                <dt className="text-[0.68rem] uppercase tracking-[0.18em] text-gold">
-                  Téléphone
-                </dt>
-                <dd className="mt-1">
-                  <a
-                    href="tel:+33450384279"
-                    className="text-champagne hover:text-gold"
-                  >
-                    04 50 38 42 79
-                  </a>
-                </dd>
-              </div>
-              <div>
-                <dt className="text-[0.68rem] uppercase tracking-[0.18em] text-gold">
-                  E-mail
-                </dt>
-                <dd className="mt-1">
-                  <a
-                    href="mailto:sushidorannemasse@gmail.com"
-                    className="text-champagne hover:text-gold"
-                  >
-                    sushidorannemasse@gmail.com
-                  </a>
-                </dd>
-              </div>
-              <div>
-                <dt className="text-[0.68rem] uppercase tracking-[0.18em] text-gold">
-                  Services
-                </dt>
-                <dd className="mt-1 text-champagne">
-                  À emporter · Sur place
-                </dd>
-              </div>
-            </dl>
-            <a
-              href={MAPS_LINK}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-8 inline-flex text-[0.68rem] uppercase tracking-[0.16em] text-gold hover:text-gold-bright"
-            >
-              Voir sur Google Maps →
-            </a>
-          </div>
-
-          <div className="relative min-h-[320px] overflow-hidden border border-[color:var(--line)] bg-ink sm:min-h-[380px] lg:min-h-full">
-            <iframe
-              title="Sushi D'or — 37 Rue du Chablais, 74100 Annemasse"
-              src={MAPS_EMBED}
-              className="absolute inset-0 h-full w-full border-0"
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              allowFullScreen
-            />
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/90 via-ink/45 to-transparent px-4 pb-4 pt-16">
-              <p className="font-[family-name:var(--font-display)] text-lg text-champagne">
-                Sushi D&apos;or
-              </p>
-              <p className="text-xs text-mist">
-                37 Rue du Chablais · 74100 Annemasse
-              </p>
+        <div className="max-w-xl border border-[color:var(--line)] bg-ink p-8 md:p-10">
+          <h3 className="font-[family-name:var(--font-display)] text-3xl text-champagne">
+            Sushi D&apos;or
+          </h3>
+          <p className="mt-3 text-sm uppercase tracking-[0.16em] text-gold">
+            Haute-Savoie · France
+          </p>
+          <dl className="mt-8 space-y-4 text-sm text-mist">
+            <div>
+              <dt className="text-[0.68rem] uppercase tracking-[0.18em] text-gold">
+                Adresse
+              </dt>
+              <dd className="mt-1">
+                <a
+                  href={MAPS_LINK}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-champagne hover:text-gold"
+                >
+                  37 Rue du Chablais
+                  <br />
+                  74100 Annemasse
+                </a>
+              </dd>
             </div>
-            <a
-              href={MAPS_LINK}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="absolute right-3 top-3 border border-[color:var(--line)] bg-ink/85 px-3 py-1.5 text-[0.62rem] uppercase tracking-[0.14em] text-gold backdrop-blur-sm hover:border-gold hover:text-gold-bright"
-            >
-              Itinéraire
-            </a>
-          </div>
+            <div>
+              <dt className="text-[0.68rem] uppercase tracking-[0.18em] text-gold">
+                Téléphone
+              </dt>
+              <dd className="mt-1">
+                <a
+                  href="tel:+33450384279"
+                  className="text-champagne hover:text-gold"
+                >
+                  04 50 38 42 79
+                </a>
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[0.68rem] uppercase tracking-[0.18em] text-gold">
+                E-mail
+              </dt>
+              <dd className="mt-1">
+                <a
+                  href="mailto:sushidorannemasse@gmail.com"
+                  className="text-champagne hover:text-gold"
+                >
+                  sushidorannemasse@gmail.com
+                </a>
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[0.68rem] uppercase tracking-[0.18em] text-gold">
+                Services
+              </dt>
+              <dd className="mt-1 text-champagne">
+                À emporter · Sur place
+              </dd>
+            </div>
+          </dl>
+          <a
+            href={MAPS_LINK}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-8 inline-flex text-[0.68rem] uppercase tracking-[0.16em] text-gold hover:text-gold-bright"
+          >
+            Voir sur Google Maps →
+          </a>
         </div>
       </div>
     </section>
