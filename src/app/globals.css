@@ -175,8 +175,8 @@ body {
   mix-blend-mode: soft-light;
   transform: translateZ(22px);
   animation: brand-mark-shine 3.4s ease-in-out infinite;
-  -webkit-mask-image: url("/brand/sushi-dor-mark.png?v=5");
-  mask-image: url("/brand/sushi-dor-mark.png?v=5");
+  -webkit-mask-image: url("/brand/sushi-dor-mark.png?v=6");
+  mask-image: url("/brand/sushi-dor-mark.png?v=6");
   -webkit-mask-size: contain;
   mask-size: contain;
   -webkit-mask-repeat: no-repeat;

@@ -30,7 +30,7 @@ export function BrandMark({ size = "header", className = "" }: BrandMarkProps) {
       <span className="brand-mark__perspective">
         <span className="brand-mark__stage">
           <img
-            src="/brand/sushi-dor-mark.png?v=5"
+            src="/brand/sushi-dor-mark.png?v=6"
             alt=""
             className="brand-mark__img"
             width={891}
