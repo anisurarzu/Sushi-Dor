@@ -102,37 +102,37 @@ body {
 }
 
 .brand-mark__stage {
-  --mark-w: 5.25rem;
-  --mark-h: 2.95rem;
+  --mark-w: 6.4rem;
+  --mark-h: 3.6rem;
   position: relative;
   display: block;
   width: var(--mark-w);
   height: var(--mark-h);
   background: transparent;
   transform-style: preserve-3d;
-  animation: brand-mark-orbit 6.8s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+  animation: brand-mark-orbit 6.4s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
   filter:
-    drop-shadow(0 10px 18px rgba(0, 0, 0, 0.55))
-    drop-shadow(0 2px 0 rgba(90, 55, 10, 0.35))
-    drop-shadow(0 0 22px rgba(224, 168, 64, 0.4));
+    drop-shadow(0 14px 22px rgba(0, 0, 0, 0.58))
+    drop-shadow(0 4px 0 rgba(70, 40, 5, 0.42))
+    drop-shadow(0 0 26px rgba(224, 168, 64, 0.48));
 }
 
 .brand-mark--header .brand-mark__stage {
-  --mark-w: 5.5rem;
-  --mark-h: 3.1rem;
+  --mark-w: 6.6rem;
+  --mark-h: 3.7rem;
 }
 
 @media (min-width: 640px) {
   .brand-mark--header .brand-mark__stage {
-    --mark-w: 6.4rem;
-    --mark-h: 3.6rem;
+    --mark-w: 7.6rem;
+    --mark-h: 4.25rem;
   }
 }
 
 @media (min-width: 768px) {
   .brand-mark--header .brand-mark__stage {
-    --mark-w: 7.1rem;
-    --mark-h: 4rem;
+    --mark-w: 8.5rem;
+    --mark-h: 4.75rem;
   }
 }
 
@@ -164,33 +164,33 @@ body {
 
 .brand-mark__img {
   z-index: 4;
-  transform: translateZ(18px);
-  filter: contrast(1.06) saturate(1.08) brightness(1.04);
+  transform: translateZ(28px);
+  filter: contrast(1.08) saturate(1.12) brightness(1.06);
 }
 
 .brand-mark__depth {
   background: transparent center / contain no-repeat
     url("/brand/sushi-dor-mark.png");
-  filter: brightness(0.35) sepia(0.55) hue-rotate(-8deg) saturate(1.4);
-  opacity: 0.9;
+  filter: brightness(0.32) sepia(0.6) hue-rotate(-8deg) saturate(1.5);
+  opacity: 0.95;
 }
 
 .brand-mark__depth--1 {
   z-index: 3;
-  transform: translate3d(0.5px, 1px, 12px);
+  transform: translate3d(0.8px, 1.6px, 18px);
 }
 
 .brand-mark__depth--2 {
   z-index: 2;
-  transform: translate3d(1px, 2px, 6px);
-  opacity: 0.75;
+  transform: translate3d(1.6px, 3.2px, 9px);
+  opacity: 0.8;
 }
 
 .brand-mark__depth--3 {
   z-index: 1;
-  transform: translate3d(1.5px, 3.5px, 0);
-  opacity: 0.55;
-  filter: brightness(0.2) blur(0.2px);
+  transform: translate3d(2.4px, 5px, 0);
+  opacity: 0.62;
+  filter: brightness(0.16) blur(0.35px);
 }
 
 .brand-mark__specular {
@@ -239,13 +239,16 @@ body {
 @keyframes brand-mark-orbit {
   0%,
   100% {
-    transform: rotateY(-22deg) rotateX(10deg) rotateZ(-1deg) translateY(0);
+    transform: rotateY(-28deg) rotateX(12deg) rotateZ(-1.5deg) translateY(0)
+      scale(1);
   }
   35% {
-    transform: rotateY(18deg) rotateX(6deg) rotateZ(1deg) translateY(-0.22rem);
+    transform: rotateY(24deg) rotateX(7deg) rotateZ(1.5deg) translateY(-0.28rem)
+      scale(1.03);
   }
   65% {
-    transform: rotateY(8deg) rotateX(14deg) rotateZ(-0.5deg) translateY(-0.08rem);
+    transform: rotateY(10deg) rotateX(16deg) rotateZ(-0.8deg)
+      translateY(-0.1rem) scale(1.01);
   }
 }
 
