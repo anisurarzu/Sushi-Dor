@@ -19,7 +19,7 @@ const SPARKS = [
 ] as const;
 
 /**
- * Transparent 3D gold mark — static pose + sparks rising from the emblem.
+ * Transparent 3D gold mark — orbit on the emblem only, sparks rising, no shadow blob.
  */
 export function BrandMark({ size = "header", className = "" }: BrandMarkProps) {
   return (
@@ -29,8 +29,6 @@ export function BrandMark({ size = "header", className = "" }: BrandMarkProps) {
     >
       <span className="brand-mark__perspective">
         <span className="brand-mark__stage">
-          <span className="brand-mark__depth brand-mark__depth--2" />
-          <span className="brand-mark__depth brand-mark__depth--1" />
           <img
             src="/brand/sushi-dor-mark.png?v=5"
             alt=""
