@@ -11,7 +11,7 @@ type BrandLogoProps = {
 
 /**
  * Brand identity:
- * - header → transparent 3D mark only
+ * - header / footer → gold mark
  * - hero fire → flaming wordmark (no mark)
  * - elsewhere → text wordmark
  */
@@ -21,15 +21,15 @@ export function BrandLogo({
   fire = false,
   className = "",
 }: BrandLogoProps) {
-  if (size === "header") {
+  if (size === "header" || size === "footer") {
     return (
       <span
-        className={`brand-lockup brand-lockup--header notranslate ${className}`.trim()}
+        className={`brand-lockup brand-lockup--${size} notranslate ${className}`.trim()}
         translate="no"
         lang="fr"
       >
         <span className="sr-only">Sushi D&apos;or</span>
-        <BrandMark size="header" />
+        <BrandMark size={size} />
       </span>
     );
   }
