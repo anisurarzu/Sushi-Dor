@@ -18,9 +18,9 @@ const body = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "Sushi D'or · Annemasse & Thonon-les-Bains",
+  title: "Sushi D'or · Annemasse",
   description:
-    "Sushi D'or — cuisine japonaise à Annemasse et Thonon-les-Bains (Haute-Savoie). Commande en ligne, personnalisation et paiement sécurisé.",
+    "Sushi D'or — cuisine japonaise à Annemasse (Haute-Savoie). Commande en ligne, personnalisation et paiement sécurisé.",
 };
 
 export default function RootLayout({

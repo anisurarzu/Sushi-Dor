@@ -8,8 +8,7 @@ export function SiteFooter() {
         <div>
           <BrandLogo as="p" size="footer" />
           <p className="mt-4 max-w-xs text-sm leading-relaxed text-mist">
-            Cuisine japonaise à Annemasse et Thonon-les-Bains (Haute-Savoie).
-            Site en construction.
+            Cuisine japonaise à Annemasse (Haute-Savoie). Site en construction.
           </p>
         </div>
 

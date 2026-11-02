@@ -10,11 +10,10 @@ export function Restaurants() {
             Notre restaurant
           </p>
           <h2 className="font-[family-name:var(--font-display)] text-4xl text-bone md:text-5xl">
-            Annemasse · <span className="gold-text">Thonon</span>
+            <span className="gold-text">Annemasse</span>
           </h2>
           <p className="mt-4 text-mist">
-            Un seul restaurant Sushi D&apos;or, en Haute-Savoie — au service
-            d&apos;Annemasse et de Thonon-les-Bains.
+            Un seul restaurant Sushi D&apos;or, en Haute-Savoie — à Annemasse.
           </p>
         </div>
 
@@ -30,9 +29,7 @@ export function Restaurants() {
               <dt className="text-[0.68rem] uppercase tracking-[0.18em] text-gold">
                 Zone
               </dt>
-              <dd className="mt-1 text-champagne">
-                Annemasse · Thonon-les-Bains
-              </dd>
+              <dd className="mt-1 text-champagne">Annemasse</dd>
             </div>
             <div>
               <dt className="text-[0.68rem] uppercase tracking-[0.18em] text-gold">

@@ -54,8 +54,8 @@ async function main() {
   await prisma.deliveryZone.create({
     data: {
       restaurantId: restaurant.id,
-      name: "Annemasse / Thonon",
-      postalCodes: ["74100", "74200", "74940"],
+      name: "Annemasse",
+      postalCodes: ["74100", "74940"],
       feeCents: 300,
       minOrderCents: 1500,
       isActive: true,

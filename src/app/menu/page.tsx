@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 export const metadata = {
   title: "La carte · Sushi D'or",
   description:
-    "Carte Sushi D'or à Annemasse et Thonon-les-Bains — sushis, makis, spécialités et menus.",
+    "Carte Sushi D'or à Annemasse — sushis, makis, spécialités et menus.",
 };
 
 function toCard(item: {
@@ -106,7 +106,7 @@ export default async function MenuPage() {
         <div className="border-b border-[color:var(--line)] bg-ink-soft px-4 pb-10 pt-28 sm:px-6 sm:pb-14 sm:pt-32 md:px-10 md:pb-16">
           <div className="mx-auto max-w-7xl">
             <p className="mb-2 text-[0.65rem] uppercase tracking-[0.24em] text-gold sm:mb-3 sm:text-[0.72rem]">
-              Annemasse · Thonon-les-Bains
+              Annemasse
             </p>
             <h1 className="font-[family-name:var(--font-display)] text-4xl sm:text-5xl md:text-6xl">
               La <span className="gold-text">carte</span>

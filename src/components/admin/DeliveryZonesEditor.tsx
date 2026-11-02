@@ -93,7 +93,7 @@ export function DeliveryZonesEditor({
         <input
           value={codes}
           onChange={(e) => setCodes(e.target.value)}
-          placeholder="Codes postaux (74100, 74200)"
+          placeholder="Codes postaux (74100, 74940)"
           className="border border-[#c4a35a]/25 bg-transparent px-3 py-2 text-sm"
           required
         />

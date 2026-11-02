@@ -5,7 +5,7 @@ const promises = [
   },
   {
     title: "Haute-Savoie",
-    text: "Un restaurant pour Annemasse et Thonon-les-Bains.",
+    text: "Un restaurant à Annemasse, en Haute-Savoie.",
   },
   {
     title: "Carte complète",
@@ -40,8 +40,8 @@ export function Signature() {
             <span className="gold-text">à la carte</span>
           </h2>
           <p className="mt-5 max-w-md text-mist leading-relaxed">
-            Passion et précision à Annemasse et Thonon-les-Bains. Des classiques
-            aux créations Sushi D&apos;or.
+            Passion et précision à Annemasse. Des classiques aux créations Sushi
+            D&apos;or.
           </p>
           <ul className="mt-10 grid gap-6 sm:grid-cols-2">
             {promises.map((item) => (
