@@ -2,8 +2,9 @@ import Link from "next/link";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 
 const MAPS_LINK = "https://maps.app.goo.gl/38atS75trNpi3Y87A";
+/** t=k → satellite by default, place name keeps the pin on Sushi D'or */
 const MAPS_EMBED =
-  "https://www.google.com/maps?q=SUSHI+D%27OR,+37+Rue+du+Chablais,+74100+Annemasse&hl=fr&z=16&output=embed";
+  "https://www.google.com/maps?q=Sushi+D%27or,+37+Rue+du+Chablais,+74100+Annemasse&hl=fr&z=18&t=k&output=embed";
 
 export function SiteFooter() {
   return (
@@ -24,7 +25,7 @@ export function SiteFooter() {
                 <ul className="mt-3 space-y-2 text-sm text-mist">
                   <li>
                     <a
-                      href="https://maps.app.goo.gl/38atS75trNpi3Y87A"
+                      href={MAPS_LINK}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="leading-relaxed hover:text-champagne"
@@ -82,25 +83,28 @@ export function SiteFooter() {
           </div>
         </div>
 
-        <div className="flex min-h-[240px] flex-col sm:min-h-[280px] lg:min-h-full">
+        <div className="flex min-h-[260px] flex-col sm:min-h-[300px] lg:min-h-full">
           <div className="mb-3 flex items-end justify-between gap-3">
-            <p className="text-[0.68rem] uppercase tracking-[0.22em] text-gold">
-              Nous trouver
-            </p>
+            <div>
+              <p className="text-[0.68rem] uppercase tracking-[0.22em] text-gold">
+                Nous trouver
+              </p>
+              <p className="mt-1 text-xs text-mist">Sushi D&apos;or · Annemasse</p>
+            </div>
             <a
               href={MAPS_LINK}
               target="_blank"
               rel="noopener noreferrer"
               className="text-[0.65rem] uppercase tracking-[0.14em] text-mist hover:text-champagne"
             >
-              Ouvrir Maps →
+              Itinéraire →
             </a>
           </div>
-          <div className="site-footer-map relative min-h-[240px] flex-1 overflow-hidden border border-[color:var(--line)] bg-ink-soft sm:min-h-[280px]">
+          <div className="relative min-h-[260px] flex-1 overflow-hidden border border-[color:var(--line)] bg-ink-soft sm:min-h-[300px]">
             <iframe
-              title="Sushi D'or — 37 Rue du Chablais, Annemasse"
+              title="Sushi D'or — vue satellite, 37 Rue du Chablais, Annemasse"
               src={MAPS_EMBED}
-              className="absolute inset-0 h-full w-full border-0 grayscale-[35%] contrast-[1.05] saturate-[0.75]"
+              className="absolute inset-0 h-full w-full border-0"
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
               allowFullScreen
