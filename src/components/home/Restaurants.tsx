@@ -33,6 +33,32 @@ export function Restaurants() {
             </div>
             <div>
               <dt className="text-[0.68rem] uppercase tracking-[0.18em] text-gold">
+                Téléphone
+              </dt>
+              <dd className="mt-1">
+                <a
+                  href="tel:+33450384279"
+                  className="text-champagne hover:text-gold"
+                >
+                  04 50 38 42 79
+                </a>
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[0.68rem] uppercase tracking-[0.18em] text-gold">
+                E-mail
+              </dt>
+              <dd className="mt-1">
+                <a
+                  href="mailto:sushidorannemasse@gmail.com"
+                  className="text-champagne hover:text-gold"
+                >
+                  sushidorannemasse@gmail.com
+                </a>
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[0.68rem] uppercase tracking-[0.18em] text-gold">
                 Services
               </dt>
               <dd className="mt-1 text-champagne">

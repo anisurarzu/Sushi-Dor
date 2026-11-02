@@ -28,11 +28,16 @@ export function SiteFooter() {
               </Link>
             </li>
             <li>
+              <a href="tel:+33450384279" className="hover:text-champagne">
+                04 50 38 42 79
+              </a>
+            </li>
+            <li>
               <a
-                href="mailto:contact@sushidor.fr"
+                href="mailto:sushidorannemasse@gmail.com"
                 className="hover:text-champagne"
               >
-                contact@sushidor.fr
+                sushidorannemasse@gmail.com
               </a>
             </li>
           </ul>
