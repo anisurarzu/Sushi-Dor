@@ -19,7 +19,7 @@ const SPARKS = [
 ] as const;
 
 /**
- * Transparent 3D gold mark — orbit on the emblem only, sparks rising, no shadow blob.
+ * Gold mark — flat orbit (no 3D depth/shadow ghost) + sparks from the emblem.
  */
 export function BrandMark({ size = "header", className = "" }: BrandMarkProps) {
   return (
@@ -27,32 +27,29 @@ export function BrandMark({ size = "header", className = "" }: BrandMarkProps) {
       className={`brand-mark brand-mark--${size} ${className}`.trim()}
       aria-hidden="true"
     >
-      <span className="brand-mark__perspective">
-        <span className="brand-mark__stage">
-          <img
-            src="/brand/sushi-dor-mark.png?v=6"
-            alt=""
-            className="brand-mark__img"
-            width={891}
-            height={516}
-            decoding="async"
-            fetchPriority="high"
-          />
-          <span className="brand-mark__specular" />
-          <span className="brand-mark__sparks">
-            {SPARKS.map((s) => (
-              <span
-                key={s.id}
-                className="brand-mark__spark"
-                style={{
-                  left: s.left,
-                  bottom: s.bottom,
-                  animationDelay: s.delay,
-                  animationDuration: s.dur,
-                }}
-              />
-            ))}
-          </span>
+      <span className="brand-mark__stage">
+        <img
+          src="/brand/sushi-dor-mark.png?v=7"
+          alt=""
+          className="brand-mark__img"
+          width={891}
+          height={516}
+          decoding="async"
+          fetchPriority="high"
+        />
+        <span className="brand-mark__sparks">
+          {SPARKS.map((s) => (
+            <span
+              key={s.id}
+              className="brand-mark__spark"
+              style={{
+                left: s.left,
+                bottom: s.bottom,
+                animationDelay: s.delay,
+                animationDuration: s.dur,
+              }}
+            />
+          ))}
         </span>
       </span>
     </span>
