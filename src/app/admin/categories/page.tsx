@@ -7,7 +7,7 @@ import { CategoryManager } from "@/components/admin/CategoryManager";
 export const dynamic = "force-dynamic";
 
 export default async function AdminCategoriesPage() {
-  await requireAdmin("ADMIN");
+  await requireAdmin("categories.view");
   const categories = await prisma.category.findMany({
     where: notDeleted,
     orderBy: { sortOrder: "asc" },
