@@ -1,4 +1,5 @@
 const MAPS_LINK = "https://maps.app.goo.gl/38atS75trNpi3Y87A";
+const INSTAGRAM_LINK = "https://www.instagram.com/sushi_dor_annemasse";
 
 export function Restaurants() {
   return (
@@ -72,6 +73,21 @@ export function Restaurants() {
             </div>
             <div>
               <dt className="text-[0.68rem] uppercase tracking-[0.18em] text-gold">
+                Instagram
+              </dt>
+              <dd className="mt-1">
+                <a
+                  href={INSTAGRAM_LINK}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-champagne hover:text-gold"
+                >
+                  @sushi_dor_annemasse
+                </a>
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[0.68rem] uppercase tracking-[0.18em] text-gold">
                 Services
               </dt>
               <dd className="mt-1 text-champagne">
@@ -79,14 +95,24 @@ export function Restaurants() {
               </dd>
             </div>
           </dl>
-          <a
-            href={MAPS_LINK}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-8 inline-flex text-[0.68rem] uppercase tracking-[0.16em] text-gold hover:text-gold-bright"
-          >
-            Voir sur Google Maps →
-          </a>
+          <div className="mt-8 flex flex-wrap gap-4">
+            <a
+              href={MAPS_LINK}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex text-[0.68rem] uppercase tracking-[0.16em] text-gold hover:text-gold-bright"
+            >
+              Google Maps →
+            </a>
+            <a
+              href={INSTAGRAM_LINK}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex text-[0.68rem] uppercase tracking-[0.16em] text-gold hover:text-gold-bright"
+            >
+              Instagram →
+            </a>
+          </div>
         </div>
       </div>
     </section>
