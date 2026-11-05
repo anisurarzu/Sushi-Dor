@@ -69,6 +69,11 @@ export function SiteFooter() {
               </Link>
             </li>
             <li>
+              <Link href="/reservation" className="hover:text-champagne">
+                Réserver une table
+              </Link>
+            </li>
+            <li>
               <Link href="/#restaurants" className="hover:text-champagne">
                 Restaurant
               </Link>

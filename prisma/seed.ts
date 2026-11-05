@@ -62,6 +62,41 @@ async function main() {
     },
   });
 
+  console.log("Seeding opening hours…");
+  await prisma.openingHour.deleteMany({ where: { restaurantId: restaurant.id } });
+  const days = [
+    "MONDAY",
+    "TUESDAY",
+    "WEDNESDAY",
+    "THURSDAY",
+    "FRIDAY",
+    "SATURDAY",
+    "SUNDAY",
+  ] as const;
+  await prisma.openingHour.createMany({
+    data: days.flatMap((day) => {
+      const closed = day === "MONDAY";
+      return [
+        {
+          restaurantId: restaurant.id,
+          dayOfWeek: day,
+          openTime: "11:30",
+          closeTime: "14:30",
+          service: "LUNCH",
+          isClosed: closed,
+        },
+        {
+          restaurantId: restaurant.id,
+          dayOfWeek: day,
+          openTime: "18:30",
+          closeTime: "22:30",
+          service: "DINNER",
+          isClosed: closed,
+        },
+      ];
+    }),
+  });
+
   console.log("Seeding categories & products…");
   for (const cat of menu.categories) {
     await prisma.category.upsert({

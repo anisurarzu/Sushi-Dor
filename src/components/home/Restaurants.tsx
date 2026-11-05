@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 const MAPS_LINK = "https://maps.app.goo.gl/38atS75trNpi3Y87A";
 const INSTAGRAM_LINK = "https://www.instagram.com/sushi_dor_annemasse";
 
@@ -139,10 +141,13 @@ export function Restaurants() {
                   Services
                 </dt>
                 <dd className="mt-1 text-champagne">
-                  À emporter · Sur place
+                  À emporter · Sur place · Réservation
                 </dd>
               </div>
             </dl>
+            <Link href="/reservation" className="btn-gold mt-8 inline-flex">
+              Réserver une table
+            </Link>
           </div>
 
           <div className="flex flex-col justify-center gap-4 border border-[color:var(--line)] bg-ink p-6 sm:p-8">

@@ -51,6 +51,13 @@ enum ReservationStatus {
   NO_SHOW
 }
 
+enum ReservationSource {
+  ONLINE
+  PHONE
+  WALK_IN
+  OTHER
+}
+
 enum DayOfWeek {
   MONDAY
   TUESDAY
@@ -558,17 +565,18 @@ model Payment {
 }
 
 model Reservation {
-  id               String            @id @default(cuid())
-  confirmationCode String            @unique
-  cancelTokenHash  String            @unique
+  id               String             @id @default(cuid())
+  confirmationCode String             @unique
+  cancelTokenHash  String             @unique
   restaurantId     String
-  restaurant       Restaurant        @relation(fields: [restaurantId], references: [id])
+  restaurant       Restaurant         @relation(fields: [restaurantId], references: [id])
   tableId          String?
-  table            DiningTable?      @relation(fields: [tableId], references: [id])
+  table            DiningTable?       @relation(fields: [tableId], references: [id])
   userId           String?
-  user             User?             @relation(fields: [userId], references: [id])
-  status           ReservationStatus @default(CONFIRMED)
-  date             DateTime          @db.Date
+  user             User?              @relation(fields: [userId], references: [id])
+  status           ReservationStatus  @default(CONFIRMED)
+  source           ReservationSource  @default(ONLINE)
+  date             DateTime           @db.Date
   startTime        String
   endTime          String
   partySize        Int
@@ -578,10 +586,11 @@ model Reservation {
   phone            String
   occasion         String?
   specialRequest   String?
+  adminNotes       String?
   /// 0 = active, 255 = soft-deleted (hidden from UI, kept in DB)
-  deletedStatus    Int               @default(0)
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
+  deletedStatus    Int                @default(0)
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
 
   @@index([restaurantId, date, startTime])
   @@index([email])

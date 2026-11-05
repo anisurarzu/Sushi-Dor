@@ -7,20 +7,38 @@ export const dynamic = "force-dynamic";
 export default async function AdminReservationsPage() {
   await requireAdmin("reservations.view");
   const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const [reservations, restaurants] = await Promise.all([
+  today.setUTCHours(0, 0, 0, 0);
+  const tomorrow = new Date(today);
+  tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
+
+  const [reservations, restaurants, todayRows, pendingCount] = await Promise.all([
     prisma.reservation.findMany({
       where: {
         date: { gte: today },
         deletedStatus: 0,
       },
       orderBy: [{ date: "asc" }, { startTime: "asc" }],
-      take: 100,
+      take: 200,
       include: { restaurant: true },
     }),
     prisma.restaurant.findMany({
       where: { isActive: true, reservationEnabled: true },
       orderBy: { name: "asc" },
+    }),
+    prisma.reservation.findMany({
+      where: {
+        date: { gte: today, lt: tomorrow },
+        status: { in: ["PENDING", "CONFIRMED"] },
+        deletedStatus: 0,
+      },
+      select: { partySize: true },
+    }),
+    prisma.reservation.count({
+      where: {
+        status: "PENDING",
+        date: { gte: today },
+        deletedStatus: 0,
+      },
     }),
   ]);
 
@@ -31,11 +49,15 @@ export default async function AdminReservationsPage() {
           Réservations
         </h1>
         <p className="mt-1 text-sm text-[#a89f8e]">
-          Création, édition et contrôle de capacité côté serveur.
+          Planning du jour, confirmations, no-shows et réservations téléphone /
+          walk-in.
         </p>
       </div>
       <ReservationManager
         restaurants={restaurants.map((r) => ({ id: r.id, name: r.name }))}
+        todayCount={todayRows.length}
+        todayGuestCount={todayRows.reduce((s, r) => s + r.partySize, 0)}
+        pendingCount={pendingCount}
         initial={reservations.map((r) => ({
           id: r.id,
           confirmationCode: r.confirmationCode,
@@ -47,8 +69,11 @@ export default async function AdminReservationsPage() {
           lastName: r.lastName,
           email: r.email,
           phone: r.phone,
+          occasion: r.occasion,
           specialRequest: r.specialRequest,
+          adminNotes: r.adminNotes,
           status: r.status,
+          source: r.source,
           restaurantId: r.restaurantId,
           restaurantName: r.restaurant.name,
         }))}

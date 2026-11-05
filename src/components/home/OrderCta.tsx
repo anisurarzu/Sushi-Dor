@@ -16,18 +16,20 @@ export function OrderCta() {
       <div className="absolute inset-0 bg-ink/80" />
       <div className="relative z-10 mx-auto max-w-3xl text-center">
         <p className="mb-4 text-[0.72rem] uppercase tracking-[0.3em] text-gold">
-          Bientôt disponible
+          Sur place
         </p>
         <h2 className="font-[family-name:var(--font-display)] text-4xl text-bone md:text-5xl">
-          Commande en ligne{" "}
-          <span className="gold-text">en construction</span>
+          Réservez votre <span className="gold-text">table</span>
         </h2>
         <p className="mx-auto mt-5 max-w-lg text-mist">
-          En attendant, consultez notre carte. La commande et la réservation en
-          ligne arrivent bientôt pour Annemasse.
+          Choisissez la date, l&apos;heure et le nombre de convives — confirmation
+          immédiate en ligne pour Annemasse.
         </p>
         <div className="mt-10 flex flex-wrap justify-center gap-4">
-          <Link href="/menu" className="btn-gold">
+          <Link href="/reservation" className="btn-gold">
+            Réserver une table
+          </Link>
+          <Link href="/menu" className="btn-ghost">
             Voir la carte
           </Link>
         </div>

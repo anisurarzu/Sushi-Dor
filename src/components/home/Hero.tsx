@@ -31,9 +31,9 @@ export function Hero() {
           <Link href="/menu" className="btn-gold">
             Voir la carte
           </Link>
-          <a href="#restaurants" className="btn-ghost">
-            Notre restaurant
-          </a>
+          <Link href="/reservation" className="btn-ghost">
+            Réserver une table
+          </Link>
         </div>
       </div>
     </section>

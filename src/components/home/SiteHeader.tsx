@@ -4,6 +4,7 @@ import { CartBadge } from "@/components/cart/CartBadge";
 
 const links = [
   { href: "/menu", label: "La carte" },
+  { href: "/reservation", label: "Réserver" },
   { href: "/#restaurants", label: "Restaurant" },
   { href: "/#contact", label: "Contact" },
 ];
@@ -30,6 +31,12 @@ export function SiteHeader() {
 
         <div className="flex items-center gap-2 sm:gap-3">
           <CartBadge />
+          <Link
+            href="/reservation"
+            className="header-cta header-cta--ghost hidden shrink-0 sm:inline-flex"
+          >
+            Réserver
+          </Link>
           <Link href="/menu" className="header-cta header-cta--gold shrink-0">
             Commander
           </Link>
