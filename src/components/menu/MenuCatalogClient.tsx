@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { CategoryFireTitle } from "@/components/brand/CategoryFireTitle";
 import { FireText } from "@/components/brand/FireText";
 import { ProductCardDb } from "@/components/menu/ProductCardDb";
@@ -20,30 +20,40 @@ export function MenuCatalogClient({ categories }: { categories: Cat[] }) {
   );
   const [order, setOrder] = useState(defaultOrder);
   const [activeSlug, setActiveSlug] = useState<string | null>(null);
+  const [scrollToSlug, setScrollToSlug] = useState<string | null>(null);
 
   const bySlug = useMemo(
     () => new Map(categories.map((c) => [c.slug, c])),
     [categories],
   );
 
+  useEffect(() => {
+    if (!scrollToSlug) return;
+    const slug = scrollToSlug;
+    const frame = window.requestAnimationFrame(() => {
+      document
+        .getElementById(slug)
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      setScrollToSlug(null);
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [order, scrollToSlug]);
+
   function selectCategory(slug: string) {
     setActiveSlug(slug);
     setOrder((prev) => {
       const base = prev.length ? prev : defaultOrder;
+      if (base[0] === slug) return base;
       return [slug, ...base.filter((s) => s !== slug)];
     });
-    requestAnimationFrame(() => {
-      document
-        .getElementById("menu-catalog")
-        ?.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
+    setScrollToSlug(slug);
   }
 
   const sectionOrder = order.length ? order : defaultOrder;
 
   return (
     <>
-      <div className="border-b border-[color:var(--line)] bg-ink-soft/40 px-4 py-4 sm:px-6 md:px-10">
+      <div className="sticky top-0 z-20 border-b border-[color:var(--line)] bg-ink/95 px-4 py-3 backdrop-blur-md sm:px-6 md:px-10">
         <nav
           className="mx-auto flex max-w-7xl gap-2 overflow-x-auto pb-1 scrollbar-none sm:flex-wrap sm:overflow-visible"
           aria-label="Catégories"
@@ -76,13 +86,13 @@ export function MenuCatalogClient({ categories }: { categories: Cat[] }) {
 
       <div
         id="menu-catalog"
-        className="mx-auto max-w-7xl space-y-12 px-3 py-10 scroll-mt-24 sm:space-y-16 sm:px-6 md:px-10 md:py-24"
+        className="mx-auto max-w-7xl space-y-12 px-3 py-10 sm:space-y-16 sm:px-6 md:px-10 md:py-24"
       >
         {sectionOrder.map((slug) => {
           const cat = bySlug.get(slug);
           if (!cat || cat.products.length === 0) return null;
           return (
-            <section key={cat.slug} id={cat.slug} className="scroll-mt-24">
+            <section key={cat.slug} id={cat.slug} className="scroll-mt-28">
               <div className="mb-4 flex items-end justify-between gap-3 px-1 sm:mb-8">
                 <CategoryFireTitle
                   id={cat.slug}

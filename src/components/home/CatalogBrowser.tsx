@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { CategoryFireTitle } from "@/components/brand/CategoryFireTitle";
 import { FireText } from "@/components/brand/FireText";
 import { ProductCardDb } from "@/components/menu/ProductCardDb";
@@ -45,6 +45,10 @@ function ProductGrid({
   );
 }
 
+function sectionDomId(id: string) {
+  return id === "incontournables" ? "incontournables" : `cat-${id}`;
+}
+
 export function CatalogBrowser({ featured, categories, fromDb }: Props) {
   const defaultOrder = useMemo(() => {
     const ids: string[] = [];
@@ -55,6 +59,7 @@ export function CatalogBrowser({ featured, categories, fromDb }: Props) {
 
   const [order, setOrder] = useState<string[]>(defaultOrder);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [scrollToId, setScrollToId] = useState<string | null>(null);
 
   const bySlug = useMemo(() => {
     const map = new Map(categories.map((c) => [c.slug, c]));
@@ -64,12 +69,7 @@ export function CatalogBrowser({ featured, categories, fromDb }: Props) {
   const links = useMemo(
     () => [
       ...(featured.length > 0
-        ? [
-            {
-              id: "incontournables",
-              label: "Incontournables",
-            },
-          ]
+        ? [{ id: "incontournables", label: "Incontournables" }]
         : []),
       ...categories.map((c) => ({ id: c.slug, label: c.nameFr })),
       { id: "tous", label: "Tous", href: "/menu" as const },
@@ -77,19 +77,27 @@ export function CatalogBrowser({ featured, categories, fromDb }: Props) {
     [featured.length, categories],
   );
 
+  useEffect(() => {
+    if (!scrollToId) return;
+    const id = scrollToId;
+    const frame = window.requestAnimationFrame(() => {
+      document
+        .getElementById(sectionDomId(id))
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      setScrollToId(null);
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [order, scrollToId]);
+
   function selectCategory(id: string) {
     if (id === "tous") return;
     setActiveId(id);
     setOrder((prev) => {
       const base = prev.length ? prev : defaultOrder;
+      if (base[0] === id) return base;
       return [id, ...base.filter((x) => x !== id)];
     });
-    // Keep the catalog header in view — selected block is now first under the nav
-    requestAnimationFrame(() => {
-      document
-        .getElementById("carte-catalog")
-        ?.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
+    setScrollToId(id);
   }
 
   const sectionOrder = order.length ? order : defaultOrder;
@@ -115,9 +123,9 @@ export function CatalogBrowser({ featured, categories, fromDb }: Props) {
         </p>
       </div>
 
-      <div id="carte-catalog" className="scroll-mt-28">
+      <div id="carte-catalog" className="scroll-mt-24">
         <nav
-          className="-mx-3 mb-10 flex gap-2 overflow-x-auto px-3 pb-1 scrollbar-none sm:mx-0 sm:mb-14 sm:flex-wrap sm:overflow-visible sm:px-0"
+          className="sticky top-0 z-20 -mx-3 mb-10 flex gap-2 overflow-x-auto bg-ink/95 px-3 py-3 pb-3 backdrop-blur-md scrollbar-none sm:mx-0 sm:mb-14 sm:flex-wrap sm:overflow-visible sm:px-0"
           aria-label="Catégories"
         >
           {links.map((link) => {
@@ -161,7 +169,11 @@ export function CatalogBrowser({ featured, categories, fromDb }: Props) {
             if (id === "incontournables") {
               if (featured.length === 0) return null;
               return (
-                <section key={id} id={id} className="scroll-mt-28">
+                <section
+                  key={id}
+                  id={id}
+                  className="scroll-mt-28"
+                >
                   <div className="mb-5 flex flex-col gap-3 sm:mb-8 sm:flex-row sm:items-end sm:justify-between">
                     <div className="max-w-2xl">
                       <CategoryFireTitle
@@ -193,7 +205,11 @@ export function CatalogBrowser({ featured, categories, fromDb }: Props) {
             const cat = bySlug.get(id);
             if (!cat || cat.products.length === 0) return null;
             return (
-              <section key={cat.id} id={`cat-${cat.slug}`} className="scroll-mt-28">
+              <section
+                key={cat.id}
+                id={`cat-${cat.slug}`}
+                className="scroll-mt-28"
+              >
                 <div className="mb-5 flex flex-col gap-3 sm:mb-8 sm:flex-row sm:items-end sm:justify-between">
                   <div className="max-w-2xl">
                     <CategoryFireTitle
