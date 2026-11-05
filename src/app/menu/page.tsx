@@ -1,11 +1,9 @@
-import { CategoryFireTitle } from "@/components/brand/CategoryFireTitle";
 import { SiteFooter } from "@/components/home/SiteFooter";
 import { SiteHeader } from "@/components/home/SiteHeader";
-import { ProductCardDb } from "@/components/menu/ProductCardDb";
+import { MenuCatalogClient } from "@/components/menu/MenuCatalogClient";
 import { getStaticCatalog } from "@/lib/catalog-static";
 import type { HomeProduct } from "@/lib/home-catalog";
 import { dbAvailable, prisma } from "@/lib/prisma";
-import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -117,53 +115,11 @@ export default async function MenuPage() {
                 ? " Personnalisez vos options, ajoutez au panier et payez en ligne."
                 : " Catalogue affiché hors-ligne — connectez PostgreSQL sur Vercel pour activer panier et paiement."}
             </p>
-            <nav
-              className="-mx-4 mt-6 flex gap-2 overflow-x-auto px-4 pb-1 scrollbar-none sm:mx-0 sm:mt-10 sm:flex-wrap sm:overflow-visible sm:px-0"
-              aria-label="Catégories"
-            >
-              {categories.map((cat) => (
-                <a
-                  key={cat.slug}
-                  href={`#${cat.slug}`}
-                  className="shrink-0 border border-[color:var(--line)] px-2.5 py-1.5 text-[0.6rem] uppercase tracking-[0.12em] text-mist hover:border-gold hover:text-champagne"
-                >
-                  {cat.nameFr}
-                </a>
-              ))}
-            </nav>
           </div>
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl space-y-12 px-3 py-10 sm:space-y-16 sm:px-6 md:px-10 md:py-24">
-        {categories.map((cat) => {
-          if (cat.products.length === 0) return null;
-          return (
-            <section key={cat.slug} id={cat.slug} className="scroll-mt-24">
-              <div className="mb-4 flex items-end justify-between gap-3 px-1 sm:mb-8">
-                <CategoryFireTitle
-                  id={cat.slug}
-                  as="h2"
-                  className="font-[family-name:var(--font-display)] text-2xl text-champagne sm:text-3xl md:text-4xl"
-                >
-                  {cat.nameFr}
-                </CategoryFireTitle>
-                <Link
-                  href={`/menu/${cat.slug}`}
-                  className="text-[0.65rem] uppercase tracking-[0.14em] text-gold sm:text-xs"
-                >
-                  Voir tout →
-                </Link>
-              </div>
-              <div className="grid grid-cols-2 gap-2.5 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 lg:gap-6">
-                {cat.products.map((item) => (
-                  <ProductCardDb key={item.id} product={item} />
-                ))}
-              </div>
-            </section>
-          );
-        })}
-      </div>
+      <MenuCatalogClient categories={categories} />
 
       <SiteFooter />
     </main>
