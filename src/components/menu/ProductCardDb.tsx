@@ -30,7 +30,7 @@ export function ProductCardDb({ product, priority = false }: Props) {
   const badges = BADGES.filter((b) => product[b.key]);
 
   return (
-    <article className="group flex h-full min-w-0 flex-col border border-[color:var(--line)] bg-ink-soft/40 transition-colors hover:border-gold">
+    <article className="product-focus-card group flex h-full min-w-0 flex-col border border-[color:var(--line)] bg-ink-soft/40 transition-colors hover:border-gold">
       <Link href={href} className="relative block aspect-[4/3] overflow-hidden bg-ink-soft">
         {product.imageUrl ? (
           <Image
@@ -38,7 +38,7 @@ export function ProductCardDb({ product, priority = false }: Props) {
             alt={alt}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            className="object-cover transition-transform duration-700 group-hover:scale-105"
+            className="product-focus-card__img object-cover"
             priority={priority}
           />
         ) : (

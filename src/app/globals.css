@@ -417,6 +417,53 @@ body {
   }
 }
 
+/* Hover one card → siblings ease out so focus stays on the active item */
+.product-focus-card {
+  transform: scale(1);
+  opacity: 1;
+  transition:
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.35s ease,
+    border-color 0.25s ease,
+    box-shadow 0.45s ease;
+  will-change: transform, opacity;
+}
+
+.product-focus-card__img {
+  transform: scale(1);
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .product-focus-grid:hover .product-focus-card {
+    transform: scale(0.94);
+    opacity: 0.55;
+  }
+
+  .product-focus-grid:hover .product-focus-card:hover {
+    transform: scale(1.03);
+    opacity: 1;
+    z-index: 2;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+  }
+
+  .product-focus-grid:hover .product-focus-card:hover .product-focus-card__img {
+    transform: scale(1.06);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .product-focus-card,
+  .product-focus-card__img {
+    transition: none;
+  }
+
+  .product-focus-grid:hover .product-focus-card,
+  .product-focus-grid:hover .product-focus-card:hover {
+    transform: none;
+  }
+}
+
 @keyframes fire-text-burn {
   from {
     background-position:

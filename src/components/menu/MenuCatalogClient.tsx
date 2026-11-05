@@ -112,7 +112,7 @@ export function MenuCatalogClient({ categories }: { categories: Cat[] }) {
                   Voir tout →
                 </Link>
               </div>
-              <div className="grid grid-cols-2 gap-2.5 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 lg:gap-6">
+              <div className="product-focus-grid grid grid-cols-2 gap-2.5 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 lg:gap-6">
                 {cat.products.map((item) => (
                   <ProductCardDb key={item.id} product={item} />
                 ))}

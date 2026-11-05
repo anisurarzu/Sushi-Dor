@@ -24,7 +24,7 @@ function ProductGrid({
 }) {
   const list = typeof limit === "number" ? products.slice(0, limit) : products;
   return (
-    <div className="grid grid-cols-2 gap-2.5 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 lg:gap-6">
+    <div className="product-focus-grid grid grid-cols-2 gap-2.5 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 lg:gap-6">
       {list.map((product, index) => (
         <div
           key={product.id}
