@@ -123,9 +123,9 @@ export function CatalogBrowser({ featured, categories, fromDb }: Props) {
         </p>
       </div>
 
-      <div id="carte-catalog" className="scroll-mt-24">
+      <div id="carte-catalog" className="scroll-mt-28">
         <nav
-          className="sticky top-0 z-20 -mx-3 mb-10 flex gap-2 overflow-x-auto bg-ink/95 px-3 py-3 pb-3 backdrop-blur-md scrollbar-none sm:mx-0 sm:mb-14 sm:flex-wrap sm:overflow-visible sm:px-0"
+          className="sticky top-0 z-20 -mx-3 mb-8 flex gap-2 overflow-x-auto border-b border-[color:var(--line)]/40 bg-ink/95 px-3 py-3 backdrop-blur-md scrollbar-none sm:mx-0 sm:mb-12 sm:flex-wrap sm:overflow-visible sm:px-0"
           aria-label="Catégories"
         >
           {links.map((link) => {
@@ -172,7 +172,7 @@ export function CatalogBrowser({ featured, categories, fromDb }: Props) {
                 <section
                   key={id}
                   id={id}
-                  className="scroll-mt-28"
+                  className="catalog-section scroll-mt-40 pt-3 sm:scroll-mt-44 sm:pt-5"
                 >
                   <div className="mb-5 flex flex-col gap-3 sm:mb-8 sm:flex-row sm:items-end sm:justify-between">
                     <div className="max-w-2xl">
@@ -208,7 +208,7 @@ export function CatalogBrowser({ featured, categories, fromDb }: Props) {
               <section
                 key={cat.id}
                 id={`cat-${cat.slug}`}
-                className="scroll-mt-28"
+                className="catalog-section scroll-mt-40 pt-3 sm:scroll-mt-44 sm:pt-5"
               >
                 <div className="mb-5 flex flex-col gap-3 sm:mb-8 sm:flex-row sm:items-end sm:justify-between">
                   <div className="max-w-2xl">

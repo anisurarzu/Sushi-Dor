@@ -404,6 +404,19 @@ body {
   color: inherit;
 }
 
+/* Leave room under sticky category chips so titles stay readable */
+.catalog-section {
+  scroll-margin-top: 10rem;
+  padding-top: 0.85rem;
+}
+
+@media (min-width: 640px) {
+  .catalog-section {
+    scroll-margin-top: 11rem;
+    padding-top: 1.25rem;
+  }
+}
+
 @keyframes fire-text-burn {
   from {
     background-position:

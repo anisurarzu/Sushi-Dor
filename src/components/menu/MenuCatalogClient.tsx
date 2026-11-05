@@ -92,7 +92,11 @@ export function MenuCatalogClient({ categories }: { categories: Cat[] }) {
           const cat = bySlug.get(slug);
           if (!cat || cat.products.length === 0) return null;
           return (
-            <section key={cat.slug} id={cat.slug} className="scroll-mt-28">
+            <section
+              key={cat.slug}
+              id={cat.slug}
+              className="catalog-section scroll-mt-40 pt-3 sm:scroll-mt-44 sm:pt-5"
+            >
               <div className="mb-4 flex items-end justify-between gap-3 px-1 sm:mb-8">
                 <CategoryFireTitle
                   id={cat.slug}
