@@ -59,15 +59,6 @@ function formatDisplayDate(dateStr: string) {
   }).format(new Date(`${dateStr}T12:00:00.000Z`));
 }
 
-function stripParts(dateStr: string) {
-  const d = new Date(`${dateStr}T12:00:00.000Z`);
-  return {
-    weekday: new Intl.DateTimeFormat("fr-FR", { weekday: "short" }).format(d),
-    day: new Intl.DateTimeFormat("fr-FR", { day: "numeric" }).format(d),
-    month: new Intl.DateTimeFormat("fr-FR", { month: "short" }).format(d),
-  };
-}
-
 function BackButton({
   onClick,
   disabled,
@@ -100,7 +91,6 @@ export function ReservationBookingClient({ initialMeta }: { initialMeta: Meta })
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showMonth, setShowMonth] = useState(false);
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
@@ -112,16 +102,11 @@ export function ReservationBookingClient({ initialMeta }: { initialMeta: Meta })
 
   const minDate = todayParis();
   const maxDate = addDays(minDate, initialMeta.restaurant.maxAdvanceDays);
-  const stripDays = useMemo(() => {
-    const count = Math.min(14, initialMeta.restaurant.maxAdvanceDays + 1);
-    return Array.from({ length: count }, (_, i) => addDays(minDate, i));
-  }, [minDate, initialMeta.restaurant.maxAdvanceDays]);
   const availableSlots = useMemo(
     () => slots.filter((s) => s.available),
     [slots],
   );
   const backTo = STEP_BACK[step];
-  const dateInStrip = stripDays.includes(date);
 
   useEffect(() => {
     let cancelled = false;
@@ -214,7 +199,7 @@ export function ReservationBookingClient({ initialMeta }: { initialMeta: Meta })
   ];
 
   return (
-    <div className="mx-auto max-w-3xl">
+    <div className={`mx-auto ${step === "datetime" ? "max-w-4xl" : "max-w-3xl"}`}>
       {backTo ? (
         <BackButton
           disabled={pending}
@@ -293,103 +278,52 @@ export function ReservationBookingClient({ initialMeta }: { initialMeta: Meta })
             </p>
           </div>
 
-          <div>
-            <div className="mb-2 flex items-center justify-between gap-3">
-              <p className="text-[0.65rem] uppercase tracking-[0.18em] text-gold">
+          <div className="reservation-datetime-split">
+            <div>
+              <p className="mb-2 text-[0.65rem] uppercase tracking-[0.18em] text-gold">
                 Date
               </p>
-              <button
-                type="button"
-                className="text-[0.65rem] uppercase tracking-[0.14em] text-mist underline decoration-gold/40 underline-offset-4 hover:text-gold"
-                onClick={() => setShowMonth((v) => !v)}
-              >
-                {showMonth ? "Masquer le mois" : "Autre date"}
-              </button>
+              <ReservationCalendar
+                className="reservation-cal--compact"
+                value={date}
+                min={minDate}
+                max={maxDate}
+                today={minDate}
+                onChange={setDate}
+              />
             </div>
 
-            <div className="reservation-date-strip" role="listbox" aria-label="Dates proches">
-              {stripDays.map((d) => {
-                const parts = stripParts(d);
-                const selected = d === date;
-                return (
-                  <button
-                    key={d}
-                    type="button"
-                    role="option"
-                    aria-selected={selected}
-                    className={`reservation-date-strip__day ${selected ? "is-selected" : ""}`}
-                    onClick={() => {
-                      setDate(d);
-                      setShowMonth(false);
-                    }}
-                  >
-                    <span className="reservation-date-strip__weekday">
-                      {parts.weekday.replace(".", "")}
-                    </span>
-                    <span className="reservation-date-strip__num">
-                      {parts.day}
-                    </span>
-                    <span className="reservation-date-strip__month">
-                      {parts.month.replace(".", "")}
-                    </span>
-                  </button>
-                );
-              })}
+            <div className="reservation-slot-panel">
+              <p className="mb-3 text-[0.65rem] uppercase tracking-[0.18em] text-gold">
+                Heure
+              </p>
+              {loadingSlots ? (
+                <p className="py-4 text-center text-sm text-mist">
+                  Chargement des créneaux…
+                </p>
+              ) : closedReason ? (
+                <p className="text-sm text-amber-100">{closedReason}</p>
+              ) : availableSlots.length === 0 ? (
+                <p className="text-sm text-mist">
+                  Aucun créneau ce jour. Choisissez une autre date.
+                </p>
+              ) : (
+                <div className="reservation-slot-grid">
+                  {availableSlots.map((s) => (
+                    <button
+                      key={s.startTime}
+                      type="button"
+                      className={`reservation-slot-btn ${
+                        startTime === s.startTime ? "is-selected" : ""
+                      }`}
+                      onClick={() => setStartTime(s.startTime)}
+                    >
+                      {s.startTime}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
-
-            {!dateInStrip ? (
-              <p className="mt-2 text-xs text-gold">
-                Date hors bandeau — {formatDisplayDate(date)}
-              </p>
-            ) : null}
-
-            {showMonth ? (
-              <div className="mt-3">
-                <ReservationCalendar
-                  className="reservation-cal--compact"
-                  value={date}
-                  min={minDate}
-                  max={maxDate}
-                  today={minDate}
-                  onChange={(d) => {
-                    setDate(d);
-                    setShowMonth(false);
-                  }}
-                />
-              </div>
-            ) : null}
-          </div>
-
-          <div className="reservation-slot-panel">
-            <p className="mb-3 text-[0.65rem] uppercase tracking-[0.18em] text-gold">
-              Heure
-            </p>
-            {loadingSlots ? (
-              <p className="py-4 text-center text-sm text-mist">
-                Chargement des créneaux…
-              </p>
-            ) : closedReason ? (
-              <p className="text-sm text-amber-100">{closedReason}</p>
-            ) : availableSlots.length === 0 ? (
-              <p className="text-sm text-mist">
-                Aucun créneau ce jour. Choisissez une autre date.
-              </p>
-            ) : (
-              <div className="reservation-slot-grid">
-                {availableSlots.map((s) => (
-                  <button
-                    key={s.startTime}
-                    type="button"
-                    className={`reservation-slot-btn ${
-                      startTime === s.startTime ? "is-selected" : ""
-                    }`}
-                    onClick={() => setStartTime(s.startTime)}
-                  >
-                    {s.startTime}
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
 
           <button
