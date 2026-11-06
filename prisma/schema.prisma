@@ -142,7 +142,7 @@ model Restaurant {
   prepTimeMinutes     Int      @default(30)
   reservationInterval Int      @default(30)
   maxGuestsPerSlot    Int      @default(40)
-  maxPartySize        Int      @default(12)
+  maxPartySize        Int      @default(20)
   minAdvanceMinutes   Int      @default(60)
   maxAdvanceDays      Int      @default(30)
   maxItemQuantity     Int      @default(20)

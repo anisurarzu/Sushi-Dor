@@ -29,6 +29,12 @@ type Slot = {
 
 type Step = "party" | "datetime" | "details" | "review";
 
+const STEP_BACK: Partial<Record<Step, Step>> = {
+  datetime: "party",
+  details: "datetime",
+  review: "details",
+};
+
 function todayParis() {
   return new Intl.DateTimeFormat("en-CA", {
     timeZone: "Europe/Paris",
@@ -52,8 +58,29 @@ function formatDisplayDate(dateStr: string) {
   }).format(new Date(`${dateStr}T12:00:00.000Z`));
 }
 
+function BackButton({
+  onClick,
+  disabled,
+}: {
+  onClick: () => void;
+  disabled?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      disabled={disabled}
+      onClick={onClick}
+      className="mb-5 inline-flex items-center gap-2 self-start border border-[color:var(--line)] px-3 py-1.5 text-[0.65rem] uppercase tracking-[0.16em] text-mist transition-colors hover:border-gold hover:text-champagne disabled:opacity-50"
+    >
+      <span aria-hidden>←</span>
+      Retour
+    </button>
+  );
+}
+
 export function ReservationBookingClient({ initialMeta }: { initialMeta: Meta }) {
   const router = useRouter();
+  const maxPartySize = Math.max(20, initialMeta.restaurant.maxPartySize || 20);
   const [step, setStep] = useState<Step>("party");
   const [partySize, setPartySize] = useState(2);
   const [date, setDate] = useState(todayParis());
@@ -78,6 +105,7 @@ export function ReservationBookingClient({ initialMeta }: { initialMeta: Meta })
     () => slots.filter((s) => s.available),
     [slots],
   );
+  const backTo = STEP_BACK[step];
 
   useEffect(() => {
     let cancelled = false;
@@ -171,6 +199,13 @@ export function ReservationBookingClient({ initialMeta }: { initialMeta: Meta })
 
   return (
     <div className="mx-auto max-w-3xl">
+      {backTo ? (
+        <BackButton
+          disabled={pending}
+          onClick={() => setStep(backTo)}
+        />
+      ) : null}
+
       <ol className="mb-8 flex flex-wrap gap-2 text-[0.65rem] uppercase tracking-[0.16em] text-mist">
         {steps.map((s, i) => (
           <li
@@ -193,16 +228,12 @@ export function ReservationBookingClient({ initialMeta }: { initialMeta: Meta })
               Combien serez-vous ?
             </h2>
             <p className="mt-2 text-sm text-mist">
-              Jusqu&apos;à {initialMeta.restaurant.maxPartySize} convives en
-              ligne. Au-delà, contactez-nous au{" "}
-              {initialMeta.restaurant.phone || "restaurant"}.
+              Jusqu&apos;à {maxPartySize} convives en ligne. Au-delà,
+              contactez-nous au {initialMeta.restaurant.phone || "restaurant"}.
             </p>
           </div>
-          <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
-            {Array.from(
-              { length: initialMeta.restaurant.maxPartySize },
-              (_, i) => i + 1,
-            ).map((n) => (
+          <div className="grid grid-cols-5 gap-2 sm:grid-cols-10">
+            {Array.from({ length: maxPartySize }, (_, i) => i + 1).map((n) => (
               <button
                 key={n}
                 type="button"
@@ -298,23 +329,14 @@ export function ReservationBookingClient({ initialMeta }: { initialMeta: Meta })
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-3">
-            <button
-              type="button"
-              className="btn-ghost"
-              onClick={() => setStep("party")}
-            >
-              Retour
-            </button>
-            <button
-              type="button"
-              className="btn-gold"
-              disabled={!startTime}
-              onClick={() => setStep("details")}
-            >
-              Continuer
-            </button>
-          </div>
+          <button
+            type="button"
+            className="btn-gold"
+            disabled={!startTime}
+            onClick={() => setStep("details")}
+          >
+            Continuer
+          </button>
         </section>
       ) : null}
 
@@ -397,28 +419,16 @@ export function ReservationBookingClient({ initialMeta }: { initialMeta: Meta })
               />
             </label>
           </div>
-          <div className="flex flex-wrap gap-3">
-            <button
-              type="button"
-              className="btn-ghost"
-              onClick={() => setStep("datetime")}
-            >
-              Retour
-            </button>
-            <button
-              type="button"
-              className="btn-gold"
-              disabled={
-                !form.firstName ||
-                !form.lastName ||
-                !form.email ||
-                !form.phone
-              }
-              onClick={() => setStep("review")}
-            >
-              Continuer
-            </button>
-          </div>
+          <button
+            type="button"
+            className="btn-gold"
+            disabled={
+              !form.firstName || !form.lastName || !form.email || !form.phone
+            }
+            onClick={() => setStep("review")}
+          >
+            Continuer
+          </button>
         </section>
       ) : null}
 
@@ -471,24 +481,14 @@ export function ReservationBookingClient({ initialMeta }: { initialMeta: Meta })
             </p>
           ) : null}
           {error ? <p className="text-sm text-red-300">{error}</p> : null}
-          <div className="flex flex-wrap gap-3">
-            <button
-              type="button"
-              className="btn-ghost"
-              onClick={() => setStep("details")}
-              disabled={pending}
-            >
-              Retour
-            </button>
-            <button
-              type="button"
-              className="btn-gold"
-              disabled={pending}
-              onClick={() => void submit()}
-            >
-              {pending ? "Réservation…" : "Confirmer la réservation"}
-            </button>
-          </div>
+          <button
+            type="button"
+            className="btn-gold"
+            disabled={pending}
+            onClick={() => void submit()}
+          >
+            {pending ? "Réservation…" : "Confirmer la réservation"}
+          </button>
           <p className="text-xs text-mist">
             En confirmant, vous acceptez d&apos;être contacté pour cette
             réservation.{" "}
