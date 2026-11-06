@@ -20,19 +20,19 @@ export default async function ReservationConfirmationPage({
       <div className="relative">
         <SiteHeader />
         <div className="mx-auto max-w-2xl px-4 pb-20 pt-28 sm:px-6 sm:pt-32 md:px-10">
-          <p className="mb-2 text-[0.65rem] uppercase tracking-[0.24em] text-gold">
-            Confirmation
-          </p>
-          <h1 className="font-[family-name:var(--font-display)] text-4xl sm:text-5xl">
-            Merci pour votre <span className="gold-text">réservation</span>
-          </h1>
-          <div className="mt-10">
+          <div className="mt-2">
             {confirmationCode ? (
               <ReservationConfirmationClient code={confirmationCode} />
             ) : (
               <div className="space-y-4">
+                <p className="mb-2 text-[0.65rem] uppercase tracking-[0.24em] text-gold">
+                  Confirmation
+                </p>
+                <h1 className="font-[family-name:var(--font-display)] text-4xl sm:text-5xl">
+                  Code manquant
+                </h1>
                 <p className="text-mist">
-                  Code de confirmation manquant.
+                  Impossible d&apos;afficher la confirmation.
                 </p>
                 <Link href="/reservation/manage" className="btn-gold inline-flex">
                   Retrouver ma réservation

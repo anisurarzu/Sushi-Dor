@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ReservationCalendar } from "@/components/reservation/ReservationCalendar";
 import { Select } from "@/components/ui/Select";
 
@@ -81,7 +81,6 @@ function BackButton({
 
 export function ReservationBookingClient({ initialMeta }: { initialMeta: Meta }) {
   const router = useRouter();
-  const slotsRef = useRef<HTMLDivElement>(null);
   const maxPartySize = Math.max(20, initialMeta.restaurant.maxPartySize || 20);
   const [step, setStep] = useState<Step>("party");
   const [partySize, setPartySize] = useState(2);
@@ -108,16 +107,6 @@ export function ReservationBookingClient({ initialMeta }: { initialMeta: Meta })
     [slots],
   );
   const backTo = STEP_BACK[step];
-
-  function selectDate(next: string) {
-    setDate(next);
-    requestAnimationFrame(() => {
-      slotsRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    });
-  }
 
   useEffect(() => {
     let cancelled = false;
@@ -210,7 +199,7 @@ export function ReservationBookingClient({ initialMeta }: { initialMeta: Meta })
   ];
 
   return (
-    <div className="mx-auto max-w-3xl">
+    <div className={`mx-auto ${step === "datetime" ? "max-w-4xl" : "max-w-3xl"}`}>
       {backTo ? (
         <BackButton
           disabled={pending}
@@ -276,12 +265,12 @@ export function ReservationBookingClient({ initialMeta }: { initialMeta: Meta })
       ) : null}
 
       {step === "datetime" ? (
-        <section className="space-y-5">
+        <section className="space-y-4">
           <div>
             <h2 className="font-[family-name:var(--font-display)] text-2xl text-champagne sm:text-3xl">
               Choisissez votre créneau
             </h2>
-            <p className="mt-2 text-sm text-mist">
+            <p className="mt-1.5 text-sm text-mist">
               {partySize} convive{partySize > 1 ? "s" : ""} ·{" "}
               <span className="capitalize text-champagne">
                 {formatDisplayDate(date)}
@@ -289,49 +278,52 @@ export function ReservationBookingClient({ initialMeta }: { initialMeta: Meta })
             </p>
           </div>
 
-          <div>
-            <p className="mb-2 text-[0.65rem] uppercase tracking-[0.18em] text-gold">
-              Date
-            </p>
-            <ReservationCalendar
-              value={date}
-              min={minDate}
-              max={maxDate}
-              today={minDate}
-              onChange={selectDate}
-            />
-          </div>
+          <div className="reservation-datetime-split">
+            <div>
+              <p className="mb-1.5 text-[0.65rem] uppercase tracking-[0.18em] text-gold">
+                Date
+              </p>
+              <ReservationCalendar
+                className="reservation-cal--compact"
+                value={date}
+                min={minDate}
+                max={maxDate}
+                today={minDate}
+                onChange={setDate}
+              />
+            </div>
 
-          <div ref={slotsRef} className="reservation-slot-panel">
-            <p className="mb-3 text-[0.65rem] uppercase tracking-[0.18em] text-gold">
-              Heure
-            </p>
-            {loadingSlots ? (
-              <p className="py-4 text-center text-sm text-mist">
-                Chargement des créneaux…
+            <div className="reservation-slot-panel">
+              <p className="mb-2.5 text-[0.65rem] uppercase tracking-[0.18em] text-gold">
+                Heure
               </p>
-            ) : closedReason ? (
-              <p className="text-sm text-amber-100">{closedReason}</p>
-            ) : availableSlots.length === 0 ? (
-              <p className="text-sm text-mist">
-                Aucun créneau ce jour. Choisissez une autre date.
-              </p>
-            ) : (
-              <div className="reservation-slot-grid">
-                {availableSlots.map((s) => (
-                  <button
-                    key={s.startTime}
-                    type="button"
-                    className={`reservation-slot-btn ${
-                      startTime === s.startTime ? "is-selected" : ""
-                    }`}
-                    onClick={() => setStartTime(s.startTime)}
-                  >
-                    {s.startTime}
-                  </button>
-                ))}
-              </div>
-            )}
+              {loadingSlots ? (
+                <p className="py-3 text-center text-sm text-mist">
+                  Chargement des créneaux…
+                </p>
+              ) : closedReason ? (
+                <p className="text-sm text-amber-100">{closedReason}</p>
+              ) : availableSlots.length === 0 ? (
+                <p className="text-sm text-mist">
+                  Aucun créneau ce jour. Choisissez une autre date.
+                </p>
+              ) : (
+                <div className="reservation-slot-grid">
+                  {availableSlots.map((s) => (
+                    <button
+                      key={s.startTime}
+                      type="button"
+                      className={`reservation-slot-btn ${
+                        startTime === s.startTime ? "is-selected" : ""
+                      }`}
+                      onClick={() => setStartTime(s.startTime)}
+                    >
+                      {s.startTime}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           <button
@@ -434,70 +426,87 @@ export function ReservationBookingClient({ initialMeta }: { initialMeta: Meta })
       ) : null}
 
       {step === "review" ? (
-        <section className="space-y-6">
-          <div>
-            <h2 className="font-[family-name:var(--font-display)] text-2xl text-champagne sm:text-3xl">
-              Vérifiez votre réservation
-            </h2>
-          </div>
-          <dl className="space-y-3 border border-[color:var(--line)] bg-ink-soft/40 p-5 text-sm">
-            <div className="flex justify-between gap-4">
-              <dt className="text-mist">Restaurant</dt>
-              <dd className="text-right text-bone">
-                {initialMeta.restaurant.name}
-                <span className="mt-1 block text-xs text-mist">
-                  {initialMeta.restaurant.address},{" "}
-                  {initialMeta.restaurant.postalCode}{" "}
-                  {initialMeta.restaurant.city}
-                </span>
-              </dd>
-            </div>
-            <div className="flex justify-between gap-4">
-              <dt className="text-mist">Date</dt>
-              <dd className="capitalize text-bone">
-                {formatDisplayDate(date)}
-              </dd>
-            </div>
-            <div className="flex justify-between gap-4">
-              <dt className="text-mist">Heure</dt>
-              <dd className="text-bone">{startTime}</dd>
-            </div>
-            <div className="flex justify-between gap-4">
-              <dt className="text-mist">Convives</dt>
-              <dd className="text-bone">{partySize}</dd>
-            </div>
-            <div className="flex justify-between gap-4">
-              <dt className="text-mist">Contact</dt>
-              <dd className="text-right text-bone">
-                {form.firstName} {form.lastName}
-                <span className="mt-1 block text-xs text-mist">
-                  {form.email} · {form.phone}
-                </span>
-              </dd>
-            </div>
-          </dl>
-          {partySize >= 8 ? (
-            <p className="text-sm text-amber-200/90">
-              Statut attendu : en attente de confirmation du restaurant.
-            </p>
-          ) : null}
-          {error ? <p className="text-sm text-red-300">{error}</p> : null}
-          <button
-            type="button"
-            className="btn-gold"
-            disabled={pending}
-            onClick={() => void submit()}
+        pending ? (
+          <section
+            className="reservation-confirm-load"
+            aria-live="polite"
+            aria-busy="true"
           >
-            {pending ? "Réservation…" : "Confirmer la réservation"}
-          </button>
-          <p className="text-xs text-mist">
-            En confirmant, vous acceptez d&apos;être contacté pour cette
-            réservation.{" "}
-            <Link href="/reservation/manage" className="text-gold underline">
-              Gérer une réservation existante
-            </Link>
-          </p>
-        </section>
+            <div className="reservation-confirm-load__ring" aria-hidden>
+              <span />
+            </div>
+            <p className="reservation-confirm-load__title">
+              Confirmation en cours…
+            </p>
+            <p className="reservation-confirm-load__hint">
+              Un instant, nous réservons votre table
+            </p>
+          </section>
+        ) : (
+          <section className="space-y-6">
+            <div>
+              <h2 className="font-[family-name:var(--font-display)] text-2xl text-champagne sm:text-3xl">
+                Vérifiez votre réservation
+              </h2>
+            </div>
+            <dl className="space-y-3 border border-[color:var(--line)] bg-ink-soft/40 p-5 text-sm">
+              <div className="flex justify-between gap-4">
+                <dt className="text-mist">Restaurant</dt>
+                <dd className="text-right text-bone">
+                  {initialMeta.restaurant.name}
+                  <span className="mt-1 block text-xs text-mist">
+                    {initialMeta.restaurant.address},{" "}
+                    {initialMeta.restaurant.postalCode}{" "}
+                    {initialMeta.restaurant.city}
+                  </span>
+                </dd>
+              </div>
+              <div className="flex justify-between gap-4">
+                <dt className="text-mist">Date</dt>
+                <dd className="capitalize text-bone">
+                  {formatDisplayDate(date)}
+                </dd>
+              </div>
+              <div className="flex justify-between gap-4">
+                <dt className="text-mist">Heure</dt>
+                <dd className="text-bone">{startTime}</dd>
+              </div>
+              <div className="flex justify-between gap-4">
+                <dt className="text-mist">Convives</dt>
+                <dd className="text-bone">{partySize}</dd>
+              </div>
+              <div className="flex justify-between gap-4">
+                <dt className="text-mist">Contact</dt>
+                <dd className="text-right text-bone">
+                  {form.firstName} {form.lastName}
+                  <span className="mt-1 block text-xs text-mist">
+                    {form.email} · {form.phone}
+                  </span>
+                </dd>
+              </div>
+            </dl>
+            {partySize >= 8 ? (
+              <p className="text-sm text-amber-200/90">
+                Statut attendu : en attente de confirmation du restaurant.
+              </p>
+            ) : null}
+            {error ? <p className="text-sm text-red-300">{error}</p> : null}
+            <button
+              type="button"
+              className="btn-gold"
+              onClick={() => void submit()}
+            >
+              Confirmer la réservation
+            </button>
+            <p className="text-xs text-mist">
+              En confirmant, vous acceptez d&apos;être contacté pour cette
+              réservation.{" "}
+              <Link href="/reservation/manage" className="text-gold underline">
+                Gérer une réservation existante
+              </Link>
+            </p>
+          </section>
+        )
       ) : null}
     </div>
   );
