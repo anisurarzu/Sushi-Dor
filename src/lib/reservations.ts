@@ -9,16 +9,7 @@ import type {
 import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/email";
 
-export const OCCASIONS = [
-  { value: "none", label: "Aucune" },
-  { value: "birthday", label: "Anniversaire" },
-  { value: "anniversary", label: "Anniversaire de couple" },
-  { value: "business", label: "Repas d'affaires" },
-  { value: "date", label: "Dîner en amoureux" },
-  { value: "family", label: "Famille" },
-  { value: "celebration", label: "Célébration" },
-  { value: "other", label: "Autre" },
-] as const;
+export { OCCASIONS } from "@/lib/reservation-options";
 
 export type ReservationSlot = {
   startTime: string;

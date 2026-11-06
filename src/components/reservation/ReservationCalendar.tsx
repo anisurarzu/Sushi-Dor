@@ -6,9 +6,14 @@ const WEEKDAYS = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"] as const;
 
 type Props = {
   value: string;
-  min: string;
-  max: string;
   onChange: (date: string) => void;
+  /** Inclusive lower bound (YYYY-MM-DD). Optional for admin. */
+  min?: string;
+  /** Inclusive upper bound (YYYY-MM-DD). Optional for admin. */
+  max?: string;
+  /** Mark this day as "today" (defaults to min when min is set). */
+  today?: string;
+  className?: string;
 };
 
 function parseYmd(ymd: string) {
@@ -42,10 +47,30 @@ function shiftMonth(y: number, m: number, delta: number) {
   return { y: date.getUTCFullYear(), m: date.getUTCMonth() + 1 };
 }
 
-export function ReservationCalendar({ value, min, max, onChange }: Props) {
+function addDaysYmd(ymd: string, days: number) {
+  const d = new Date(`${ymd}T12:00:00.000Z`);
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+
+function todayUtc() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+export function ReservationCalendar({
+  value,
+  onChange,
+  min,
+  max,
+  today,
+  className = "",
+}: Props) {
   const selected = parseYmd(value);
-  const minP = parseYmd(min);
-  const maxP = parseYmd(max);
+  const todayYmd = today || todayUtc();
+  const minYmd = min || addDaysYmd(todayYmd, -365);
+  const maxYmd = max || addDaysYmd(todayYmd, 365);
+  const minP = parseYmd(minYmd);
+  const maxP = parseYmd(maxYmd);
   const [view, setView] = useState({ y: selected.y, m: selected.m });
 
   useEffect(() => {
@@ -65,20 +90,24 @@ export function ReservationCalendar({ value, min, max, onChange }: Props) {
         kind: "day",
         day,
         ymd,
-        disabled: ymd < min || ymd > max,
-        isToday: ymd === min, // min is todayParis in parent — good enough for "today"
+        disabled: ymd < minYmd || ymd > maxYmd,
+        isToday: ymd === todayYmd,
         isSelected: ymd === value,
       });
     }
     return list;
-  }, [view.y, view.m, min, max, value]);
+  }, [view.y, view.m, minYmd, maxYmd, todayYmd, value]);
 
   const canPrev = toYmd(view.y, view.m, 1) > toYmd(minP.y, minP.m, 1);
   const canNext =
     toYmd(view.y, view.m, 1) < toYmd(maxP.y, maxP.m, 1);
 
   return (
-    <div className="reservation-cal" role="group" aria-label="Choisir une date">
+    <div
+      className={`reservation-cal ${className}`.trim()}
+      role="group"
+      aria-label="Choisir une date"
+    >
       <div className="reservation-cal__head">
         <button
           type="button"
