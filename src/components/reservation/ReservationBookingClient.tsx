@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { ReservationCalendar } from "@/components/reservation/ReservationCalendar";
+import { Select } from "@/components/ui/Select";
 
 type Meta = {
   restaurant: {
@@ -391,20 +392,16 @@ export function ReservationBookingClient({ initialMeta }: { initialMeta: Meta })
                 className="mt-1 w-full border border-[color:var(--line)] bg-ink-soft/60 px-3 py-2.5"
               />
             </label>
-            <label className="text-sm sm:col-span-2">
-              Occasion
-              <select
+            <div className="text-sm sm:col-span-2">
+              <span className="mb-1 block text-mist">Occasion</span>
+              <Select
+                aria-label="Occasion"
                 value={form.occasion}
-                onChange={(e) => setForm({ ...form, occasion: e.target.value })}
-                className="mt-1 w-full border border-[color:var(--line)] bg-ink-soft/60 px-3 py-2.5"
-              >
-                {initialMeta.occasions.map((o) => (
-                  <option key={o.value} value={o.value}>
-                    {o.label}
-                  </option>
-                ))}
-              </select>
-            </label>
+                onChange={(v) => setForm({ ...form, occasion: v })}
+                options={initialMeta.occasions}
+                placeholder="Choisir une occasion"
+              />
+            </div>
             <label className="text-sm sm:col-span-2">
               Demande spéciale
               <textarea

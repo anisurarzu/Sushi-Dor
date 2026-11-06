@@ -404,6 +404,131 @@ body {
   color: inherit;
 }
 
+/* Shared Select — ink / gold (public + admin) */
+.site-select__trigger {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--ink-soft) 88%, #000);
+  padding: 0.7rem 0.85rem;
+  text-align: left;
+  font-size: 0.9rem;
+  color: var(--champagne);
+  transition:
+    border-color 0.25s ease,
+    background 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.site-select__trigger:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--gold) 55%, transparent);
+}
+
+.site-select__trigger.is-open,
+.site-select__trigger:focus-visible {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--gold) 35%, transparent);
+  outline: none;
+}
+
+.site-select__trigger:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.site-select__value {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--champagne);
+}
+
+.site-select__placeholder {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--mist);
+}
+
+.site-select__chevron {
+  flex-shrink: 0;
+  color: var(--gold);
+  transition: transform 0.25s ease;
+}
+
+.site-select__chevron.is-open {
+  transform: rotate(180deg);
+}
+
+.site-select__menu {
+  position: absolute;
+  z-index: 50;
+  top: calc(100% + 0.35rem);
+  left: 0;
+  right: 0;
+  max-height: 15rem;
+  overflow: auto;
+  margin: 0;
+  padding: 0.35rem 0;
+  list-style: none;
+  border: 1px solid color-mix(in srgb, var(--gold) 40%, transparent);
+  background:
+    linear-gradient(180deg, rgba(196, 163, 90, 0.08), transparent 28%),
+    #12100e;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+  animation: reservation-cal-fade 0.22s ease;
+}
+
+.site-select__empty {
+  padding: 0.65rem 0.85rem;
+  font-size: 0.875rem;
+  color: var(--mist);
+}
+
+.site-select__option {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.65rem 0.85rem;
+  text-align: left;
+  font-size: 0.875rem;
+  color: var(--mist);
+  background: transparent;
+  border: 0;
+  transition:
+    background 0.18s ease,
+    color 0.18s ease;
+}
+
+.site-select__option:hover,
+.site-select__option.is-active {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--champagne);
+}
+
+.site-select__option.is-selected {
+  background: color-mix(in srgb, var(--gold) 14%, transparent);
+  color: var(--gold-bright);
+}
+
+.site-select__option:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.site-select__check {
+  flex-shrink: 0;
+  font-size: 0.65rem;
+  color: var(--gold);
+}
+
 /* Reservation calendar — ink / gold, readable on dark UI */
 .reservation-cal {
   border: 1px solid var(--line);
