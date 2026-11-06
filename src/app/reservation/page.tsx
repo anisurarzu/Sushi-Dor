@@ -23,7 +23,7 @@ export default async function ReservationPage() {
     <main className="bg-ink text-bone">
       <div className="relative">
         <SiteHeader />
-        <div className="mx-auto max-w-7xl px-4 pb-16 pt-22 sm:px-6 sm:pt-24 md:px-10">
+        <div className="mx-auto max-w-7xl px-4 pb-16 pt-20 sm:px-6 sm:pt-24 md:px-10">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
               <p className="mb-1 text-[0.6rem] uppercase tracking-[0.22em] text-gold">
