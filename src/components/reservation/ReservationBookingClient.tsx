@@ -71,7 +71,7 @@ function BackButton({
       type="button"
       disabled={disabled}
       onClick={onClick}
-      className="mb-5 inline-flex items-center gap-2 self-start border border-[color:var(--line)] px-3 py-1.5 text-[0.65rem] uppercase tracking-[0.16em] text-mist transition-colors hover:border-gold hover:text-champagne disabled:opacity-50"
+      className="mb-3 inline-flex items-center gap-2 self-start border border-[color:var(--line)] px-2.5 py-1 text-[0.6rem] uppercase tracking-[0.16em] text-mist transition-colors hover:border-gold hover:text-champagne disabled:opacity-50"
     >
       <span aria-hidden>←</span>
       Retour
@@ -207,14 +207,14 @@ export function ReservationBookingClient({ initialMeta }: { initialMeta: Meta })
         />
       ) : null}
 
-      <ol className="mb-8 flex flex-wrap gap-2 text-[0.65rem] uppercase tracking-[0.16em] text-mist">
+      <ol className="mb-5 flex flex-wrap gap-1.5 text-[0.6rem] uppercase tracking-[0.14em] text-mist">
         {steps.map((s, i) => (
           <li
             key={s.id}
             className={
               step === s.id
-                ? "border border-gold px-2.5 py-1 text-gold"
-                : "border border-[color:var(--line)] px-2.5 py-1"
+                ? "border border-gold px-2 py-0.5 text-gold"
+                : "border border-[color:var(--line)] px-2 py-0.5"
             }
           >
             {i + 1}. {s.label}
@@ -265,18 +265,13 @@ export function ReservationBookingClient({ initialMeta }: { initialMeta: Meta })
       ) : null}
 
       {step === "datetime" ? (
-        <section className="space-y-4">
-          <div>
-            <h2 className="font-[family-name:var(--font-display)] text-2xl text-champagne sm:text-3xl">
-              Choisissez votre créneau
-            </h2>
-            <p className="mt-1.5 text-sm text-mist">
-              {partySize} convive{partySize > 1 ? "s" : ""} ·{" "}
-              <span className="capitalize text-champagne">
-                {formatDisplayDate(date)}
-              </span>
-            </p>
-          </div>
+        <section className="space-y-3">
+          <p className="text-sm text-mist">
+            {partySize} convive{partySize > 1 ? "s" : ""} ·{" "}
+            <span className="capitalize text-champagne">
+              {formatDisplayDate(date)}
+            </span>
+          </p>
 
           <div className="reservation-datetime-split">
             <div>

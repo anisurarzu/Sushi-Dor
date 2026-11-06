@@ -23,24 +23,25 @@ export default async function ReservationPage() {
     <main className="bg-ink text-bone">
       <div className="relative">
         <SiteHeader />
-        <div className="mx-auto max-w-7xl px-4 pb-20 pt-28 sm:px-6 sm:pt-32 md:px-10">
-          <p className="mb-2 text-[0.65rem] uppercase tracking-[0.24em] text-gold">
-            Réservation
-          </p>
-          <h1 className="font-[family-name:var(--font-display)] text-4xl sm:text-5xl">
-            Réserver une <span className="gold-text">table</span>
-          </h1>
-          <p className="mt-3 max-w-2xl text-sm text-mist sm:text-base">
-            Sélectionnez vos convives, un créneau disponible, puis confirmez.
-            Les groupes de 8 personnes et plus sont validés par le restaurant.
-          </p>
-          <p className="mt-2 text-sm">
-            <Link href="/reservation/manage" className="text-gold underline">
-              Déjà une réservation ? Gérer / annuler
+        <div className="mx-auto max-w-7xl px-4 pb-16 pt-22 sm:px-6 sm:pt-24 md:px-10">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="mb-1 text-[0.6rem] uppercase tracking-[0.22em] text-gold">
+                Réservation
+              </p>
+              <h1 className="font-[family-name:var(--font-display)] text-3xl sm:text-4xl">
+                Réserver une <span className="gold-text">table</span>
+              </h1>
+            </div>
+            <Link
+              href="/reservation/manage"
+              className="text-xs text-gold underline underline-offset-4"
+            >
+              Gérer / annuler
             </Link>
-          </p>
+          </div>
 
-          <div className="mt-10">
+          <div className="mt-6">
             {!restaurant ? (
               <p className="border border-[color:var(--line)] p-6 text-sm text-mist">
                 Les réservations en ligne sont temporairement indisponibles.
