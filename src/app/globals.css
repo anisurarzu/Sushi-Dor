@@ -529,6 +529,127 @@ body {
   color: var(--gold);
 }
 
+/* Horizontal date strip — no tall calendar scroll on booking */
+.reservation-date-strip {
+  display: flex;
+  gap: 0.45rem;
+  overflow-x: auto;
+  padding-bottom: 0.35rem;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.reservation-date-strip__day {
+  flex: 0 0 auto;
+  width: 3.55rem;
+  scroll-snap-align: start;
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--ink-soft) 80%, #000);
+  padding: 0.55rem 0.25rem 0.65rem;
+  text-align: center;
+  transition:
+    border-color 0.25s ease,
+    background 0.25s ease,
+    transform 0.2s ease,
+    box-shadow 0.25s ease;
+}
+
+.reservation-date-strip__day:hover {
+  border-color: color-mix(in srgb, var(--gold) 50%, transparent);
+}
+
+.reservation-date-strip__day.is-selected {
+  border-color: var(--gold);
+  background: linear-gradient(
+    160deg,
+    var(--gold-deep),
+    var(--gold) 48%,
+    var(--gold-bright)
+  );
+  box-shadow: 0 8px 20px rgba(196, 163, 90, 0.25);
+  transform: translateY(-1px);
+}
+
+.reservation-date-strip__weekday {
+  display: block;
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--mist);
+}
+
+.reservation-date-strip__day.is-selected .reservation-date-strip__weekday,
+.reservation-date-strip__day.is-selected .reservation-date-strip__num,
+.reservation-date-strip__day.is-selected .reservation-date-strip__month {
+  color: var(--ink);
+}
+
+.reservation-date-strip__num {
+  display: block;
+  margin-top: 0.2rem;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 1.2rem;
+  line-height: 1;
+  color: var(--champagne);
+}
+
+.reservation-date-strip__month {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mist);
+}
+
+.reservation-slot-panel {
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--ink-soft) 70%, transparent);
+  padding: 0.85rem;
+}
+
+.reservation-slot-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.4rem;
+}
+
+@media (min-width: 640px) {
+  .reservation-slot-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+.reservation-slot-btn {
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--ink) 40%, transparent);
+  padding: 0.55rem 0.2rem;
+  font-size: 0.8rem;
+  color: var(--bone);
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.reservation-slot-btn:hover {
+  border-color: color-mix(in srgb, var(--gold) 55%, transparent);
+  color: var(--champagne);
+}
+
+.reservation-slot-btn.is-selected {
+  border-color: var(--gold);
+  background: linear-gradient(
+    160deg,
+    var(--gold-deep),
+    var(--gold) 48%,
+    var(--gold-bright)
+  );
+  color: var(--ink);
+  font-weight: 600;
+}
+
 /* Reservation calendar — ink / gold, readable on dark UI */
 .reservation-cal {
   border: 1px solid var(--line);
@@ -536,6 +657,42 @@ body {
     linear-gradient(165deg, rgba(196, 163, 90, 0.08), transparent 42%),
     color-mix(in srgb, var(--ink-soft) 88%, #000);
   padding: 1rem 1rem 1.1rem;
+}
+
+.reservation-cal--compact {
+  padding: 0.65rem 0.7rem 0.75rem;
+}
+
+.reservation-cal--compact .reservation-cal__head {
+  margin-bottom: 0.55rem;
+}
+
+.reservation-cal--compact .reservation-cal__month {
+  font-size: 0.95rem;
+}
+
+.reservation-cal--compact .reservation-cal__nav {
+  width: 1.9rem;
+  height: 1.9rem;
+  font-size: 1.1rem;
+}
+
+.reservation-cal--compact .reservation-cal__weekdays {
+  gap: 0.15rem;
+  margin-bottom: 0.25rem;
+}
+
+.reservation-cal--compact .reservation-cal__weekdays span {
+  font-size: 0.55rem;
+  padding-bottom: 0.15rem;
+}
+
+.reservation-cal--compact .reservation-cal__grid {
+  gap: 0.15rem;
+}
+
+.reservation-cal--compact .reservation-cal__day {
+  font-size: 0.78rem;
 }
 
 .reservation-cal__head {
