@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ReservationCalendar } from "@/components/reservation/ReservationCalendar";
 import { Select } from "@/components/ui/Select";
 
@@ -81,6 +81,7 @@ function BackButton({
 
 export function ReservationBookingClient({ initialMeta }: { initialMeta: Meta }) {
   const router = useRouter();
+  const slotsRef = useRef<HTMLDivElement>(null);
   const maxPartySize = Math.max(20, initialMeta.restaurant.maxPartySize || 20);
   const [step, setStep] = useState<Step>("party");
   const [partySize, setPartySize] = useState(2);
@@ -107,6 +108,16 @@ export function ReservationBookingClient({ initialMeta }: { initialMeta: Meta })
     [slots],
   );
   const backTo = STEP_BACK[step];
+
+  function selectDate(next: string) {
+    setDate(next);
+    requestAnimationFrame(() => {
+      slotsRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -199,7 +210,7 @@ export function ReservationBookingClient({ initialMeta }: { initialMeta: Meta })
   ];
 
   return (
-    <div className={`mx-auto ${step === "datetime" ? "max-w-4xl" : "max-w-3xl"}`}>
+    <div className="mx-auto max-w-3xl">
       {backTo ? (
         <BackButton
           disabled={pending}
@@ -278,52 +289,49 @@ export function ReservationBookingClient({ initialMeta }: { initialMeta: Meta })
             </p>
           </div>
 
-          <div className="reservation-datetime-split">
-            <div>
-              <p className="mb-2 text-[0.65rem] uppercase tracking-[0.18em] text-gold">
-                Date
-              </p>
-              <ReservationCalendar
-                className="reservation-cal--compact"
-                value={date}
-                min={minDate}
-                max={maxDate}
-                today={minDate}
-                onChange={setDate}
-              />
-            </div>
+          <div>
+            <p className="mb-2 text-[0.65rem] uppercase tracking-[0.18em] text-gold">
+              Date
+            </p>
+            <ReservationCalendar
+              value={date}
+              min={minDate}
+              max={maxDate}
+              today={minDate}
+              onChange={selectDate}
+            />
+          </div>
 
-            <div className="reservation-slot-panel">
-              <p className="mb-3 text-[0.65rem] uppercase tracking-[0.18em] text-gold">
-                Heure
+          <div ref={slotsRef} className="reservation-slot-panel">
+            <p className="mb-3 text-[0.65rem] uppercase tracking-[0.18em] text-gold">
+              Heure
+            </p>
+            {loadingSlots ? (
+              <p className="py-4 text-center text-sm text-mist">
+                Chargement des créneaux…
               </p>
-              {loadingSlots ? (
-                <p className="py-4 text-center text-sm text-mist">
-                  Chargement des créneaux…
-                </p>
-              ) : closedReason ? (
-                <p className="text-sm text-amber-100">{closedReason}</p>
-              ) : availableSlots.length === 0 ? (
-                <p className="text-sm text-mist">
-                  Aucun créneau ce jour. Choisissez une autre date.
-                </p>
-              ) : (
-                <div className="reservation-slot-grid">
-                  {availableSlots.map((s) => (
-                    <button
-                      key={s.startTime}
-                      type="button"
-                      className={`reservation-slot-btn ${
-                        startTime === s.startTime ? "is-selected" : ""
-                      }`}
-                      onClick={() => setStartTime(s.startTime)}
-                    >
-                      {s.startTime}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+            ) : closedReason ? (
+              <p className="text-sm text-amber-100">{closedReason}</p>
+            ) : availableSlots.length === 0 ? (
+              <p className="text-sm text-mist">
+                Aucun créneau ce jour. Choisissez une autre date.
+              </p>
+            ) : (
+              <div className="reservation-slot-grid">
+                {availableSlots.map((s) => (
+                  <button
+                    key={s.startTime}
+                    type="button"
+                    className={`reservation-slot-btn ${
+                      startTime === s.startTime ? "is-selected" : ""
+                    }`}
+                    onClick={() => setStartTime(s.startTime)}
+                  >
+                    {s.startTime}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           <button

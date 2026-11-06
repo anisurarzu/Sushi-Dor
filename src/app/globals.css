@@ -529,42 +529,22 @@ body {
   color: var(--gold);
 }
 
-/* Date left + times right — one viewport, no long scroll */
-.reservation-datetime-split {
-  display: grid;
-  gap: 1rem;
-}
-
-@media (min-width: 768px) {
-  .reservation-datetime-split {
-    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
-    gap: 1.15rem;
-    align-items: start;
-  }
-}
-
 .reservation-slot-panel {
+  scroll-margin-top: 5.5rem;
   border: 1px solid var(--line);
   background: color-mix(in srgb, var(--ink-soft) 70%, transparent);
   padding: 0.85rem;
-  min-height: 100%;
 }
 
 .reservation-slot-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0.4rem;
 }
 
-@media (min-width: 480px) {
+@media (min-width: 640px) {
   .reservation-slot-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 768px) {
-  .reservation-slot-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 }
 
