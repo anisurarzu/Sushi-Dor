@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { ReservationCalendar } from "@/components/reservation/ReservationCalendar";
 
 type Meta = {
   restaurant: {
@@ -243,48 +244,60 @@ export function ReservationBookingClient({ initialMeta }: { initialMeta: Meta })
               l&apos;avance
             </p>
           </div>
-          <label className="block text-sm">
-            <span className="mb-1 block text-mist">Date</span>
-            <input
-              type="date"
-              min={minDate}
-              max={maxDate}
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className="w-full border border-[color:var(--line)] bg-ink-soft/60 px-3 py-2.5 text-bone"
-            />
-          </label>
-          <p className="text-sm capitalize text-champagne">
-            {formatDisplayDate(date)}
-          </p>
-          {loadingSlots ? (
-            <p className="text-sm text-mist">Chargement des créneaux…</p>
-          ) : closedReason ? (
-            <p className="border border-amber-400/30 bg-amber-400/5 px-4 py-3 text-sm text-amber-100">
-              {closedReason}
-            </p>
-          ) : availableSlots.length === 0 ? (
-            <p className="border border-[color:var(--line)] px-4 py-3 text-sm text-mist">
-              Aucun créneau disponible ce jour. Essayez une autre date.
-            </p>
-          ) : (
-            <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5">
-              {availableSlots.map((s) => (
-                <button
-                  key={s.startTime}
-                  type="button"
-                  onClick={() => setStartTime(s.startTime)}
-                  className={
-                    startTime === s.startTime
-                      ? "border border-gold bg-gold/15 py-2.5 text-sm text-gold"
-                      : "border border-[color:var(--line)] py-2.5 text-sm text-bone hover:border-gold/60"
-                  }
-                >
-                  {s.startTime}
-                </button>
-              ))}
+
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-start">
+            <div>
+              <p className="mb-2 text-[0.65rem] uppercase tracking-[0.18em] text-gold">
+                Date
+              </p>
+              <ReservationCalendar
+                value={date}
+                min={minDate}
+                max={maxDate}
+                onChange={setDate}
+              />
+              <p className="mt-3 text-sm capitalize text-champagne">
+                {formatDisplayDate(date)}
+              </p>
             </div>
-          )}
+
+            <div>
+              <p className="mb-2 text-[0.65rem] uppercase tracking-[0.18em] text-gold">
+                Heure
+              </p>
+              {loadingSlots ? (
+                <div className="border border-[color:var(--line)] bg-ink-soft/40 px-4 py-8 text-sm text-mist">
+                  Chargement des créneaux…
+                </div>
+              ) : closedReason ? (
+                <p className="border border-amber-400/30 bg-amber-400/5 px-4 py-3 text-sm text-amber-100">
+                  {closedReason}
+                </p>
+              ) : availableSlots.length === 0 ? (
+                <p className="border border-[color:var(--line)] px-4 py-3 text-sm text-mist">
+                  Aucun créneau disponible ce jour. Essayez une autre date.
+                </p>
+              ) : (
+                <div className="grid grid-cols-3 gap-2 sm:grid-cols-3">
+                  {availableSlots.map((s) => (
+                    <button
+                      key={s.startTime}
+                      type="button"
+                      onClick={() => setStartTime(s.startTime)}
+                      className={
+                        startTime === s.startTime
+                          ? "border border-gold bg-gradient-to-br from-[color:var(--gold-deep)] via-gold to-[color:var(--gold-bright)] py-3 text-sm font-medium text-ink shadow-[0_8px_20px_rgba(196,163,90,0.25)] transition-transform duration-200"
+                          : "border border-[color:var(--line)] bg-ink-soft/40 py-3 text-sm text-bone transition-colors duration-200 hover:border-gold/60 hover:text-champagne"
+                      }
+                    >
+                      {s.startTime}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
           <div className="flex flex-wrap gap-3">
             <button
               type="button"

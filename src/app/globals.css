@@ -404,6 +404,162 @@ body {
   color: inherit;
 }
 
+/* Reservation calendar — ink / gold, readable on dark UI */
+.reservation-cal {
+  border: 1px solid var(--line);
+  background:
+    linear-gradient(165deg, rgba(196, 163, 90, 0.08), transparent 42%),
+    color-mix(in srgb, var(--ink-soft) 88%, #000);
+  padding: 1rem 1rem 1.1rem;
+}
+
+.reservation-cal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.reservation-cal__month {
+  margin: 0;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 1.15rem;
+  letter-spacing: 0.02em;
+  text-transform: capitalize;
+  color: var(--champagne);
+  animation: reservation-cal-fade 0.35s ease;
+}
+
+.reservation-cal__nav {
+  width: 2.35rem;
+  height: 2.35rem;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--gold);
+  font-size: 1.35rem;
+  line-height: 1;
+  transition:
+    border-color 0.25s ease,
+    background 0.25s ease,
+    color 0.25s ease,
+    transform 0.2s ease;
+}
+
+.reservation-cal__nav:hover:not(:disabled) {
+  border-color: var(--gold);
+  background: color-mix(in srgb, var(--gold) 14%, transparent);
+  color: var(--gold-bright);
+  transform: scale(1.04);
+}
+
+.reservation-cal__nav:disabled {
+  opacity: 0.28;
+  cursor: not-allowed;
+}
+
+.reservation-cal__weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.25rem;
+  margin-bottom: 0.45rem;
+}
+
+.reservation-cal__weekdays span {
+  text-align: center;
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--mist);
+  padding-bottom: 0.35rem;
+}
+
+.reservation-cal__grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.3rem;
+  animation: reservation-cal-fade 0.35s ease;
+}
+
+.reservation-cal__empty {
+  aspect-ratio: 1;
+}
+
+.reservation-cal__day {
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border: 1px solid transparent;
+  background: color-mix(in srgb, var(--ink) 55%, transparent);
+  color: var(--bone);
+  font-size: 0.88rem;
+  font-variant-numeric: tabular-nums;
+  transition:
+    background 0.25s ease,
+    border-color 0.25s ease,
+    color 0.25s ease,
+    transform 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.25s ease;
+}
+
+.reservation-cal__day:hover:not(:disabled):not(.is-selected) {
+  border-color: color-mix(in srgb, var(--gold) 55%, transparent);
+  color: var(--champagne);
+  transform: translateY(-1px);
+}
+
+.reservation-cal__day.is-today {
+  border-color: color-mix(in srgb, var(--gold) 45%, transparent);
+  color: var(--gold-bright);
+}
+
+.reservation-cal__day.is-selected {
+  border-color: var(--gold);
+  background: linear-gradient(
+    160deg,
+    var(--gold-deep),
+    var(--gold) 48%,
+    var(--gold-bright)
+  );
+  color: var(--ink);
+  box-shadow: 0 8px 22px rgba(196, 163, 90, 0.28);
+  transform: scale(1.04);
+}
+
+.reservation-cal__day.is-disabled,
+.reservation-cal__day:disabled {
+  opacity: 0.28;
+  cursor: not-allowed;
+  background: transparent;
+  color: var(--mist);
+}
+
+.reservation-cal__day:focus-visible {
+  outline: 2px solid var(--gold-bright);
+  outline-offset: 2px;
+}
+
+@keyframes reservation-cal-fade {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reservation-cal__month,
+  .reservation-cal__grid,
+  .reservation-cal__day,
+  .reservation-cal__nav {
+    animation: none;
+    transition: none;
+  }
+}
+
 /* Leave room under sticky category chips so titles stay readable */
 .catalog-section {
   scroll-margin-top: 10rem;
