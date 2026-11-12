@@ -1881,6 +1881,21 @@ button:disabled,
   gap: 0.65rem;
 }
 
+.floating-cart.is-revealed {
+  animation: floatingCartReveal 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes floatingCartReveal {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) translateX(18px) scale(0.86);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0) scale(1);
+  }
+}
+
 .floating-cart__btn {
   position: relative;
   display: grid;
@@ -2090,6 +2105,21 @@ button:disabled,
     top: auto;
     bottom: 5.5rem;
     transform: none;
+  }
+
+  .floating-cart.is-revealed {
+    animation-name: floatingCartRevealMobile;
+  }
+
+  @keyframes floatingCartRevealMobile {
+    from {
+      opacity: 0;
+      transform: translateX(18px) scale(0.86);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+    }
   }
 }
 

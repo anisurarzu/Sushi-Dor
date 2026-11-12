@@ -57,12 +57,13 @@ export function FloatingCart() {
     closeTimer.current = window.setTimeout(() => setOpen(false), 180);
   }
 
-  if (hidden) return null;
+  // Only appear once something is in the cart
+  if (hidden || units < 1) return null;
 
   return (
     <div
       ref={dockRef}
-      className={`floating-cart ${pulse ? "is-pulse" : ""} ${open ? "is-open" : ""}`}
+      className={`floating-cart is-revealed ${pulse ? "is-pulse" : ""} ${open ? "is-open" : ""}`}
       onMouseEnter={() => {
         clearClose();
         setOpen(true);
