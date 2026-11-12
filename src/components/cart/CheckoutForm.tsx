@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { nanoid } from "nanoid";
 import { useCart } from "@/components/cart/CartProvider";
 import { OrderTypeToggle } from "@/components/cart/OrderTypeToggle";
@@ -11,6 +12,7 @@ const fieldClass =
   "w-full border border-[color:var(--line)] bg-ink-soft px-3 py-3 text-sm text-bone placeholder:text-mist/50 outline-none focus:border-gold";
 
 export function CheckoutForm() {
+  const router = useRouter();
   const { cart, loading, setOrderType } = useCart();
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -72,6 +74,12 @@ export function CheckoutForm() {
       const data = await res.json().catch(() => ({}));
       setPending(false);
       if (!res.ok) {
+        if (res.status === 401 || data.code === "AUTH_REQUIRED") {
+          router.push(
+            `/compte/connexion?next=${encodeURIComponent("/checkout")}`,
+          );
+          return;
+        }
         setError(
           data.error ||
             "Le paiement n'a pas pu être effectué. Veuillez réessayer ou utiliser un autre moyen de paiement.",

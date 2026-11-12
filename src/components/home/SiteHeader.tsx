@@ -32,8 +32,14 @@ export function SiteHeader() {
         <div className="flex items-center gap-2 sm:gap-3">
           <CartBadge />
           <Link
-            href="/reservation"
+            href="/compte"
             className="header-cta header-cta--ghost hidden shrink-0 sm:inline-flex"
+          >
+            Compte
+          </Link>
+          <Link
+            href="/reservation"
+            className="header-cta header-cta--ghost hidden shrink-0 md:inline-flex"
           >
             Réserver
           </Link>

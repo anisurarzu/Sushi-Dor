@@ -79,6 +79,14 @@ function BackButton({
   );
 }
 
+type CustomerMe = {
+  id: string;
+  email: string;
+  firstName: string | null;
+  lastName: string | null;
+  phone: string | null;
+};
+
 export function ReservationBookingClient({ initialMeta }: { initialMeta: Meta }) {
   const router = useRouter();
   const maxPartySize = Math.max(20, initialMeta.restaurant.maxPartySize || 20);
@@ -91,6 +99,8 @@ export function ReservationBookingClient({ initialMeta }: { initialMeta: Meta })
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [authChecked, setAuthChecked] = useState(false);
+  const [customer, setCustomer] = useState<CustomerMe | null>(null);
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
@@ -99,6 +109,37 @@ export function ReservationBookingClient({ initialMeta }: { initialMeta: Meta })
     occasion: "none",
     specialRequest: "",
   });
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loadMe() {
+      try {
+        const res = await fetch("/api/auth/me");
+        const data = await res.json();
+        if (cancelled) return;
+        if (res.ok && data.user) {
+          setCustomer(data.user);
+          setForm((prev) => ({
+            ...prev,
+            firstName: data.user.firstName || prev.firstName,
+            lastName: data.user.lastName || prev.lastName,
+            email: data.user.email || prev.email,
+            phone: data.user.phone || prev.phone,
+          }));
+        } else {
+          setCustomer(null);
+        }
+      } catch {
+        if (!cancelled) setCustomer(null);
+      } finally {
+        if (!cancelled) setAuthChecked(true);
+      }
+    }
+    void loadMe();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const minDate = todayParis();
   const maxDate = addDays(minDate, initialMeta.restaurant.maxAdvanceDays);
@@ -166,6 +207,12 @@ export function ReservationBookingClient({ initialMeta }: { initialMeta: Meta })
       });
       const data = await res.json();
       if (!res.ok) {
+        if (res.status === 401 || data.code === "AUTH_REQUIRED") {
+          router.push(
+            `/compte/connexion?next=${encodeURIComponent("/reservation")}`,
+          );
+          return;
+        }
         setError(data.error || "Réservation impossible.");
         setPending(false);
         return;
@@ -197,6 +244,34 @@ export function ReservationBookingClient({ initialMeta }: { initialMeta: Meta })
     { id: "details", label: "Coordonnées" },
     { id: "review", label: "Confirmation" },
   ];
+
+  const authNext = `/compte/connexion?next=${encodeURIComponent("/reservation")}`;
+  const registerNext = `/compte/inscription?next=${encodeURIComponent("/reservation")}`;
+
+  if (authChecked && !customer) {
+    return (
+      <div className="mx-auto max-w-xl border border-[color:var(--line)] bg-ink-soft/40 p-6 sm:p-8">
+        <p className="mb-1 text-[0.6rem] uppercase tracking-[0.22em] text-gold">
+          Compte requis
+        </p>
+        <h2 className="font-[family-name:var(--font-display)] text-2xl text-champagne">
+          Connectez-vous pour réserver
+        </h2>
+        <p className="mt-3 text-sm text-mist">
+          Les réservations sont liées à votre compte client afin de suivre et
+          gérer vos tables facilement.
+        </p>
+        <div className="mt-6 flex flex-wrap gap-3">
+          <Link href={authNext} className="btn-gold">
+            Se connecter
+          </Link>
+          <Link href={registerNext} className="header-cta header-cta--ghost">
+            Créer un compte
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`mx-auto ${step === "datetime" ? "max-w-4xl" : "max-w-3xl"}`}>

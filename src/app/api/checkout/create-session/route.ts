@@ -7,11 +7,30 @@ import { PricingError } from "@/lib/pricing";
 import { nextOrderNumber } from "@/lib/order-number";
 import { checkoutSchema } from "@/lib/validators";
 import { appUrl, getStripe } from "@/lib/stripe";
+import { requireCustomerApi } from "@/lib/customer-auth";
 
 export async function POST(req: Request) {
   try {
+    const customer = await requireCustomerApi();
+    if (!customer) {
+      return NextResponse.json(
+        {
+          error: "Connectez-vous pour commander.",
+          code: "AUTH_REQUIRED",
+        },
+        { status: 401 },
+      );
+    }
+
     const body = checkoutSchema.parse(await req.json());
     const cart = await getOrCreateCart();
+
+    if (!cart.userId) {
+      await prisma.cart.update({
+        where: { id: cart.id },
+        data: { userId: customer.id },
+      });
+    }
 
     if (!cart.restaurantId || !cart.restaurant) {
       return NextResponse.json(
@@ -209,6 +228,7 @@ export async function POST(req: Request) {
         ? await prisma.order.update({
             where: { id: existing.id },
             data: {
+              userId: customer.id,
               type: body.orderType,
               productsSubtotalCents,
               addonsSubtotalCents,
@@ -216,10 +236,10 @@ export async function POST(req: Request) {
               deliveryFeeCents,
               discountCents,
               totalCents,
-              customerEmail: body.email,
-              customerPhone: body.phone,
-              customerFirstName: body.firstName,
-              customerLastName: body.lastName,
+              customerEmail: customer.email || body.email,
+              customerPhone: body.phone || customer.phone || "",
+              customerFirstName: customer.firstName || body.firstName,
+              customerLastName: customer.lastName || body.lastName,
               deliveryStreet: body.deliveryStreet,
               deliveryComplement: body.deliveryComplement,
               deliveryPostalCode: body.deliveryPostalCode,
@@ -234,6 +254,7 @@ export async function POST(req: Request) {
             data: {
               orderNumber: await nextOrderNumber(),
               idempotencyKey: body.idempotencyKey,
+              userId: customer.id,
               restaurantId: cart.restaurantId,
               type: body.orderType,
               status: "PENDING_PAYMENT",
@@ -244,10 +265,10 @@ export async function POST(req: Request) {
               deliveryFeeCents,
               discountCents,
               totalCents,
-              customerEmail: body.email,
-              customerPhone: body.phone,
-              customerFirstName: body.firstName,
-              customerLastName: body.lastName,
+              customerEmail: customer.email || body.email,
+              customerPhone: body.phone || customer.phone || "",
+              customerFirstName: customer.firstName || body.firstName,
+              customerLastName: customer.lastName || body.lastName,
               deliveryStreet: body.deliveryStreet,
               deliveryComplement: body.deliveryComplement,
               deliveryPostalCode: body.deliveryPostalCode,

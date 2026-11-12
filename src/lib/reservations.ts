@@ -303,6 +303,8 @@ export type CreateReservationInput = {
   source?: ReservationSource;
   status?: ReservationStatus;
   adminNotes?: string | null;
+  /** Link booking to logged-in customer account */
+  userId?: string | null;
   /** Admin can bypass some public rules */
   asAdmin?: boolean;
 };
@@ -376,6 +378,7 @@ export async function createReservation(input: CreateReservationInput): Promise<
       confirmationCode: newConfirmationCode(),
       cancelTokenHash: hashCancelToken(cancelToken),
       restaurantId: restaurant.id,
+      userId: input.userId || undefined,
       date,
       startTime: input.startTime,
       endTime,
