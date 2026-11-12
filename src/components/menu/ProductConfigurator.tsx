@@ -137,12 +137,13 @@ export function ProductConfigurator({
           detail: {
             x: window.innerWidth / 2,
             y: window.innerHeight - 80,
+            imageUrl: product.imageUrl,
           },
         }),
       );
       window.setTimeout(() => {
         router.push("/cart");
-      }, 650);
+      }, 1200);
     } catch {
       setError("Connexion interrompue. Réessayez.");
     } finally {

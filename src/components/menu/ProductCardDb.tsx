@@ -77,6 +77,7 @@ export function ProductCardDb({ product, priority = false }: Props) {
           productId={product.id}
           slug={product.slug}
           requiresCustomization={product.requiresCustomization}
+          imageUrl={product.imageUrl}
         />
       </div>
     </article>

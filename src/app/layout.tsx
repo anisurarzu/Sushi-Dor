@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Cormorant_Garamond, Outfit } from "next/font/google";
 import { CartFlyLayer } from "@/components/cart/CartFlyLayer";
 import { CartProvider } from "@/components/cart/CartProvider";
+import { FloatingCart } from "@/components/cart/FloatingCart";
 import { ConfirmProvider } from "@/components/ui/ConfirmDialog";
 import "./globals.css";
 
@@ -34,6 +35,7 @@ export default function RootLayout({
         <ConfirmProvider>
           <CartProvider>
             {children}
+            <FloatingCart />
             <CartFlyLayer />
           </CartProvider>
         </ConfirmProvider>

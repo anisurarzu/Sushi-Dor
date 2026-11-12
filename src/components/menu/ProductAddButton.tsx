@@ -8,12 +8,14 @@ type Props = {
   productId: string;
   slug: string;
   requiresCustomization: boolean;
+  imageUrl?: string | null;
 };
 
 export function ProductAddButton({
   productId,
   slug,
   requiresCustomization,
+  imageUrl,
 }: Props) {
   const { addItem } = useCart();
   const [pending, setPending] = useState(false);
@@ -69,10 +71,11 @@ export function ProductAddButton({
           detail: {
             x: rect ? rect.left + rect.width / 2 : window.innerWidth / 2,
             y: rect ? rect.top + rect.height / 2 : window.innerHeight / 2,
+            imageUrl: imageUrl || null,
           },
         }),
       );
-      window.setTimeout(() => setAdded(false), 1600);
+      window.setTimeout(() => setAdded(false), 1800);
     } catch {
       setError("Connexion interrompue. Réessayez.");
     } finally {
