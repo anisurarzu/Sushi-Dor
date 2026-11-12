@@ -1705,10 +1705,10 @@ button:disabled,
   background: rgba(196, 163, 90, 0.12);
 }
 
-/* —— Cart fly + floating dock —— */
+/* —— Cart fly + sparks + floating dock —— */
 .cart-fly-dot {
   position: fixed;
-  z-index: 90;
+  z-index: 92;
   width: 14px;
   height: 14px;
   margin: -7px 0 0 -7px;
@@ -1719,41 +1719,130 @@ button:disabled,
     0 8px 22px rgba(224, 200, 120, 0.35);
   pointer-events: none;
   will-change: transform, opacity;
-  animation: cartFly 1.15s cubic-bezier(0.22, 0.75, 0.18, 1) forwards;
+  animation: cartFly 1.4s cubic-bezier(0.22, 0.72, 0.16, 1) forwards;
 }
 
 .cart-fly-dot--image {
-  width: 42px;
-  height: 42px;
-  margin: -21px 0 0 -21px;
+  width: 44px;
+  height: 44px;
+  margin: -22px 0 0 -22px;
   border: 1.5px solid color-mix(in srgb, var(--gold) 70%, transparent);
   background-color: var(--ink-soft);
   background-size: cover;
   background-position: center;
   box-shadow:
     0 0 0 3px rgba(12, 10, 8, 0.35),
-    0 12px 28px rgba(0, 0, 0, 0.4);
+    0 12px 28px rgba(0, 0, 0, 0.4),
+    0 0 18px rgba(224, 200, 120, 0.35);
+}
+
+.cart-fly-trail {
+  position: fixed;
+  z-index: 91;
+  width: 7px;
+  height: 7px;
+  margin: -3.5px 0 0 -3.5px;
+  border-radius: 9999px;
+  background: radial-gradient(circle, var(--gold-bright), transparent 70%);
+  pointer-events: none;
+  opacity: 0;
+  animation: cartFlyTrail 1.4s cubic-bezier(0.22, 0.72, 0.16, 1) forwards;
+  animation-delay: var(--trail-delay, 0s);
+}
+
+.cart-spark {
+  position: fixed;
+  z-index: 93;
+  margin: 0;
+  border-radius: 9999px;
+  background: radial-gradient(circle at 35% 35%, #fff6d4, var(--gold-bright) 45%, var(--gold));
+  box-shadow: 0 0 8px rgba(224, 200, 120, 0.75);
+  pointer-events: none;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.cart-spark--origin {
+  animation: cartSparkOrigin 0.85s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  animation-delay: var(--spark-delay, 0s);
+}
+
+.cart-spark--arrive {
+  animation: cartSparkArrive 0.95s cubic-bezier(0.15, 0.85, 0.2, 1) forwards;
+  animation-delay: var(--spark-delay, 0s);
 }
 
 @keyframes cartFly {
   0% {
-    opacity: 1;
-    transform: translate(0, 0) scale(1) rotate(-6deg);
+    opacity: 0;
+    transform: translate(0, 0) scale(0.55) rotate(-8deg);
   }
-  35% {
+  12% {
+    opacity: 1;
+    transform: translate(0, -6px) scale(1.08) rotate(-4deg);
+  }
+  38% {
     opacity: 1;
     transform: translate(
-        calc(var(--fly-x) * 0.42),
-        calc(var(--fly-y) * 0.28 - 48px)
+        calc(var(--fly-x) * 0.4),
+        calc(var(--fly-y) * 0.25 - 56px)
       )
-      scale(1.05) rotate(4deg);
+      scale(1) rotate(3deg);
   }
-  72% {
+  78% {
     opacity: 1;
   }
   100% {
     opacity: 0;
-    transform: translate(var(--fly-x), var(--fly-y)) scale(0.22) rotate(10deg);
+    transform: translate(var(--fly-x), var(--fly-y)) scale(0.18) rotate(12deg);
+  }
+}
+
+@keyframes cartFlyTrail {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.4);
+  }
+  18% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--fly-x), var(--fly-y)) scale(0.15);
+  }
+}
+
+@keyframes cartSparkOrigin {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(var(--spark-angle))
+      translateY(0) scale(0.4);
+  }
+  18% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(var(--spark-angle))
+      translateY(calc(var(--spark-dist) * -1)) scale(0.2);
+  }
+}
+
+@keyframes cartSparkArrive {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(var(--spark-angle))
+      translateY(0) scale(0.3);
+  }
+  22% {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(var(--spark-angle))
+      translateY(calc(var(--spark-dist) * -0.55)) scale(1.15);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(var(--spark-angle))
+      translateY(calc(var(--spark-dist) * -1.15)) scale(0.15);
   }
 }
 
@@ -2084,6 +2173,8 @@ button:disabled,
   .product-add-check,
   .product-add-spinner,
   .cart-fly-dot,
+  .cart-fly-trail,
+  .cart-spark,
   .cart-badge-pulse,
   .floating-cart.is-pulse .floating-cart__btn,
   .floating-cart__preview,
