@@ -15,12 +15,27 @@ function euro(cents: number) {
   }).format(cents / 100);
 }
 
+function TrashIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 16 16" className={className} fill="none" aria-hidden>
+      <path
+        d="M3.5 4.5h9M6.5 4.5V3.2A.7.7 0 0 1 7.2 2.5h1.6a.7.7 0 0 1 .7.7v1.3M6 6.5v5M10 6.5v5M4.5 4.5l.5 8.2a1 1 0 0 0 1 .9h4a1 1 0 0 0 1-.9l.5-8.2"
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 export function FloatingCart() {
-  const { cart } = useCart();
+  const { cart, removeItem } = useCart();
   const pathname = usePathname();
   const dockRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const [pulse, setPulse] = useState(false);
+  const [busyId, setBusyId] = useState<string | null>(null);
   const closeTimer = useRef<number | null>(null);
 
   const hidden = HIDDEN_PREFIXES.some(
@@ -55,6 +70,13 @@ export function FloatingCart() {
   function scheduleClose() {
     clearClose();
     closeTimer.current = window.setTimeout(() => setOpen(false), 180);
+  }
+
+  async function onRemove(cartItemId: string) {
+    if (busyId) return;
+    setBusyId(cartItemId);
+    await removeItem(cartItemId);
+    setBusyId(null);
   }
 
   // Only appear once something is in the cart
@@ -119,9 +141,25 @@ export function FloatingCart() {
                     </p>
                   ) : null}
                 </div>
-                <p className="floating-cart__price">
-                  {euro(item.lineTotalCents)}
-                </p>
+                <div className="floating-cart__side">
+                  <p className="floating-cart__price">
+                    {euro(item.lineTotalCents)}
+                  </p>
+                  <button
+                    type="button"
+                    className="floating-cart__remove"
+                    disabled={busyId === item.id}
+                    aria-label={`Retirer ${item.nameFr}`}
+                    title="Retirer"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      void onRemove(item.id);
+                    }}
+                  >
+                    <TrashIcon className="h-3.5 w-3.5" />
+                  </button>
+                </div>
               </li>
             ))}
           </ul>

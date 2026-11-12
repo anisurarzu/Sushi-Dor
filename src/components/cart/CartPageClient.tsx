@@ -126,9 +126,24 @@ export function CartPageClient() {
                     type="button"
                     disabled={busyId === item.id}
                     onClick={() => void onRemove(item.id)}
-                    className="cursor-pointer text-[0.68rem] uppercase tracking-[0.14em] text-mist hover:text-champagne disabled:opacity-50"
+                    aria-label={`Retirer ${item.nameFr}`}
+                    title="Retirer"
+                    className="cart-remove-btn cursor-pointer disabled:opacity-50"
                   >
-                    Supprimer
+                    <svg
+                      viewBox="0 0 16 16"
+                      className="h-4 w-4"
+                      fill="none"
+                      aria-hidden
+                    >
+                      <path
+                        d="M3.5 4.5h9M6.5 4.5V3.2A.7.7 0 0 1 7.2 2.5h1.6a.7.7 0 0 1 .7.7v1.3M6 6.5v5M10 6.5v5M4.5 4.5l.5 8.2a1 1 0 0 0 1 .9h4a1 1 0 0 0 1-.9l.5-8.2"
+                        stroke="currentColor"
+                        strokeWidth="1.3"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
                   </button>
                 </div>
               </div>
