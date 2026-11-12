@@ -177,9 +177,12 @@ export async function PUT(req: Request, { params }: Params) {
     });
   } catch (err) {
     console.error("[admin/categories/addons PUT]", err);
-    return NextResponse.json(
-      { error: "Mise à jour des addons impossible." },
-      { status: 400 },
-    );
+    const message =
+      err instanceof Error && /Unknown argument `isFree`/i.test(err.message)
+        ? "Schéma Prisma obsolète — redémarrez le serveur (npm run dev)."
+        : err instanceof Error && "issues" in err
+          ? "Données invalides."
+          : "Mise à jour des addons impossible.";
+    return NextResponse.json({ error: message }, { status: 400 });
   }
 }
