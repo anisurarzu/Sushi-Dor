@@ -12,56 +12,90 @@ export async function GET(_req: Request, { params }: Params) {
     return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
   }
 
-  const { id } = await params;
-  const category = await prisma.category.findFirst({
-    where: { id, ...notDeleted },
-    select: { id: true, nameFr: true },
-  });
-  if (!category) {
-    return NextResponse.json({ error: "Catégorie introuvable." }, { status: 404 });
-  }
+  try {
+    const { id } = await params;
+    const category = await prisma.category.findFirst({
+      where: { id, ...notDeleted },
+      select: { id: true, nameFr: true },
+    });
+    if (!category) {
+      return NextResponse.json(
+        { error: "Catégorie introuvable." },
+        { status: 404 },
+      );
+    }
 
-  const [products, addons] = await Promise.all([
-    prisma.product.findMany({
-      where: { categoryId: id, ...notDeleted },
-      orderBy: [{ sortOrder: "asc" }, { nameFr: "asc" }],
-      select: {
-        id: true,
-        nameFr: true,
-        priceCents: true,
-        imageUrl: true,
-        isAvailable: true,
-        addonGroups: {
-          where: { isActive: true, required: true },
-          select: { id: true },
+    const [allProducts, addons] = await Promise.all([
+      prisma.product.findMany({
+        where: { ...notDeleted },
+        orderBy: [{ nameFr: "asc" }],
+        select: {
+          id: true,
+          nameFr: true,
+          priceCents: true,
+          imageUrl: true,
+          isAvailable: true,
+          category: { select: { nameFr: true } },
+          addonGroups: {
+            where: { isActive: true, required: true },
+            select: { id: true },
+          },
         },
-      },
-    }),
-    prisma.categoryAddonProduct.findMany({
-      where: { categoryId: id },
-      orderBy: { sortOrder: "asc" },
-      select: {
-        id: true,
-        productId: true,
-        sortOrder: true,
-        isActive: true,
-      },
-    }),
-  ]);
+      }),
+      prisma.categoryAddonProduct.findMany({
+        where: { categoryId: id, isActive: true },
+        orderBy: { sortOrder: "asc" },
+        include: {
+          product: {
+            select: {
+              id: true,
+              nameFr: true,
+              priceCents: true,
+              imageUrl: true,
+              isAvailable: true,
+              deletedStatus: true,
+              category: { select: { nameFr: true } },
+            },
+          },
+        },
+      }),
+    ]);
 
-  return NextResponse.json({
-    category,
-    products: products.map((p) => ({
+    const products = allProducts.map((p) => ({
       id: p.id,
       nameFr: p.nameFr,
       priceCents: p.priceCents,
       imageUrl: p.imageUrl,
       isAvailable: p.isAvailable,
+      categoryNameFr: p.category.nameFr,
       requiresCustomization: p.addonGroups.length > 0,
-    })),
-    selectedProductIds: addons.filter((a) => a.isActive).map((a) => a.productId),
-    addons,
-  });
+    }));
+
+    const selected = addons
+      .filter((a) => a.product && a.product.deletedStatus !== 255)
+      .map((a) => ({
+        id: a.product.id,
+        nameFr: a.product.nameFr,
+        priceCents: a.product.priceCents,
+        imageUrl: a.product.imageUrl,
+        isAvailable: a.product.isAvailable,
+        categoryNameFr: a.product.category.nameFr,
+        requiresCustomization: false,
+      }));
+
+    return NextResponse.json({
+      category,
+      products,
+      selected,
+      selectedProductIds: selected.map((p) => p.id),
+    });
+  } catch (err) {
+    console.error("[admin/categories/addons GET]", err);
+    return NextResponse.json(
+      { error: "Chargement des addons impossible." },
+      { status: 500 },
+    );
+  }
 }
 
 export async function PUT(req: Request, { params }: Params) {
@@ -74,7 +108,7 @@ export async function PUT(req: Request, { params }: Params) {
     const { id } = await params;
     const body = z
       .object({
-        productIds: z.array(z.string().min(1)).max(80),
+        productIds: z.array(z.string().min(1)).max(120),
       })
       .parse(await req.json());
 
@@ -83,14 +117,16 @@ export async function PUT(req: Request, { params }: Params) {
       select: { id: true },
     });
     if (!category) {
-      return NextResponse.json({ error: "Catégorie introuvable." }, { status: 404 });
+      return NextResponse.json(
+        { error: "Catégorie introuvable." },
+        { status: 404 },
+      );
     }
 
     const uniqueIds = [...new Set(body.productIds)];
     const valid = await prisma.product.findMany({
       where: {
         id: { in: uniqueIds },
-        categoryId: id,
         ...notDeleted,
       },
       select: { id: true },
@@ -122,7 +158,7 @@ export async function PUT(req: Request, { params }: Params) {
 
     return NextResponse.json({ ok: true, productIds: ordered });
   } catch (err) {
-    console.error(err);
+    console.error("[admin/categories/addons PUT]", err);
     return NextResponse.json(
       { error: "Mise à jour des addons impossible." },
       { status: 400 },
