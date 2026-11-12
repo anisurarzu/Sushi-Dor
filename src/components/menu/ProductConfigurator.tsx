@@ -4,7 +4,10 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { formatEuro } from "@/lib/pricing";
 import { useCart } from "@/components/cart/CartProvider";
-import { CategoryAddonSheet } from "@/components/menu/CategoryAddonSheet";
+import {
+  CategoryAddonSheet,
+  type CategoryAddonSelection,
+} from "@/components/menu/CategoryAddonSheet";
 import type { CategoryAddonOffer } from "@/lib/category-addons";
 
 export type ProductDetail = {
@@ -320,23 +323,21 @@ export function ProductConfigurator({
         offers={(product.categoryAddons ?? []).filter((a) => a.id !== product.id)}
         pending={pending}
         onClose={() => setSheetOpen(false)}
-        onConfirm={(ids) => {
+        onConfirm={(selection: CategoryAddonSelection[]) => {
           void (async () => {
-            if (ids.length === 0) {
+            if (selection.length === 0) {
               setSheetOpen(false);
               return;
             }
             setPending(true);
             setError(null);
             try {
-              const allOffers = product.categoryAddons ?? [];
-              for (const id of ids) {
-                const offer = allOffers.find((o) => o.id === id);
+              for (const entry of selection) {
                 const result = await addItem({
-                  productId: id,
+                  productId: entry.id,
                   quantity: 1,
                   addonIds: [],
-                  asFree: Boolean(offer?.isFree),
+                  asFree: entry.asFree,
                 });
                 if (!result.ok) {
                   setError(result.error);

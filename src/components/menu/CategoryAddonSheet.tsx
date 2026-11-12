@@ -5,7 +5,12 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { formatEuro } from "@/lib/pricing";
-import type { CategoryAddonOffer } from "@/lib/category-addons";
+import {
+  categoryAddonGuestPicksFree,
+  type CategoryAddonOffer,
+} from "@/lib/category-addons";
+
+export type CategoryAddonSelection = { id: string; asFree: boolean };
 
 type Props = {
   open: boolean;
@@ -14,7 +19,7 @@ type Props = {
   offers: CategoryAddonOffer[];
   pending?: boolean;
   onClose: () => void;
-  onConfirm: (selectedIds: string[]) => void;
+  onConfirm: (selection: CategoryAddonSelection[]) => void;
 };
 
 export function CategoryAddonSheet({
@@ -28,13 +33,19 @@ export function CategoryAddonSheet({
 }: Props) {
   const [mounted, setMounted] = useState(false);
   const [selected, setSelected] = useState<string[]>([]);
+  const [guestFreeId, setGuestFreeId] = useState<string | null>(null);
+
+  const guestPicksFree = categoryAddonGuestPicksFree(offers.length);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
   useEffect(() => {
-    if (open) setSelected([]);
+    if (open) {
+      setSelected([]);
+      setGuestFreeId(null);
+    }
   }, [open]);
 
   useEffect(() => {
@@ -48,10 +59,38 @@ export function CategoryAddonSheet({
 
   if (!mounted || !open) return null;
 
+  function isLineFree(offer: CategoryAddonOffer) {
+    if (guestPicksFree) return guestFreeId === offer.id;
+    return Boolean(offer.isFree);
+  }
+
   const extras = offers
     .filter((o) => selected.includes(o.id))
-    .reduce((s, o) => s + (o.isFree ? 0 : o.priceCents), 0);
+    .reduce((s, o) => s + (isLineFree(o) ? 0 : o.priceCents), 0);
   const total = mainPriceCents + extras;
+
+  function toggleSelect(id: string) {
+    setSelected((prev) => {
+      const next = prev.includes(id)
+        ? prev.filter((x) => x !== id)
+        : [...prev, id];
+      if (guestFreeId && !next.includes(guestFreeId)) {
+        setGuestFreeId(null);
+      }
+      return next;
+    });
+  }
+
+  function confirm() {
+    onConfirm(
+      selected.map((id) => ({
+        id,
+        asFree: guestPicksFree
+          ? guestFreeId === id
+          : Boolean(offers.find((o) => o.id === id)?.isFree),
+      })),
+    );
+  }
 
   return createPortal(
     <div className="category-addon-sheet" role="dialog" aria-modal="true">
@@ -74,6 +113,11 @@ export function CategoryAddonSheet({
             <p className="mt-1 text-sm text-mist">
               Pour <span className="text-bone">{mainName}</span> — facultatif
             </p>
+            {guestPicksFree ? (
+              <p className="category-addon-sheet__hint">
+                Vous pouvez choisir <strong>1 seul addon gratuit</strong>.
+              </p>
+            ) : null}
           </div>
           <button
             type="button"
@@ -89,6 +133,7 @@ export function CategoryAddonSheet({
         <ul className="category-addon-sheet__list">
           {offers.map((offer) => {
             const checked = selected.includes(offer.id);
+            const free = isLineFree(offer);
             if (offer.requiresCustomization) {
               return (
                 <li key={offer.id} className="category-addon-sheet__row">
@@ -108,12 +153,12 @@ export function CategoryAddonSheet({
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <p className="text-sm text-bone">{offer.nameFr}</p>
-                      {offer.isFree ? (
+                      {free ? (
                         <span className="category-addon-free">Free</span>
                       ) : null}
                     </div>
                     <p className="text-xs text-gold">
-                      {offer.isFree ? "0,00 €" : formatEuro(offer.priceCents)}
+                      {free ? "Gratuit" : formatEuro(offer.priceCents)}
                     </p>
                     <Link
                       href={`/menu/${offer.slug}`}
@@ -127,50 +172,64 @@ export function CategoryAddonSheet({
             }
             return (
               <li key={offer.id}>
-                <label
-                  className={`category-addon-sheet__row is-selectable ${checked ? "is-checked" : ""} ${offer.isFree ? "is-free" : ""}`}
+                <div
+                  className={`category-addon-sheet__row is-selectable ${checked ? "is-checked" : ""} ${free ? "is-free" : ""}`}
                 >
-                  <input
-                    type="checkbox"
-                    className="sr-only"
-                    checked={checked}
+                  <label className="flex min-w-0 flex-1 cursor-pointer items-center gap-3">
+                    <input
+                      type="checkbox"
+                      className="sr-only"
+                      checked={checked}
+                      disabled={pending}
+                      onChange={() => toggleSelect(offer.id)}
+                    />
+                    <div className="category-addon-sheet__thumb">
+                      {offer.imageUrl ? (
+                        <Image
+                          src={offer.imageUrl}
+                          alt=""
+                          fill
+                          sizes="56px"
+                          className="object-cover"
+                        />
+                      ) : (
+                        <span>SD</span>
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="text-sm text-bone">{offer.nameFr}</p>
+                        {free ? (
+                          <span className="category-addon-free">Free</span>
+                        ) : null}
+                      </div>
+                      <p
+                        className={`text-xs ${free ? "text-champagne" : "text-gold"}`}
+                      >
+                        {free ? "Gratuit" : formatEuro(offer.priceCents)}
+                      </p>
+                    </div>
+                    <span className="category-addon-sheet__check" aria-hidden>
+                      {checked ? "✓" : "+"}
+                    </span>
+                  </label>
+                </div>
+                {guestPicksFree && checked ? (
+                  <button
+                    type="button"
                     disabled={pending}
-                    onChange={() =>
-                      setSelected((prev) =>
-                        checked
-                          ? prev.filter((id) => id !== offer.id)
-                          : [...prev, offer.id],
+                    className={`category-addon-sheet__pick-free ${guestFreeId === offer.id ? "is-active" : ""}`}
+                    onClick={() =>
+                      setGuestFreeId((cur) =>
+                        cur === offer.id ? null : offer.id,
                       )
                     }
-                  />
-                  <div className="category-addon-sheet__thumb">
-                    {offer.imageUrl ? (
-                      <Image
-                        src={offer.imageUrl}
-                        alt=""
-                        fill
-                        sizes="56px"
-                        className="object-cover"
-                      />
-                    ) : (
-                      <span>SD</span>
-                    )}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <p className="text-sm text-bone">{offer.nameFr}</p>
-                      {offer.isFree ? (
-                        <span className="category-addon-free">Free</span>
-                      ) : null}
-                    </div>
-                    <p className={`text-xs ${offer.isFree ? "text-champagne" : "text-gold"}`}>
-                      {offer.isFree ? "Gratuit" : formatEuro(offer.priceCents)}
-                    </p>
-                  </div>
-                  <span className="category-addon-sheet__check" aria-hidden>
-                    {checked ? "✓" : "+"}
-                  </span>
-                </label>
+                  >
+                    {guestFreeId === offer.id
+                      ? "✓ Addon gratuit choisi"
+                      : "Prendre en gratuit"}
+                  </button>
+                ) : null}
               </li>
             );
           })}
@@ -185,7 +244,7 @@ export function CategoryAddonSheet({
             type="button"
             className="btn-gold w-full"
             disabled={pending}
-            onClick={() => onConfirm(selected)}
+            onClick={confirm}
           >
             {pending
               ? "Ajout en cours…"

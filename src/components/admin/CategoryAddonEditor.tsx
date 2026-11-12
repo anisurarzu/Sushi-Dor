@@ -2,6 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
+import {
+  CATEGORY_ADDON_ADMIN_FREE_MIN,
+  categoryAddonGuestPicksFree,
+} from "@/lib/category-addons";
 import { formatEuro } from "@/lib/pricing";
 
 type ProductOpt = {
@@ -139,7 +143,11 @@ export function CategoryAddonEditor({
         body: JSON.stringify({
           items: selected.map((p) => ({
             productId: p.id,
-            isFree: Boolean(p.isFree),
+            // ≤3 addons: guest picks 1 free — admin free flags are cleared
+            isFree:
+              selected.length >= CATEGORY_ADDON_ADMIN_FREE_MIN
+                ? Boolean(p.isFree)
+                : false,
           })),
         }),
       });
@@ -184,6 +192,11 @@ export function CategoryAddonEditor({
           <p className="mt-1 text-xs text-[#a89f8e]">
             Ajoutez n&apos;importe quels produits du catalogue. Ils seront
             proposés en option au client.
+          </p>
+          <p className="mt-1.5 text-xs text-[#c4a35a]/90">
+            {selected.length >= CATEGORY_ADDON_ADMIN_FREE_MIN
+              ? `4+ addons : vous pouvez marquer des items Free.`
+              : `1–3 addons : le client choisit 1 seul addon gratuit (pas de Free admin).`}
           </p>
         </div>
         <button
@@ -232,19 +245,23 @@ export function CategoryAddonEditor({
                       </span>
                     ) : null}
                     <span className="ml-2 text-[#c4a35a]">
-                      {p.isFree ? "Gratuit" : formatEuro(p.priceCents)}
+                      {!categoryAddonGuestPicksFree(selected.length) && p.isFree
+                        ? "Gratuit"
+                        : formatEuro(p.priceCents)}
                     </span>
                   </span>
-                  <label className="inline-flex cursor-pointer items-center gap-1.5 border border-[#c4a35a]/25 px-2 py-1 text-[0.65rem] uppercase tracking-[0.1em] text-[#c4a35a]">
-                    <input
-                      type="checkbox"
-                      checked={Boolean(p.isFree)}
-                      disabled={pending}
-                      onChange={() => toggleFree(p.id)}
-                      className="accent-[#c4a35a]"
-                    />
-                    Free
-                  </label>
+                  {!categoryAddonGuestPicksFree(selected.length) ? (
+                    <label className="inline-flex cursor-pointer items-center gap-1.5 border border-[#c4a35a]/25 px-2 py-1 text-[0.65rem] uppercase tracking-[0.1em] text-[#c4a35a]">
+                      <input
+                        type="checkbox"
+                        checked={Boolean(p.isFree)}
+                        disabled={pending}
+                        onChange={() => toggleFree(p.id)}
+                        className="accent-[#c4a35a]"
+                      />
+                      Free
+                    </label>
+                  ) : null}
                   <button
                     type="button"
                     className="px-1 text-[#a89f8e] hover:text-[#e0c878] disabled:opacity-30"

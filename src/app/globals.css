@@ -1854,6 +1854,49 @@ button:disabled,
   color: var(--ink);
 }
 
+.category-addon-sheet__hint {
+  margin-top: 0.65rem;
+  border: 1px solid color-mix(in srgb, var(--gold) 40%, transparent);
+  background: color-mix(in srgb, var(--gold) 10%, transparent);
+  padding: 0.55rem 0.7rem;
+  font-size: 0.78rem;
+  color: var(--champagne);
+}
+
+.category-addon-sheet__hint strong {
+  color: var(--gold-bright);
+  font-weight: 600;
+}
+
+.category-addon-sheet__pick-free {
+  display: block;
+  width: 100%;
+  margin-top: 0.35rem;
+  border: 1px dashed color-mix(in srgb, var(--gold) 45%, transparent);
+  background: transparent;
+  padding: 0.45rem 0.65rem;
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--mist);
+  transition:
+    border-color 0.2s ease,
+    color 0.2s ease,
+    background 0.2s ease;
+}
+
+.category-addon-sheet__pick-free:hover {
+  border-color: var(--gold);
+  color: var(--champagne);
+}
+
+.category-addon-sheet__pick-free.is-active {
+  border-style: solid;
+  border-color: var(--gold);
+  background: color-mix(in srgb, var(--gold) 14%, transparent);
+  color: var(--champagne);
+}
+
 .category-addon-sheet__foot {
   padding: 1rem 1.15rem 1.25rem;
   border-top: 1px solid var(--line);

@@ -3,7 +3,10 @@
 import Link from "next/link";
 import { useRef, useState, type MouseEvent } from "react";
 import { useCart } from "@/components/cart/CartProvider";
-import { CategoryAddonSheet } from "@/components/menu/CategoryAddonSheet";
+import {
+  CategoryAddonSheet,
+  type CategoryAddonSelection,
+} from "@/components/menu/CategoryAddonSheet";
 import type { CategoryAddonOffer } from "@/lib/category-addons";
 
 type Props = {
@@ -113,12 +116,8 @@ export function ProductAddButton({
     await addProducts([{ id: productId }]);
   }
 
-  async function onConfirmExtras(selectedIds: string[]) {
-    const extras = selectedIds.map((id) => {
-      const offer = offers.find((o) => o.id === id);
-      return { id, asFree: Boolean(offer?.isFree) };
-    });
-    const ok = await addProducts([{ id: productId }, ...extras]);
+  async function onConfirmExtras(selection: CategoryAddonSelection[]) {
+    const ok = await addProducts([{ id: productId }, ...selection]);
     if (ok) setSheetOpen(false);
   }
 

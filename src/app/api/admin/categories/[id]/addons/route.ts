@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireAdminApi, writeAudit } from "@/lib/admin-auth";
+import { CATEGORY_ADDON_ADMIN_FREE_MIN } from "@/lib/category-addons";
 import { prisma } from "@/lib/prisma";
 import { notDeleted } from "@/lib/soft-delete";
 
@@ -147,6 +148,7 @@ export async function PUT(req: Request, { params }: Params) {
     });
     const validIds = new Set(valid.map((p) => p.id));
     const finalItems = ordered.filter((i) => validIds.has(i.productId));
+    const allowAdminFree = finalItems.length >= CATEGORY_ADDON_ADMIN_FREE_MIN;
 
     await prisma.$transaction(async (tx) => {
       await tx.categoryAddonProduct.deleteMany({ where: { categoryId: id } });
@@ -157,7 +159,7 @@ export async function PUT(req: Request, { params }: Params) {
             productId: item.productId,
             sortOrder,
             isActive: true,
-            isFree: item.isFree,
+            isFree: allowAdminFree ? item.isFree : false,
           })),
         });
       }
