@@ -5,6 +5,11 @@ import { SiteHeader } from "@/components/home/SiteHeader";
 import { CategoryMenuPage } from "@/components/menu/CategoryMenuPage";
 import { ProductConfigurator } from "@/components/menu/ProductConfigurator";
 import { getStaticCatalog } from "@/lib/catalog-static";
+import {
+  categoryAddonInclude,
+  mapCategoryAddonProduct,
+  type CategoryAddonOffer,
+} from "@/lib/category-addons";
 import { formatEuro } from "@/lib/pricing";
 import { dbAvailable, prisma } from "@/lib/prisma";
 import type { HomeProduct } from "@/lib/home-catalog";
@@ -31,6 +36,7 @@ function toHomeProduct(item: {
   isVegan?: boolean;
   isSpicy?: boolean;
   requiresCustomization: boolean;
+  categoryAddons?: CategoryAddonOffer[];
 }): HomeProduct {
   return {
     id: item.id,
@@ -47,6 +53,7 @@ function toHomeProduct(item: {
     isVegetarian: item.isVegetarian ?? false,
     isVegan: item.isVegan ?? false,
     isSpicy: item.isSpicy ?? false,
+    categoryAddons: item.categoryAddons ?? [],
   };
 }
 
@@ -116,9 +123,13 @@ export default async function MenuSlugPage({ params, searchParams }: Props) {
               },
             },
           },
+          categoryAddons: categoryAddonInclude,
         },
       });
       if (category) {
+        const offers = category.categoryAddons
+          .map(mapCategoryAddonProduct)
+          .filter(Boolean) as CategoryAddonOffer[];
         categoryView = {
           slug: category.slug,
           nameFr: category.nameFr,
@@ -127,6 +138,7 @@ export default async function MenuSlugPage({ params, searchParams }: Props) {
             toHomeProduct({
               ...p,
               requiresCustomization: p.addonGroups.length > 0,
+              categoryAddons: offers,
             }),
           ),
         };
@@ -172,6 +184,7 @@ export default async function MenuSlugPage({ params, searchParams }: Props) {
     requiresCustomization: boolean;
     categoryNameFr?: string;
     categorySlug?: string;
+    categoryAddons: CategoryAddonOffer[];
     addonGroups: {
       id: string;
       nameFr: string;
@@ -201,7 +214,9 @@ export default async function MenuSlugPage({ params, searchParams }: Props) {
       const product = await prisma.product.findUnique({
         where: { slug },
         include: {
-          category: true,
+          category: {
+            include: { categoryAddons: categoryAddonInclude },
+          },
           addonGroups: {
             where: { isActive: true },
             orderBy: { displayOrder: "asc" },
@@ -218,6 +233,9 @@ export default async function MenuSlugPage({ params, searchParams }: Props) {
 
       if (product?.isAvailable) {
         orderingEnabled = true;
+        const categoryAddons = product.category.categoryAddons
+          .map(mapCategoryAddonProduct)
+          .filter(Boolean) as CategoryAddonOffer[];
         detail = {
           id: product.id,
           slug: product.slug,
@@ -228,6 +246,7 @@ export default async function MenuSlugPage({ params, searchParams }: Props) {
           requiresCustomization: product.addonGroups.some((g) => g.required),
           categoryNameFr: product.category.nameFr,
           categorySlug: product.category.slug,
+          categoryAddons,
           addonGroups: product.addonGroups.map((g) => ({
             id: g.id,
             nameFr: g.nameFr,
@@ -280,6 +299,7 @@ export default async function MenuSlugPage({ params, searchParams }: Props) {
       requiresCustomization: false,
       categoryNameFr: cat?.nameFr,
       categorySlug: cat?.slug,
+      categoryAddons: [],
       addonGroups: [],
     };
   }

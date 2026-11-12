@@ -204,10 +204,29 @@ model Category {
   /// 0 = active, 255 = soft-deleted (hidden from UI, kept in DB)
   deletedStatus Int       @default(0)
   products      Product[]
+  /// Optional upsell products offered when adding any item from this category
+  categoryAddons CategoryAddonProduct[]
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
   @@index([deletedStatus])
+}
+
+/// Products offered as optional extras when buying from a category (e.g. Menu Box).
+model CategoryAddonProduct {
+  id         String   @id @default(cuid())
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  productId  String
+  product    Product  @relation("CategoryAddonTarget", fields: [productId], references: [id], onDelete: Cascade)
+  sortOrder  Int      @default(0)
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([categoryId, productId])
+  @@index([categoryId, sortOrder])
+  @@index([productId])
 }
 
 model Allergen {
@@ -256,6 +275,7 @@ model Product {
   images      ProductImage[]
   cartItems   CartItem[]
   orderItems  OrderItem[]
+  offeredAsCategoryAddon CategoryAddonProduct[] @relation("CategoryAddonTarget")
 
   @@index([categoryId])
   @@index([isAvailable, isFeatured, featuredOrder])

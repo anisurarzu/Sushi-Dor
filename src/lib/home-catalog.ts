@@ -1,5 +1,10 @@
 import { dbAvailable, prisma } from "@/lib/prisma";
 import { getStaticCatalog } from "@/lib/catalog-static";
+import {
+  categoryAddonInclude,
+  mapCategoryAddonProduct,
+  type CategoryAddonOffer,
+} from "@/lib/category-addons";
 
 export const HOMEPAGE_PRODUCTS_PER_CATEGORY = 4;
 
@@ -18,6 +23,7 @@ export type HomeProduct = {
   isVegetarian: boolean;
   isVegan: boolean;
   isSpicy: boolean;
+  categoryAddons?: CategoryAddonOffer[];
 };
 
 export type HomeCategory = {
@@ -35,22 +41,25 @@ export type HomeCatalog = {
   fromDb: boolean;
 };
 
-function mapProduct(item: {
-  id: string;
-  slug: string;
-  nameFr: string;
-  description: string | null;
-  shortDescription?: string | null;
-  priceCents: number;
-  imageUrl: string | null;
-  isFeatured?: boolean;
-  isNew?: boolean;
-  isPopular?: boolean;
-  isVegetarian?: boolean;
-  isVegan?: boolean;
-  isSpicy?: boolean;
-  addonGroups?: { id: string }[];
-}): HomeProduct {
+function mapProduct(
+  item: {
+    id: string;
+    slug: string;
+    nameFr: string;
+    description: string | null;
+    shortDescription?: string | null;
+    priceCents: number;
+    imageUrl: string | null;
+    isFeatured?: boolean;
+    isNew?: boolean;
+    isPopular?: boolean;
+    isVegetarian?: boolean;
+    isVegan?: boolean;
+    isSpicy?: boolean;
+    addonGroups?: { id: string }[];
+  },
+  categoryAddons: CategoryAddonOffer[] = [],
+): HomeProduct {
   return {
     id: item.id,
     slug: item.slug,
@@ -66,6 +75,7 @@ function mapProduct(item: {
     isVegetarian: item.isVegetarian ?? false,
     isVegan: item.isVegan ?? false,
     isSpicy: item.isSpicy ?? false,
+    categoryAddons,
   };
 }
 
@@ -99,6 +109,7 @@ export async function getHomeCatalog(): Promise<HomeCatalog> {
                 },
               },
             },
+            categoryAddons: categoryAddonInclude,
             _count: {
               select: {
                 products: {
@@ -112,17 +123,22 @@ export async function getHomeCatalog(): Promise<HomeCatalog> {
 
       return {
         fromDb: true,
-        featured: featuredRows.map(mapProduct),
+        featured: featuredRows.map((p) => mapProduct(p)),
         categories: categoryRows
           .filter((c) => c._count.products > 0)
-          .map((c) => ({
-            id: c.id,
-            slug: c.slug,
-            nameFr: c.nameFr,
-            description: c.description,
-            totalCount: c._count.products,
-            products: c.products.map(mapProduct),
-          })),
+          .map((c) => {
+            const offers = c.categoryAddons
+              .map(mapCategoryAddonProduct)
+              .filter(Boolean) as CategoryAddonOffer[];
+            return {
+              id: c.id,
+              slug: c.slug,
+              nameFr: c.nameFr,
+              description: c.description,
+              totalCount: c._count.products,
+              products: c.products.map((p) => mapProduct(p, offers)),
+            };
+          }),
       };
     } catch {
       // fall through to static

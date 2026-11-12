@@ -2,6 +2,11 @@ import { SiteFooter } from "@/components/home/SiteFooter";
 import { SiteHeader } from "@/components/home/SiteHeader";
 import { MenuCatalogClient } from "@/components/menu/MenuCatalogClient";
 import { getStaticCatalog } from "@/lib/catalog-static";
+import {
+  categoryAddonInclude,
+  mapCategoryAddonProduct,
+  type CategoryAddonOffer,
+} from "@/lib/category-addons";
 import type { HomeProduct } from "@/lib/home-catalog";
 import { dbAvailable, prisma } from "@/lib/prisma";
 
@@ -28,6 +33,7 @@ function toCard(item: {
   isVegan?: boolean;
   isSpicy?: boolean;
   requiresCustomization: boolean;
+  categoryAddons?: CategoryAddonOffer[];
 }): HomeProduct {
   return {
     id: item.id,
@@ -44,6 +50,7 @@ function toCard(item: {
     isVegetarian: item.isVegetarian ?? false,
     isVegan: item.isVegan ?? false,
     isSpicy: item.isSpicy ?? false,
+    categoryAddons: item.categoryAddons ?? [],
   };
 }
 
@@ -78,18 +85,25 @@ export default async function MenuPage() {
               },
             },
           },
+          categoryAddons: categoryAddonInclude,
         },
       });
-      categories = rows.map((cat) => ({
-        slug: cat.slug,
-        nameFr: cat.nameFr,
-        products: cat.products.map((item) =>
-          toCard({
-            ...item,
-            requiresCustomization: item.addonGroups.length > 0,
-          }),
-        ),
-      }));
+      categories = rows.map((cat) => {
+        const offers = cat.categoryAddons
+          .map(mapCategoryAddonProduct)
+          .filter(Boolean) as CategoryAddonOffer[];
+        return {
+          slug: cat.slug,
+          nameFr: cat.nameFr,
+          products: cat.products.map((item) =>
+            toCard({
+              ...item,
+              requiresCustomization: item.addonGroups.length > 0,
+              categoryAddons: offers,
+            }),
+          ),
+        };
+      });
       total = categories.reduce((s, c) => s + c.products.length, 0);
       fromDb = true;
     } catch {

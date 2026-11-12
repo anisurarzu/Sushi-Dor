@@ -3,25 +3,36 @@
 import Link from "next/link";
 import { useRef, useState, type MouseEvent } from "react";
 import { useCart } from "@/components/cart/CartProvider";
+import { CategoryAddonSheet } from "@/components/menu/CategoryAddonSheet";
+import type { CategoryAddonOffer } from "@/lib/category-addons";
 
 type Props = {
   productId: string;
   slug: string;
+  nameFr?: string;
+  priceCents?: number;
   requiresCustomization: boolean;
   imageUrl?: string | null;
+  categoryAddons?: CategoryAddonOffer[];
 };
 
 export function ProductAddButton({
   productId,
   slug,
+  nameFr = "Produit",
+  priceCents = 0,
   requiresCustomization,
   imageUrl,
+  categoryAddons = [],
 }: Props) {
   const { addItem } = useCart();
   const [pending, setPending] = useState(false);
   const [added, setAdded] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
   const btnRef = useRef<HTMLButtonElement>(null);
+
+  const offers = categoryAddons.filter((a) => a.id !== productId);
 
   if (requiresCustomization) {
     return (
@@ -48,39 +59,60 @@ export function ProductAddButton({
     );
   }
 
+  function flyFrom(el?: HTMLElement | null) {
+    const rect = (el || btnRef.current)?.getBoundingClientRect();
+    window.dispatchEvent(
+      new CustomEvent("sd:cart-fly", {
+        detail: {
+          x: rect ? rect.left + rect.width / 2 : window.innerWidth / 2,
+          y: rect ? rect.top + rect.height / 2 : window.innerHeight / 2,
+          imageUrl: imageUrl || null,
+        },
+      }),
+    );
+  }
+
+  async function addProducts(ids: string[]) {
+    setPending(true);
+    setError(null);
+    try {
+      for (const id of ids) {
+        const result = await addItem({
+          productId: id,
+          quantity: 1,
+          addonIds: [],
+        });
+        if (!result.ok) {
+          setError(result.error);
+          return false;
+        }
+      }
+      setAdded(true);
+      flyFrom();
+      window.setTimeout(() => setAdded(false), 1800);
+      return true;
+    } catch {
+      setError("Connexion interrompue. Réessayez.");
+      return false;
+    } finally {
+      setPending(false);
+    }
+  }
+
   async function onAdd(e: MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
     if (pending || added) return;
-    setPending(true);
-    setError(null);
-    try {
-      const result = await addItem({
-        productId,
-        quantity: 1,
-        addonIds: [],
-      });
-      if (!result.ok) {
-        setError(result.error);
-        return;
-      }
-      setAdded(true);
-      const rect = btnRef.current?.getBoundingClientRect();
-      window.dispatchEvent(
-        new CustomEvent("sd:cart-fly", {
-          detail: {
-            x: rect ? rect.left + rect.width / 2 : window.innerWidth / 2,
-            y: rect ? rect.top + rect.height / 2 : window.innerHeight / 2,
-            imageUrl: imageUrl || null,
-          },
-        }),
-      );
-      window.setTimeout(() => setAdded(false), 1800);
-    } catch {
-      setError("Connexion interrompue. Réessayez.");
-    } finally {
-      setPending(false);
+    if (offers.length > 0) {
+      setSheetOpen(true);
+      return;
     }
+    await addProducts([productId]);
+  }
+
+  async function onConfirmExtras(selectedIds: string[]) {
+    const ok = await addProducts([productId, ...selectedIds]);
+    if (ok) setSheetOpen(false);
   }
 
   return (
@@ -122,7 +154,7 @@ export function ProductAddButton({
                 strokeLinecap="round"
               />
             </svg>
-            <span>Ajouter</span>
+            <span>{offers.length > 0 ? "Ajouter +" : "Ajouter"}</span>
           </>
         )}
       </button>
@@ -131,6 +163,16 @@ export function ProductAddButton({
           {error}
         </p>
       ) : null}
+
+      <CategoryAddonSheet
+        open={sheetOpen}
+        mainName={nameFr}
+        mainPriceCents={priceCents}
+        offers={offers}
+        pending={pending}
+        onClose={() => setSheetOpen(false)}
+        onConfirm={(ids) => void onConfirmExtras(ids)}
+      />
     </div>
   );
 }

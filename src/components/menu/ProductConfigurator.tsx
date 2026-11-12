@@ -4,6 +4,8 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { formatEuro } from "@/lib/pricing";
 import { useCart } from "@/components/cart/CartProvider";
+import { CategoryAddonSheet } from "@/components/menu/CategoryAddonSheet";
+import type { CategoryAddonOffer } from "@/lib/category-addons";
 
 export type ProductDetail = {
   id: string;
@@ -13,6 +15,7 @@ export type ProductDetail = {
   priceCents: number;
   imageUrl: string | null;
   requiresCustomization: boolean;
+  categoryAddons?: CategoryAddonOffer[];
   addonGroups: {
     id: string;
     nameFr: string;
@@ -53,6 +56,10 @@ export function ProductConfigurator({
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [justAdded, setJustAdded] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const offers = (product.categoryAddons ?? []).filter(
+    (a) => a.id !== product.id && !a.requiresCustomization,
+  );
 
   const addonPriceMap = useMemo(() => {
     const map = new Map<string, number>();
@@ -141,11 +148,13 @@ export function ProductConfigurator({
           },
         }),
       );
-      // Editing from cart returns there; normal add stays so floating cart shows it.
       if (mode === "edit") {
         window.setTimeout(() => {
           router.push("/cart");
         }, 700);
+      } else if (offers.length > 0) {
+        setSheetOpen(true);
+        window.setTimeout(() => setJustAdded(false), 1800);
       } else {
         window.setTimeout(() => setJustAdded(false), 1800);
       }
@@ -303,6 +312,52 @@ export function ProductConfigurator({
                 : `Ajouter au panier · ${formatEuro(total)}`}
         </button>
       </div>
+
+      <CategoryAddonSheet
+        open={sheetOpen}
+        mainName={product.nameFr}
+        mainPriceCents={product.priceCents}
+        offers={(product.categoryAddons ?? []).filter((a) => a.id !== product.id)}
+        pending={pending}
+        onClose={() => setSheetOpen(false)}
+        onConfirm={(ids) => {
+          void (async () => {
+            if (ids.length === 0) {
+              setSheetOpen(false);
+              return;
+            }
+            setPending(true);
+            setError(null);
+            try {
+              for (const id of ids) {
+                const result = await addItem({
+                  productId: id,
+                  quantity: 1,
+                  addonIds: [],
+                });
+                if (!result.ok) {
+                  setError(result.error);
+                  return;
+                }
+              }
+              window.dispatchEvent(
+                new CustomEvent("sd:cart-fly", {
+                  detail: {
+                    x: window.innerWidth / 2,
+                    y: window.innerHeight / 2,
+                    imageUrl: null,
+                  },
+                }),
+              );
+              setSheetOpen(false);
+            } catch {
+              setError("Connexion interrompue. Réessayez.");
+            } finally {
+              setPending(false);
+            }
+          })();
+        }}
+      />
     </div>
   );
 }

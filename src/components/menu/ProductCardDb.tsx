@@ -76,8 +76,11 @@ export function ProductCardDb({ product, priority = false }: Props) {
         <ProductAddButton
           productId={product.id}
           slug={product.slug}
+          nameFr={product.nameFr}
+          priceCents={product.priceCents}
           requiresCustomization={product.requiresCustomization}
           imageUrl={product.imageUrl}
+          categoryAddons={product.categoryAddons}
         />
       </div>
     </article>

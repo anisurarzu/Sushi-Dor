@@ -9,6 +9,7 @@ import {
   RowDeleteButtons,
   useBulkDelete,
 } from "@/components/admin/BulkDeleteControls";
+import { CategoryAddonEditor } from "@/components/admin/CategoryAddonEditor";
 
 type Cat = {
   id: string;
@@ -30,6 +31,7 @@ export function CategoryManager({ initial }: { initial: Cat[] }) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
   const [editDescription, setEditDescription] = useState("");
+  const [addonsCategoryId, setAddonsCategoryId] = useState<string | null>(null);
 
   useEffect(() => {
     setCats(initial);
@@ -373,27 +375,41 @@ export function CategoryManager({ initial }: { initial: Cat[] }) {
                       ↓
                     </button>
                     {!editing ? (
-                      <button
-                        type="button"
-                        onClick={() => startEdit(c)}
-                        disabled={pending}
-                        className="inline-flex items-center gap-1.5 border border-[#c4a35a]/55 bg-[#c4a35a]/12 px-3 py-1.5 text-xs font-medium uppercase tracking-[0.12em] text-[#e0c878] transition-colors hover:bg-[#c4a35a]/22"
-                      >
-                        <svg
-                          viewBox="0 0 16 16"
-                          className="h-3 w-3"
-                          fill="none"
-                          aria-hidden
+                      <>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setAddonsCategoryId((cur) =>
+                              cur === c.id ? null : c.id,
+                            )
+                          }
+                          disabled={pending}
+                          className="border border-[#c4a35a]/35 px-3 py-1.5 text-xs font-medium uppercase tracking-[0.12em] text-[#c4a35a] hover:border-[#c4a35a]/70 hover:text-[#e0c878]"
                         >
-                          <path
-                            d="M11.5 2.5 13.5 4.5 6 12H4v-2z"
-                            stroke="currentColor"
-                            strokeWidth="1.4"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
-                        Modifier
-                      </button>
+                          Addons
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => startEdit(c)}
+                          disabled={pending}
+                          className="inline-flex items-center gap-1.5 border border-[#c4a35a]/55 bg-[#c4a35a]/12 px-3 py-1.5 text-xs font-medium uppercase tracking-[0.12em] text-[#e0c878] transition-colors hover:bg-[#c4a35a]/22"
+                        >
+                          <svg
+                            viewBox="0 0 16 16"
+                            className="h-3 w-3"
+                            fill="none"
+                            aria-hidden
+                          >
+                            <path
+                              d="M11.5 2.5 13.5 4.5 6 12H4v-2z"
+                              stroke="currentColor"
+                              strokeWidth="1.4"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                          Modifier
+                        </button>
+                      </>
                     ) : null}
                     <button
                       type="button"
@@ -410,6 +426,13 @@ export function CategoryManager({ initial }: { initial: Cat[] }) {
                     />
                   </div>
                 </div>
+                {addonsCategoryId === c.id ? (
+                  <CategoryAddonEditor
+                    categoryId={c.id}
+                    categoryName={c.nameFr}
+                    onClose={() => setAddonsCategoryId(null)}
+                  />
+                ) : null}
               </div>
             );
           })}
