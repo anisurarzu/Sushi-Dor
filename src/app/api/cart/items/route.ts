@@ -9,10 +9,23 @@ import { serializeCart } from "@/lib/cart-serialize";
 export async function POST(req: Request) {
   try {
     const body = addToCartSchema.parse(await req.json());
-    const [priced, cart] = await Promise.all([
+    const [rawPriced, cart] = await Promise.all([
       recalculateLine(body.productId, body.addonIds, body.quantity),
       getOrCreateCart(),
     ]);
+    const priced = body.asFree
+      ? {
+          ...rawPriced,
+          productNameFr: `${rawPriced.productNameFr} · Gratuit`,
+          basePriceCents: 0,
+          unitPriceCents: 0,
+          lineTotalCents: 0,
+          productsSubtotalCents: 0,
+          addonsSubtotalCents: 0,
+          addons: rawPriced.addons.map((a) => ({ ...a, priceCents: 0 })),
+          configSignature: `${rawPriced.configSignature}:free`,
+        }
+      : rawPriced;
 
     if (body.cartItemId) {
       const existing = await prisma.cartItem.findFirst({

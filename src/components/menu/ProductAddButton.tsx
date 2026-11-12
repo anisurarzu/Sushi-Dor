@@ -72,15 +72,18 @@ export function ProductAddButton({
     );
   }
 
-  async function addProducts(ids: string[]) {
+  async function addProducts(
+    entries: { id: string; asFree?: boolean }[],
+  ) {
     setPending(true);
     setError(null);
     try {
-      for (const id of ids) {
+      for (const entry of entries) {
         const result = await addItem({
-          productId: id,
+          productId: entry.id,
           quantity: 1,
           addonIds: [],
+          asFree: entry.asFree,
         });
         if (!result.ok) {
           setError(result.error);
@@ -107,11 +110,15 @@ export function ProductAddButton({
       setSheetOpen(true);
       return;
     }
-    await addProducts([productId]);
+    await addProducts([{ id: productId }]);
   }
 
   async function onConfirmExtras(selectedIds: string[]) {
-    const ok = await addProducts([productId, ...selectedIds]);
+    const extras = selectedIds.map((id) => {
+      const offer = offers.find((o) => o.id === id);
+      return { id, asFree: Boolean(offer?.isFree) };
+    });
+    const ok = await addProducts([{ id: productId }, ...extras]);
     if (ok) setSheetOpen(false);
   }
 

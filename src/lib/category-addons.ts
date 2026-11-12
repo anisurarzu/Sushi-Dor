@@ -5,9 +5,11 @@ export type CategoryAddonOffer = {
   priceCents: number;
   imageUrl: string | null;
   requiresCustomization: boolean;
+  isFree: boolean;
 };
 
 export function mapCategoryAddonProduct(row: {
+  isFree?: boolean;
   product: {
     id: string;
     slug: string;
@@ -28,6 +30,7 @@ export function mapCategoryAddonProduct(row: {
     priceCents: p.priceCents,
     imageUrl: p.imageUrl,
     requiresCustomization: (p.addonGroups?.length ?? 0) > 0,
+    isFree: Boolean(row.isFree),
   };
 }
 

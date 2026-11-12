@@ -12,6 +12,7 @@ type ProductOpt = {
   isAvailable: boolean;
   categoryNameFr?: string;
   requiresCustomization?: boolean;
+  isFree?: boolean;
 };
 
 type Props = {
@@ -92,15 +93,22 @@ export function CategoryAddonEditor({
 
   function applyPicker() {
     const byId = new Map(allProducts.map((p) => [p.id, p]));
-    // Keep existing order for already selected, append new ones
+    // Keep existing order + free flag for already selected, append new ones
     const kept = selected.filter((p) => draftIds.includes(p.id));
     const keptIds = new Set(kept.map((p) => p.id));
     const added = draftIds
       .filter((id) => !keptIds.has(id))
       .map((id) => byId.get(id))
-      .filter(Boolean) as ProductOpt[];
+      .filter(Boolean)
+      .map((p) => ({ ...p!, isFree: false }));
     setSelected([...kept, ...added]);
     setPickerOpen(false);
+  }
+
+  function toggleFree(id: string) {
+    setSelected((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, isFree: !p.isFree } : p)),
+    );
   }
 
   function removeOne(id: string) {
@@ -128,7 +136,12 @@ export function CategoryAddonEditor({
         method: "PUT",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productIds: selected.map((p) => p.id) }),
+        body: JSON.stringify({
+          items: selected.map((p) => ({
+            productId: p.id,
+            isFree: Boolean(p.isFree),
+          })),
+        }),
       });
       const text = await res.text();
       let data: Record<string, unknown> = {};
@@ -209,7 +222,7 @@ export function CategoryAddonEditor({
               {selected.map((p, i) => (
                 <li
                   key={p.id}
-                  className="flex items-center gap-2 border border-[#c4a35a]/20 px-2 py-1.5 text-xs"
+                  className="flex flex-wrap items-center gap-2 border border-[#c4a35a]/20 px-2 py-1.5 text-xs"
                 >
                   <span className="min-w-0 flex-1 truncate text-[#f0e6c8]">
                     {p.nameFr}
@@ -219,9 +232,19 @@ export function CategoryAddonEditor({
                       </span>
                     ) : null}
                     <span className="ml-2 text-[#c4a35a]">
-                      {formatEuro(p.priceCents)}
+                      {p.isFree ? "Gratuit" : formatEuro(p.priceCents)}
                     </span>
                   </span>
+                  <label className="inline-flex cursor-pointer items-center gap-1.5 border border-[#c4a35a]/25 px-2 py-1 text-[0.65rem] uppercase tracking-[0.1em] text-[#c4a35a]">
+                    <input
+                      type="checkbox"
+                      checked={Boolean(p.isFree)}
+                      disabled={pending}
+                      onChange={() => toggleFree(p.id)}
+                      className="accent-[#c4a35a]"
+                    />
+                    Free
+                  </label>
                   <button
                     type="button"
                     className="px-1 text-[#a89f8e] hover:text-[#e0c878] disabled:opacity-30"

@@ -81,6 +81,7 @@ export async function GET(_req: Request, { params }: Params) {
         isAvailable: a.product.isAvailable,
         categoryNameFr: a.product.category.nameFr,
         requiresCustomization: false,
+        isFree: a.isFree,
       }));
 
     return NextResponse.json({
@@ -108,7 +109,14 @@ export async function PUT(req: Request, { params }: Params) {
     const { id } = await params;
     const body = z
       .object({
-        productIds: z.array(z.string().min(1)).max(120),
+        items: z
+          .array(
+            z.object({
+              productId: z.string().min(1),
+              isFree: z.boolean().default(false),
+            }),
+          )
+          .max(120),
       })
       .parse(await req.json());
 
@@ -123,26 +131,33 @@ export async function PUT(req: Request, { params }: Params) {
       );
     }
 
-    const uniqueIds = [...new Set(body.productIds)];
+    const seen = new Set<string>();
+    const ordered = body.items.filter((item) => {
+      if (seen.has(item.productId)) return false;
+      seen.add(item.productId);
+      return true;
+    });
+
     const valid = await prisma.product.findMany({
       where: {
-        id: { in: uniqueIds },
+        id: { in: ordered.map((i) => i.productId) },
         ...notDeleted,
       },
       select: { id: true },
     });
     const validIds = new Set(valid.map((p) => p.id));
-    const ordered = uniqueIds.filter((pid) => validIds.has(pid));
+    const finalItems = ordered.filter((i) => validIds.has(i.productId));
 
     await prisma.$transaction(async (tx) => {
       await tx.categoryAddonProduct.deleteMany({ where: { categoryId: id } });
-      if (ordered.length > 0) {
+      if (finalItems.length > 0) {
         await tx.categoryAddonProduct.createMany({
-          data: ordered.map((productId, sortOrder) => ({
+          data: finalItems.map((item, sortOrder) => ({
             categoryId: id,
-            productId,
+            productId: item.productId,
             sortOrder,
             isActive: true,
+            isFree: item.isFree,
           })),
         });
       }
@@ -153,10 +168,13 @@ export async function PUT(req: Request, { params }: Params) {
       action: "category.addons.update",
       entity: "Category",
       entityId: id,
-      meta: { productIds: ordered },
+      meta: { items: finalItems },
     });
 
-    return NextResponse.json({ ok: true, productIds: ordered });
+    return NextResponse.json({
+      ok: true,
+      productIds: finalItems.map((i) => i.productId),
+    });
   } catch (err) {
     console.error("[admin/categories/addons PUT]", err);
     return NextResponse.json(

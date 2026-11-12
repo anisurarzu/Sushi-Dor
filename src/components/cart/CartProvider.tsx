@@ -60,6 +60,7 @@ type CartContextValue = {
     quantity: number;
     addonIds: string[];
     cartItemId?: string;
+    asFree?: boolean;
   }) => Promise<{ ok: true } | { ok: false; error: string }>;
   updateQty: (
     cartItemId: string,
@@ -188,6 +189,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       quantity: number;
       addonIds: string[];
       cartItemId?: string;
+      asFree?: boolean;
     }) => {
       try {
         const res = await fetch("/api/cart/items", {

@@ -50,7 +50,7 @@ export function CategoryAddonSheet({
 
   const extras = offers
     .filter((o) => selected.includes(o.id))
-    .reduce((s, o) => s + o.priceCents, 0);
+    .reduce((s, o) => s + (o.isFree ? 0 : o.priceCents), 0);
   const total = mainPriceCents + extras;
 
   return createPortal(
@@ -106,9 +106,14 @@ export function CategoryAddonSheet({
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm text-bone">{offer.nameFr}</p>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="text-sm text-bone">{offer.nameFr}</p>
+                      {offer.isFree ? (
+                        <span className="category-addon-free">Free</span>
+                      ) : null}
+                    </div>
                     <p className="text-xs text-gold">
-                      {formatEuro(offer.priceCents)}
+                      {offer.isFree ? "0,00 €" : formatEuro(offer.priceCents)}
                     </p>
                     <Link
                       href={`/menu/${offer.slug}`}
@@ -123,7 +128,7 @@ export function CategoryAddonSheet({
             return (
               <li key={offer.id}>
                 <label
-                  className={`category-addon-sheet__row is-selectable ${checked ? "is-checked" : ""}`}
+                  className={`category-addon-sheet__row is-selectable ${checked ? "is-checked" : ""} ${offer.isFree ? "is-free" : ""}`}
                 >
                   <input
                     type="checkbox"
@@ -152,9 +157,14 @@ export function CategoryAddonSheet({
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm text-bone">{offer.nameFr}</p>
-                    <p className="text-xs text-gold">
-                      {formatEuro(offer.priceCents)}
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="text-sm text-bone">{offer.nameFr}</p>
+                      {offer.isFree ? (
+                        <span className="category-addon-free">Free</span>
+                      ) : null}
+                    </div>
+                    <p className={`text-xs ${offer.isFree ? "text-champagne" : "text-gold"}`}>
+                      {offer.isFree ? "Gratuit" : formatEuro(offer.priceCents)}
                     </p>
                   </div>
                   <span className="category-addon-sheet__check" aria-hidden>

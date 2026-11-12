@@ -1791,6 +1791,38 @@ button:disabled,
   background: color-mix(in srgb, var(--gold) 8%, transparent);
 }
 
+.category-addon-sheet__row.is-free {
+  box-shadow: inset 2px 0 0 var(--gold);
+}
+
+.category-addon-free {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--gold);
+  background: linear-gradient(
+    160deg,
+    color-mix(in srgb, var(--gold) 28%, transparent),
+    color-mix(in srgb, var(--gold-bright) 12%, transparent)
+  );
+  color: var(--champagne);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 0.18rem 0.4rem;
+  animation: categoryAddonFreePulse 1.8s ease-in-out infinite;
+}
+
+@keyframes categoryAddonFreePulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(196, 163, 90, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 5px rgba(196, 163, 90, 0);
+  }
+}
+
 .category-addon-sheet__thumb {
   position: relative;
   width: 3.4rem;

@@ -1,0 +1,2 @@
+ALTER TABLE "CategoryAddonProduct"
+  ADD COLUMN IF NOT EXISTS "isFree" BOOLEAN NOT NULL DEFAULT false;

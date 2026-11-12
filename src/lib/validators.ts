@@ -5,6 +5,8 @@ export const addToCartSchema = z.object({
   quantity: z.number().int().min(1).max(20),
   addonIds: z.array(z.string()).default([]),
   cartItemId: z.string().optional(), // when updating existing
+  /** Category upsell marked free by admin — cart line at 0 € */
+  asFree: z.boolean().optional(),
 });
 
 export const updateCartItemQtySchema = z.object({

@@ -221,6 +221,8 @@ model CategoryAddonProduct {
   product    Product  @relation("CategoryAddonTarget", fields: [productId], references: [id], onDelete: Cascade)
   sortOrder  Int      @default(0)
   isActive   Boolean  @default(true)
+  /// When true, the upsell is added to cart at 0 € for the guest
+  isFree     Boolean  @default(false)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 

@@ -329,11 +329,14 @@ export function ProductConfigurator({
             setPending(true);
             setError(null);
             try {
+              const allOffers = product.categoryAddons ?? [];
               for (const id of ids) {
+                const offer = allOffers.find((o) => o.id === id);
                 const result = await addItem({
                   productId: id,
                   quantity: 1,
                   addonIds: [],
+                  asFree: Boolean(offer?.isFree),
                 });
                 if (!result.ok) {
                   setError(result.error);
