@@ -141,9 +141,14 @@ export function ProductConfigurator({
           },
         }),
       );
-      window.setTimeout(() => {
-        router.push("/cart");
-      }, 1200);
+      // Editing from cart returns there; normal add stays so floating cart shows it.
+      if (mode === "edit") {
+        window.setTimeout(() => {
+          router.push("/cart");
+        }, 700);
+      } else {
+        window.setTimeout(() => setJustAdded(false), 1800);
+      }
     } catch {
       setError("Connexion interrompue. Réessayez.");
     } finally {
@@ -273,7 +278,7 @@ export function ProductConfigurator({
           className={`btn-gold hidden w-full md:inline-flex ${justAdded ? "product-add-btn--success" : ""}`}
         >
           {pending
-            ? "…"
+            ? "Ajout en cours…"
             : justAdded
               ? "✓ Ajouté au panier"
               : mode === "edit"
@@ -290,7 +295,7 @@ export function ProductConfigurator({
           className={`btn-gold w-full ${justAdded ? "product-add-btn--success" : ""}`}
         >
           {pending
-            ? "…"
+            ? "Ajout en cours…"
             : justAdded
               ? "✓ Ajouté au panier"
               : mode === "edit"

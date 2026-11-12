@@ -96,7 +96,7 @@ export function ProductAddButton({
         {pending ? (
           <>
             <span className="product-add-spinner" aria-hidden />
-            <span>Ajout…</span>
+            <span>Ajout en cours…</span>
           </>
         ) : added ? (
           <>

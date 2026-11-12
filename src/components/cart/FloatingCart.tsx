@@ -33,7 +33,13 @@ export function FloatingCart() {
   useEffect(() => {
     function onPulse() {
       setPulse(true);
+      clearClose();
+      setOpen(true);
       window.setTimeout(() => setPulse(false), 900);
+      // Keep preview open briefly so the added item is visible, then close.
+      window.setTimeout(() => {
+        if (!dockRef.current?.matches(":hover")) setOpen(false);
+      }, 2600);
     }
     window.addEventListener("sd:cart-dock-pulse", onPulse);
     return () => window.removeEventListener("sd:cart-dock-pulse", onPulse);
