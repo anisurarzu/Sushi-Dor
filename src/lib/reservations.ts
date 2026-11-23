@@ -511,10 +511,11 @@ export function reservationAdminInbox(restaurantEmail?: string | null) {
   return admin || restaurantEmail?.trim() || null;
 }
 
-export async function notifyAdminNewReservation(opts: {
+export async function notifyAdminReservation(opts: {
   reservation: Reservation;
   restaurantName: string;
   restaurantEmail?: string | null;
+  kind: "created" | "cancelled";
 }) {
   const to = reservationAdminInbox(opts.restaurantEmail);
   if (!to) {
@@ -526,19 +527,23 @@ export async function notifyAdminNewReservation(opts: {
 
   const r = opts.reservation;
   const date = formatDateOnly(r.date);
-  const statusLabel =
-    r.status === "CONFIRMED"
+  const isCancel = opts.kind === "cancelled";
+  const headline = isCancel ? "Réservation annulée" : "Nouvelle réservation";
+  const statusLabel = isCancel
+    ? "Annulée"
+    : r.status === "CONFIRMED"
       ? "Confirmée automatiquement"
       : r.status === "PENDING"
         ? "En attente de validation (groupe)"
         : r.status;
+  const subjectPrefix = isCancel ? "[Annulation]" : "[Réservation]";
 
   return sendEmail({
     to,
-    subject: `[Réservation] ${r.confirmationCode} · ${r.partySize}p · ${date} ${r.startTime}`,
+    subject: `${subjectPrefix} ${r.confirmationCode} · ${r.partySize}p · ${date} ${r.startTime}`,
     html: `<!DOCTYPE html><html><body style="font-family:Georgia,serif;background:#0c0a08;color:#f0e6c8;padding:24px">
       <div style="max-width:560px;margin:0 auto;border:1px solid rgba(196,163,90,.35);padding:24px">
-        <p style="letter-spacing:.2em;text-transform:uppercase;color:#c4a35a;font-size:12px">Nouvelle réservation</p>
+        <p style="letter-spacing:.2em;text-transform:uppercase;color:#c4a35a;font-size:12px">${headline}</p>
         <h1 style="font-size:28px;margin:8px 0 16px">${opts.restaurantName}</h1>
         <p style="color:#e0c878;margin:0 0 16px"><strong>${statusLabel}</strong> · code ${r.confirmationCode}</p>
         <table style="width:100%;border-collapse:collapse;font-size:15px">
@@ -555,6 +560,23 @@ export async function notifyAdminNewReservation(opts: {
       </div>
     </body></html>`,
   });
+}
+
+/** @deprecated use notifyAdminReservation({ kind: "created" }) */
+export async function notifyAdminNewReservation(opts: {
+  reservation: Reservation;
+  restaurantName: string;
+  restaurantEmail?: string | null;
+}) {
+  return notifyAdminReservation({ ...opts, kind: "created" });
+}
+
+export async function notifyAdminCancelledReservation(opts: {
+  reservation: Reservation;
+  restaurantName: string;
+  restaurantEmail?: string | null;
+}) {
+  return notifyAdminReservation({ ...opts, kind: "cancelled" });
 }
 
 export function publicReservationView(

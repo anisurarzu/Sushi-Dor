@@ -5,6 +5,8 @@ import {
   createReservation,
   findReservationByCodeEmail,
   findReservationByToken,
+  notifyAdminCancelledReservation,
+  notifyAdminNewReservation,
   publicReservationView,
   sendReservationEmail,
 } from "@/lib/reservations";
@@ -85,12 +87,25 @@ export async function DELETE(req: Request) {
     }
 
     const reservation = await cancelReservation(found.id);
-    void sendReservationEmail({
-      reservation,
-      restaurantName: reservation.restaurant.name,
-      restaurantPhone: reservation.restaurant.phone,
-      kind: "cancelled",
-    });
+    const [guestMail, adminMail] = await Promise.all([
+      sendReservationEmail({
+        reservation,
+        restaurantName: reservation.restaurant.name,
+        restaurantPhone: reservation.restaurant.phone,
+        kind: "cancelled",
+      }),
+      notifyAdminCancelledReservation({
+        reservation,
+        restaurantName: reservation.restaurant.name,
+        restaurantEmail: reservation.restaurant.email,
+      }),
+    ]);
+    if (!guestMail.ok) {
+      console.error("[reservation/cancel] guest mail failed", guestMail.error);
+    }
+    if (!adminMail.ok) {
+      console.error("[reservation/cancel] admin mail failed", adminMail.error);
+    }
 
     return NextResponse.json({
       ok: true,
@@ -165,13 +180,20 @@ export async function PATCH(req: Request) {
       });
       const kind =
         reservation.status === "PENDING" ? "pending" : "updated";
-      void sendReservationEmail({
-        reservation,
-        restaurantName: restaurant?.name || "Sushi D'or",
-        restaurantPhone: restaurant?.phone,
-        cancelToken,
-        kind,
-      });
+      await Promise.all([
+        sendReservationEmail({
+          reservation,
+          restaurantName: restaurant?.name || "Sushi D'or",
+          restaurantPhone: restaurant?.phone,
+          cancelToken,
+          kind,
+        }),
+        notifyAdminNewReservation({
+          reservation,
+          restaurantName: restaurant?.name || "Sushi D'or",
+          restaurantEmail: restaurant?.email,
+        }),
+      ]);
 
       return NextResponse.json({
         ok: true,

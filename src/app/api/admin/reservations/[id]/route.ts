@@ -2,7 +2,10 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireAdminApi, writeAudit } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
-import { sendReservationEmail } from "@/lib/reservations";
+import {
+  notifyAdminCancelledReservation,
+  sendReservationEmail,
+} from "@/lib/reservations";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -121,12 +124,28 @@ export async function PATCH(req: Request, { params }: Params) {
     body.status !== existing.status &&
     (body.status === "CONFIRMED" || body.status === "CANCELLED")
   ) {
-    void sendReservationEmail({
+    const guestMail = await sendReservationEmail({
       reservation,
       restaurantName: reservation.restaurant.name,
       restaurantPhone: reservation.restaurant.phone,
       kind: body.status === "CANCELLED" ? "cancelled" : "confirmation",
     });
+    if (!guestMail.ok) {
+      console.error("[admin/reservation] guest mail failed", guestMail.error);
+    }
+    if (body.status === "CANCELLED") {
+      const adminMail = await notifyAdminCancelledReservation({
+        reservation,
+        restaurantName: reservation.restaurant.name,
+        restaurantEmail: reservation.restaurant.email,
+      });
+      if (!adminMail.ok) {
+        console.error(
+          "[admin/reservation] admin cancel mail failed",
+          adminMail.error,
+        );
+      }
+    }
   }
 
   await writeAudit({
