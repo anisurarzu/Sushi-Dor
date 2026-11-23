@@ -1,8 +1,11 @@
 import Link from "next/link";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { HeroVideos } from "@/components/home/HeroVideos";
+import { showGrandOpeningBanner } from "@/lib/grand-opening";
 
 export function Hero() {
+  const teaseOpening = showGrandOpeningBanner();
+
   return (
     <section className="grain relative flex min-h-[100svh] items-end overflow-hidden">
       <HeroVideos />
@@ -15,24 +18,27 @@ export function Hero() {
         aria-hidden
       />
 
-      <div className="absolute inset-x-0 top-20 z-20 flex justify-center px-4 sm:top-24 sm:px-6 md:top-28">
-        <p className="animate-rise border border-[color:var(--line)] bg-ink/70 px-3 py-2 text-center text-[0.58rem] uppercase tracking-[0.16em] text-gold backdrop-blur-sm sm:px-5 sm:py-2.5 sm:text-[0.68rem] sm:tracking-[0.22em] md:text-[0.72rem]">
-          This site is under construction
-        </p>
-      </div>
+      {teaseOpening ? (
+        <div className="absolute inset-x-0 top-20 z-20 flex justify-center px-4 sm:top-24 sm:px-6 md:top-28">
+          <p className="animate-rise border border-[color:var(--line)] bg-ink/70 px-3 py-2 text-center text-[0.58rem] uppercase tracking-[0.16em] text-gold backdrop-blur-sm sm:px-5 sm:py-2.5 sm:text-[0.68rem] sm:tracking-[0.22em] md:text-[0.72rem]">
+            Grande ouverture · 1er décembre 2026
+          </p>
+        </div>
+      ) : null}
 
       <div className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-12 pt-32 sm:px-6 sm:pb-16 sm:pt-36 md:px-10 md:pb-24">
         <BrandLogo as="h1" size="hero" className="animate-rise" fire />
         <p className="animate-rise-delay-2 mt-5 max-w-2xl text-base leading-relaxed text-champagne/90 sm:mt-7 sm:text-lg md:text-xl md:leading-relaxed">
-          Cuisine japonaise — fraîcheur, précision et excellence à chaque
-          bouchée.
+          {teaseOpening
+            ? "Nous ouvrons nos portes le 1er décembre — cuisine japonaise, fraîcheur et précision à Annemasse."
+            : "Cuisine japonaise — fraîcheur, précision et excellence à chaque bouchée."}
         </p>
         <div className="animate-rise-delay-2 mt-7 flex flex-wrap gap-3 sm:mt-10 sm:gap-4">
           <Link href="/menu" className="btn-gold">
             Voir la carte
           </Link>
           <Link href="/reservation" className="btn-ghost">
-            Réserver une table
+            {teaseOpening ? "Réserver dès maintenant" : "Réserver une table"}
           </Link>
         </div>
       </div>
