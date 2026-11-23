@@ -42,7 +42,10 @@ export async function POST(req: Request) {
       },
     });
 
-    void sendVerificationEmail(user);
+    const verifyMail = await sendVerificationEmail(user);
+    if (!verifyMail.ok) {
+      console.error("[auth/register] verify mail failed", verifyMail.error);
+    }
 
     const session = await createCustomerSession(user.id);
     const res = NextResponse.json({

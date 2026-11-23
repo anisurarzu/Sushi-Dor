@@ -53,21 +53,27 @@ export async function POST(req: Request) {
     });
 
     const kind = reservation.status === "PENDING" ? "pending" : "confirmation";
-    // 1) Guest confirmation / pending mail
-    void sendReservationEmail({
-      reservation,
-      restaurantName: restaurant?.name || "Sushi D'or",
-      restaurantPhone: restaurant?.phone,
-      cancelToken,
-      kind,
-    });
-
-    // 2) Admin / restaurant alert (ADMIN_EMAIL or restaurant.email)
-    void notifyAdminNewReservation({
-      reservation,
-      restaurantName: restaurant?.name || "Sushi D'or",
-      restaurantEmail: restaurant?.email,
-    });
+    // Await both mails so serverless doesn't freeze before send finishes
+    const [guestMail, adminMail] = await Promise.all([
+      sendReservationEmail({
+        reservation,
+        restaurantName: restaurant?.name || "Sushi D'or",
+        restaurantPhone: restaurant?.phone,
+        cancelToken,
+        kind,
+      }),
+      notifyAdminNewReservation({
+        reservation,
+        restaurantName: restaurant?.name || "Sushi D'or",
+        restaurantEmail: restaurant?.email,
+      }),
+    ]);
+    if (!guestMail.ok) {
+      console.error("[reservation] guest mail failed", guestMail.error);
+    }
+    if (!adminMail.ok) {
+      console.error("[reservation] admin mail failed", adminMail.error);
+    }
 
     return NextResponse.json({
       ok: true,
