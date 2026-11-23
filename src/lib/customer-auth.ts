@@ -8,7 +8,14 @@ const SESSION_DAYS = 30;
 
 export type CustomerUser = Pick<
   User,
-  "id" | "email" | "firstName" | "lastName" | "phone" | "role" | "isActive"
+  | "id"
+  | "email"
+  | "firstName"
+  | "lastName"
+  | "phone"
+  | "role"
+  | "isActive"
+  | "emailVerifiedAt"
 >;
 
 function hashToken(raw: string) {
@@ -58,6 +65,7 @@ export async function getCustomerUser(): Promise<CustomerUser | null> {
     phone: session.user.phone,
     role: session.user.role,
     isActive: session.user.isActive,
+    emailVerifiedAt: session.user.emailVerifiedAt,
   };
 }
 

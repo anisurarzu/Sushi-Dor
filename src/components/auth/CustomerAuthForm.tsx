@@ -42,7 +42,12 @@ export function CustomerAuthForm({ mode }: { mode: Mode }) {
         setPending(false);
         return;
       }
-      router.replace(next.startsWith("/") ? next : "/compte");
+      const dest = next.startsWith("/") ? next : "/compte";
+      router.replace(
+        mode === "register"
+          ? `${dest}${dest.includes("?") ? "&" : "?"}verify=sent`
+          : dest,
+      );
       router.refresh();
     } catch {
       setError("Erreur réseau. Réessayez.");

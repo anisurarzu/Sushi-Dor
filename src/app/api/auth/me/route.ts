@@ -15,6 +15,7 @@ export async function GET() {
       firstName: user.firstName,
       lastName: user.lastName,
       phone: user.phone,
+      emailVerified: Boolean(user.emailVerifiedAt),
     },
   });
 }

@@ -1,10 +1,13 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { SiteFooter } from "@/components/home/SiteFooter";
 import { SiteHeader } from "@/components/home/SiteHeader";
 import { getCustomerUser } from "@/lib/customer-auth";
 import { prisma } from "@/lib/prisma";
 import { CustomerLogoutButton } from "@/components/auth/CustomerLogoutButton";
+import { EmailVerifyBanner } from "@/components/auth/EmailVerifyBanner";
+import { VerifyFlash } from "@/components/auth/VerifyFlash";
 
 export const dynamic = "force-dynamic";
 
@@ -67,6 +70,13 @@ export default async function AccountPage() {
               <CustomerLogoutButton />
             </div>
           </div>
+
+          <Suspense fallback={null}>
+            <VerifyFlash />
+          </Suspense>
+          {!user.emailVerifiedAt ? (
+            <EmailVerifyBanner email={user.email} />
+          ) : null}
 
           <div className="grid gap-8 lg:grid-cols-2">
             <section>

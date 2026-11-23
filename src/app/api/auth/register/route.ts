@@ -6,6 +6,7 @@ import {
   CUSTOMER_COOKIE,
   createCustomerSession,
 } from "@/lib/customer-auth";
+import { sendVerificationEmail } from "@/lib/email-verification";
 
 const schema = z.object({
   email: z.string().email(),
@@ -41,15 +42,19 @@ export async function POST(req: Request) {
       },
     });
 
+    void sendVerificationEmail(user);
+
     const session = await createCustomerSession(user.id);
     const res = NextResponse.json({
       ok: true,
+      emailVerificationSent: true,
       user: {
         id: user.id,
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
         phone: user.phone,
+        emailVerified: false,
       },
     });
     res.cookies.set(CUSTOMER_COOKIE, session.tokenHash, {

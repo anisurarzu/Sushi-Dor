@@ -64,6 +64,7 @@ export async function POST(req: Request) {
         firstName: user.firstName,
         lastName: user.lastName,
         phone: user.phone,
+        emailVerified: Boolean(user.emailVerifiedAt),
       },
     });
     res.cookies.set(CUSTOMER_COOKIE, session.tokenHash, {
