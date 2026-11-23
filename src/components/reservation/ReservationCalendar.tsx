@@ -118,7 +118,7 @@ export function ReservationCalendar({
         >
           ‹
         </button>
-        <p className="reservation-cal__month" key={`${view.y}-${view.m}`}>
+        <p className="reservation-cal__month">
           {monthLabel(view.y, view.m)}
         </p>
         <button
@@ -138,10 +138,10 @@ export function ReservationCalendar({
         ))}
       </div>
 
-      <div className="reservation-cal__grid" key={`${view.y}-${view.m}-grid`}>
+      <div className="reservation-cal__grid">
         {cells.map((cell, i) =>
           cell.kind === "empty" ? (
-            <span key={`e-${i}`} className="reservation-cal__empty" />
+            <span key={`e-${view.y}-${view.m}-${i}`} className="reservation-cal__empty" />
           ) : (
             <button
               key={cell.ymd}

@@ -43,19 +43,23 @@ export function Select({
 
   const selected = options.find((o) => o.value === value);
   const enabled = options.filter((o) => !o.disabled);
+  const enabledKey = enabled.map((o) => o.value).join("\0");
 
   useEffect(() => {
     if (!open) return;
-    function onDoc(e: MouseEvent) {
-      if (!rootRef.current?.contains(e.target as Node)) setOpen(false);
+    function onDoc(e: PointerEvent) {
+      if (!rootRef.current?.contains(e.target as Node)) {
+        // Defer unmount past the current pointer event (avoids removeChild races)
+        window.setTimeout(() => setOpen(false), 0);
+      }
     }
     function onEsc(e: globalThis.KeyboardEvent) {
       if (e.key === "Escape") setOpen(false);
     }
-    document.addEventListener("mousedown", onDoc);
+    document.addEventListener("pointerdown", onDoc);
     document.addEventListener("keydown", onEsc);
     return () => {
-      document.removeEventListener("mousedown", onDoc);
+      document.removeEventListener("pointerdown", onDoc);
       document.removeEventListener("keydown", onEsc);
     };
   }, [open]);
@@ -64,11 +68,13 @@ export function Select({
     if (!open) return;
     const idx = enabled.findIndex((o) => o.value === value);
     setActiveIndex(idx >= 0 ? idx : 0);
-  }, [open, value, enabled]);
+    // enabledKey keeps the list stable without putting a fresh array in deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- enabled derived from options
+  }, [open, value, enabledKey]);
 
   function choose(next: string) {
     onChange(next);
-    setOpen(false);
+    window.setTimeout(() => setOpen(false), 0);
   }
 
   function onKeyDown(e: KeyboardEvent<HTMLButtonElement>) {

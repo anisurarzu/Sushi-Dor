@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import {
   createReservation,
+  notifyAdminNewReservation,
   sendReservationEmail,
 } from "@/lib/reservations";
 import { prisma } from "@/lib/prisma";
@@ -52,6 +53,7 @@ export async function POST(req: Request) {
     });
 
     const kind = reservation.status === "PENDING" ? "pending" : "confirmation";
+    // 1) Guest confirmation / pending mail
     void sendReservationEmail({
       reservation,
       restaurantName: restaurant?.name || "Sushi D'or",
@@ -60,19 +62,12 @@ export async function POST(req: Request) {
       kind,
     });
 
-    // Mirror booking alert to restaurant inbox when configured
-    if (restaurant?.email) {
-      const { sendEmail } = await import("@/lib/email");
-      void sendEmail({
-        to: restaurant.email,
-        subject: `[Réservation] ${reservation.confirmationCode} · ${reservation.partySize}p · ${reservation.date.toISOString().slice(0, 10)} ${reservation.startTime}`,
-        html: `<p>Nouvelle réservation ${reservation.status}</p>
-          <p><strong>${reservation.firstName} ${reservation.lastName}</strong> · ${reservation.partySize} convives<br/>
-          ${reservation.date.toISOString().slice(0, 10)} à ${reservation.startTime}<br/>
-          ${reservation.phone} · ${reservation.email}</p>
-          ${reservation.specialRequest ? `<p>Note: ${reservation.specialRequest}</p>` : ""}`,
-      });
-    }
+    // 2) Admin / restaurant alert (ADMIN_EMAIL or restaurant.email)
+    void notifyAdminNewReservation({
+      reservation,
+      restaurantName: restaurant?.name || "Sushi D'or",
+      restaurantEmail: restaurant?.email,
+    });
 
     return NextResponse.json({
       ok: true,

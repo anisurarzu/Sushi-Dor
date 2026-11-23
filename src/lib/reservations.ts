@@ -502,6 +502,61 @@ export async function sendReservationEmail(opts: {
   });
 }
 
+/** Inbox for new booking alerts: ADMIN_EMAIL, then restaurant email. */
+export function reservationAdminInbox(restaurantEmail?: string | null) {
+  const admin =
+    process.env.ADMIN_EMAIL?.trim() ||
+    process.env.EMAIL_ADMIN?.trim() ||
+    "";
+  return admin || restaurantEmail?.trim() || null;
+}
+
+export async function notifyAdminNewReservation(opts: {
+  reservation: Reservation;
+  restaurantName: string;
+  restaurantEmail?: string | null;
+}) {
+  const to = reservationAdminInbox(opts.restaurantEmail);
+  if (!to) {
+    console.info(
+      "[reservation] admin notify skipped (set ADMIN_EMAIL or restaurant.email)",
+    );
+    return { ok: true, skipped: true as const };
+  }
+
+  const r = opts.reservation;
+  const date = formatDateOnly(r.date);
+  const statusLabel =
+    r.status === "CONFIRMED"
+      ? "Confirmée automatiquement"
+      : r.status === "PENDING"
+        ? "En attente de validation (groupe)"
+        : r.status;
+
+  return sendEmail({
+    to,
+    subject: `[Réservation] ${r.confirmationCode} · ${r.partySize}p · ${date} ${r.startTime}`,
+    html: `<!DOCTYPE html><html><body style="font-family:Georgia,serif;background:#0c0a08;color:#f0e6c8;padding:24px">
+      <div style="max-width:560px;margin:0 auto;border:1px solid rgba(196,163,90,.35);padding:24px">
+        <p style="letter-spacing:.2em;text-transform:uppercase;color:#c4a35a;font-size:12px">Nouvelle réservation</p>
+        <h1 style="font-size:28px;margin:8px 0 16px">${opts.restaurantName}</h1>
+        <p style="color:#e0c878;margin:0 0 16px"><strong>${statusLabel}</strong> · code ${r.confirmationCode}</p>
+        <table style="width:100%;border-collapse:collapse;font-size:15px">
+          <tr><td style="padding:6px 0;color:#a89f8e">Client</td><td style="padding:6px 0;text-align:right">${r.firstName} ${r.lastName}</td></tr>
+          <tr><td style="padding:6px 0;color:#a89f8e">Date</td><td style="padding:6px 0;text-align:right">${date}</td></tr>
+          <tr><td style="padding:6px 0;color:#a89f8e">Heure</td><td style="padding:6px 0;text-align:right">${r.startTime} – ${r.endTime}</td></tr>
+          <tr><td style="padding:6px 0;color:#a89f8e">Convives</td><td style="padding:6px 0;text-align:right">${r.partySize}</td></tr>
+          <tr><td style="padding:6px 0;color:#a89f8e">Téléphone</td><td style="padding:6px 0;text-align:right">${r.phone}</td></tr>
+          <tr><td style="padding:6px 0;color:#a89f8e">E-mail</td><td style="padding:6px 0;text-align:right">${r.email}</td></tr>
+          ${r.occasion ? `<tr><td style="padding:6px 0;color:#a89f8e">Occasion</td><td style="padding:6px 0;text-align:right">${r.occasion}</td></tr>` : ""}
+        </table>
+        ${r.specialRequest ? `<p style="margin-top:16px;color:#c4bbaa"><em>Note client :</em> ${r.specialRequest}</p>` : ""}
+        <p style="margin-top:24px;font-size:13px;color:#a89f8e">Gérez dans l’admin → Réservations.</p>
+      </div>
+    </body></html>`,
+  });
+}
+
 export function publicReservationView(
   r: Reservation & { restaurant: Restaurant },
 ) {

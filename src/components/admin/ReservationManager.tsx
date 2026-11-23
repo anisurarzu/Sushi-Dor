@@ -11,7 +11,7 @@ import {
   RowDeleteButtons,
   useBulkDelete,
 } from "@/components/admin/BulkDeleteControls";
-import { ReservationCalendar } from "@/components/reservation/ReservationCalendar";
+import { DatePickerField } from "@/components/admin/DatePickerField";
 import {
   OCCASIONS,
   RESERVATION_SOURCE_OPTIONS,
@@ -71,10 +71,6 @@ const TIME_OPTIONS = Array.from({ length: (23 - 11) * 2 + 1 }, (_, i) => {
 
 function todayStr() {
   return new Date().toISOString().slice(0, 10);
-}
-
-function statusLabel(status: string) {
-  return STATUS_OPTIONS.find((s) => s.value === status)?.label || status;
 }
 
 function sourceLabel(source: string) {
@@ -165,21 +161,41 @@ export function ReservationManager({
 
   async function setStatus(id: string, status: string) {
     setError(null);
-    const res = await fetch(`/api/admin/reservations/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status }),
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      setError(data.error || "Erreur");
-      return;
-    }
-    setRows((prev) =>
-      prev.map((r) =>
-        r.id === id ? { ...r, status: data.reservation.status } : r,
-      ),
+    const prev = rows.find((r) => r.id === id)?.status;
+    // Optimistic UI — then persist immediately to DB
+    setRows((list) =>
+      list.map((r) => (r.id === id ? { ...r, status } : r)),
     );
+    try {
+      const res = await fetch(`/api/admin/reservations/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        if (prev) {
+          setRows((list) =>
+            list.map((r) => (r.id === id ? { ...r, status: prev } : r)),
+          );
+        }
+        setError(data.error || "Erreur statut");
+        return;
+      }
+      const nextStatus = data.reservation?.status || status;
+      setRows((list) =>
+        list.map((r) =>
+          r.id === id ? { ...r, status: nextStatus } : r,
+        ),
+      );
+    } catch {
+      if (prev) {
+        setRows((list) =>
+          list.map((r) => (r.id === id ? { ...r, status: prev } : r)),
+        );
+      }
+      setError("Impossible de mettre à jour le statut.");
+    }
   }
 
   async function saveRow(r: Reservation) {
@@ -315,32 +331,18 @@ export function ReservationManager({
         </div>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,280px)_minmax(0,1fr)]">
-        <div>
-          <p className="mb-2 text-[0.65rem] uppercase tracking-[0.16em] text-[#c4a35a]">
-            Calendrier filtre
-          </p>
-          <ReservationCalendar
-            value={filterDate || todayStr()}
-            today={todayStr()}
-            onChange={(d) => setFilterDate(d)}
-          />
-          {filterDate ? (
-            <button
-              type="button"
-              className="mt-2 text-xs text-[#a89f8e] underline"
-              onClick={() => setFilterDate("")}
-            >
-              Effacer la date ({filterDate})
-            </button>
-          ) : (
-            <p className="mt-2 text-xs text-[#a89f8e]">
-              Cliquez une date pour filtrer.
-            </p>
-          )}
-        </div>
+      <div className="min-w-0 space-y-4">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <DatePickerField
+              label="Filtrer par date"
+              value={filterDate}
+              today={todayStr()}
+              allowClear
+              placeholder="Toutes les dates"
+              onChange={setFilterDate}
+            />
+          </div>
 
-        <div className="min-w-0 space-y-4">
           {showCreate ? (
             <form
               onSubmit={create}
@@ -370,16 +372,13 @@ export function ReservationManager({
                   options={SOURCE_OPTIONS}
                 />
               </div>
-              <div className="sm:col-span-2">
-                <p className="mb-2 text-[0.65rem] uppercase tracking-[0.14em] text-[#c4a35a]">
-                  Date
-                </p>
-                <ReservationCalendar
-                  value={form.date}
-                  today={todayStr()}
-                  onChange={(d) => setForm({ ...form, date: d })}
-                />
-              </div>
+              <DatePickerField
+                label="Date"
+                value={form.date}
+                today={todayStr()}
+                onChange={(d) => setForm({ ...form, date: d })}
+                className="sm:col-span-2"
+              />
               <div className="text-sm">
                 <span className="mb-1 block text-[#a89f8e]">Heure</span>
                 <AdminSelect
@@ -500,13 +499,13 @@ export function ReservationManager({
               <p className="sm:col-span-2 font-[family-name:var(--font-display)] text-xl text-[#e0c878]">
                 Éditer {editing.confirmationCode}
               </p>
-              <div className="sm:col-span-2">
-                <ReservationCalendar
-                  value={editing.date}
-                  today={todayStr()}
-                  onChange={(d) => patchRow(editing.id, { date: d })}
-                />
-              </div>
+              <DatePickerField
+                label="Date"
+                value={editing.date}
+                today={todayStr()}
+                onChange={(d) => patchRow(editing.id, { date: d })}
+                className="sm:col-span-2"
+              />
               <div className="text-sm">
                 <span className="mb-1 block text-[#a89f8e]">Heure début</span>
                 <AdminSelect
@@ -518,12 +517,23 @@ export function ReservationManager({
               </div>
               <div className="text-sm">
                 <span className="mb-1 block text-[#a89f8e]">Statut</span>
-                <AdminSelect
+                <select
                   aria-label="Statut réservation"
                   value={editing.status}
-                  onChange={(v) => patchRow(editing.id, { status: v })}
-                  options={STATUS_OPTIONS}
-                />
+                  onChange={(e) => {
+                    const next = e.target.value;
+                    e.currentTarget.blur();
+                    patchRow(editing.id, { status: next });
+                    void setStatus(editing.id, next);
+                  }}
+                  className="mt-1 w-full border border-[#c4a35a]/30 bg-[#0c0b0a] px-3 py-2.5 text-sm text-[#e8dfd0]"
+                >
+                  {STATUS_OPTIONS.map((o) => (
+                    <option key={o.value} value={o.value}>
+                      {o.label}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div className="text-sm">
                 <span className="mb-1 block text-[#a89f8e]">Source</span>
@@ -676,13 +686,26 @@ export function ReservationManager({
                         disabled={bulk.pending}
                       />
                       <div className="min-w-0 flex-1">
-                        <div className="flex justify-between gap-2">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
                           <span className="text-[#e0c878]">
                             {r.confirmationCode}
                           </span>
-                          <span className={STATUS_COLOR[r.status]}>
-                            {statusLabel(r.status)}
-                          </span>
+                          <select
+                            aria-label={`Statut ${r.confirmationCode}`}
+                            value={r.status}
+                            onChange={(e) => {
+                              const next = e.target.value;
+                              e.currentTarget.blur();
+                              void setStatus(r.id, next);
+                            }}
+                            className={`max-w-[9rem] border border-[#c4a35a]/30 bg-[#0c0b0a] px-2 py-1 text-xs ${STATUS_COLOR[r.status] || "text-[#e8dfd0]"}`}
+                          >
+                            {STATUS_OPTIONS.map((o) => (
+                              <option key={o.value} value={o.value}>
+                                {o.label}
+                              </option>
+                            ))}
+                          </select>
                         </div>
                         <p className="mt-1 text-sm text-[#c4bbaa]">
                           {r.firstName} {r.lastName} · {r.partySize}p
@@ -753,15 +776,23 @@ export function ReservationManager({
                           <td className="px-3 py-3">{r.startTime}</td>
                           <td className="px-3 py-3">{r.partySize}</td>
                           <td className="px-3 py-3">{sourceLabel(r.source)}</td>
-                          <td className={`px-3 py-3 ${STATUS_COLOR[r.status] || ""}`}>
-                            <div className="min-w-[9rem]">
-                              <AdminSelect
-                                aria-label={`Statut ${r.confirmationCode}`}
-                                value={r.status}
-                                onChange={(v) => void setStatus(r.id, v)}
-                                options={STATUS_OPTIONS}
-                              />
-                            </div>
+                          <td className="px-3 py-3">
+                            <select
+                              aria-label={`Statut ${r.confirmationCode}`}
+                              value={r.status}
+                              onChange={(e) => {
+                                const next = e.target.value;
+                                e.currentTarget.blur();
+                                void setStatus(r.id, next);
+                              }}
+                              className={`w-[8.5rem] border border-[#c4a35a]/30 bg-[#0c0b0a] px-2 py-1.5 text-xs ${STATUS_COLOR[r.status] || "text-[#e8dfd0]"}`}
+                            >
+                              {STATUS_OPTIONS.map((o) => (
+                                <option key={o.value} value={o.value}>
+                                  {o.label}
+                                </option>
+                              ))}
+                            </select>
                           </td>
                           <td className="px-3 py-3 text-right">
                             <div className="inline-flex items-center gap-2">
@@ -801,7 +832,6 @@ export function ReservationManager({
               </DeleteListShell>
             </div>
           )}
-        </div>
       </div>
 
       <p className="text-xs text-[#a89f8e]">
