@@ -411,12 +411,13 @@ body {
   animation-iteration-count: infinite;
 }
 
-.category-fire-title {
+.category-title {
   margin: 0;
-}
-
-.category-fire-title__plain {
-  color: inherit;
+  color: var(--champagne);
+  font-family: var(--font-display), Georgia, serif;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
 }
 
 /* Shared Select — ink / gold (public + admin) */

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { FireText } from "@/components/brand/FireText";
 
 type LinkItem = { href: string; label: string; id: string };
 
@@ -71,13 +70,13 @@ export function CategoryNav({
       aria-label="Catégories"
     >
       {links.map((link) => {
-        const isFire = activeId === link.id && link.href.startsWith("#");
+        const isActive = activeId === link.id && link.href.startsWith("#");
         return (
           <a
             key={link.href}
             href={link.href}
-            className={`shrink-0 border px-3 py-2 text-[0.62rem] uppercase tracking-[0.14em] transition-colors ${
-              isFire
+            className={`shrink-0 border px-3 py-2 text-[0.7rem] uppercase tracking-[0.14em] transition-colors sm:text-[0.75rem] ${
+              isActive
                 ? "border-gold/70 text-champagne"
                 : "border-[color:var(--line)] text-mist hover:border-gold hover:text-gold"
             }`}
@@ -85,13 +84,7 @@ export function CategoryNav({
               if (link.href.startsWith("#")) setActiveId(link.id);
             }}
           >
-            {isFire ? (
-              <FireText sparks={14} depth={false}>
-                {link.label}
-              </FireText>
-            ) : (
-              link.label
-            )}
+            {link.label}
           </a>
         );
       })}

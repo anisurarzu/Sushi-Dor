@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { CategoryFireTitle } from "@/components/brand/CategoryFireTitle";
-import { FireText } from "@/components/brand/FireText";
 import { ProductCardDb } from "@/components/menu/ProductCardDb";
 import type { HomeCategory, HomeProduct } from "@/lib/home-catalog";
 
@@ -140,25 +139,19 @@ export function CatalogBrowser({ featured, categories, fromDb }: Props) {
                 </Link>
               );
             }
-            const isFire = activeId === link.id;
+            const isActive = activeId === link.id;
             return (
               <button
                 key={link.id}
                 type="button"
                 onClick={() => selectCategory(link.id)}
-                className={`shrink-0 border px-3 py-2 text-[0.62rem] uppercase tracking-[0.14em] transition-colors ${
-                  isFire
+                className={`shrink-0 border px-3 py-2 text-[0.7rem] uppercase tracking-[0.14em] transition-colors sm:text-[0.75rem] ${
+                  isActive
                     ? "border-gold/70 text-champagne"
                     : "border-[color:var(--line)] text-mist hover:border-gold hover:text-gold"
                 }`}
               >
-                {isFire ? (
-                  <FireText sparks={14} depth={false}>
-                    {link.label}
-                  </FireText>
-                ) : (
-                  link.label
-                )}
+                {link.label}
               </button>
             );
           })}
@@ -178,7 +171,7 @@ export function CatalogBrowser({ featured, categories, fromDb }: Props) {
                     <div className="max-w-2xl">
                       <CategoryFireTitle
                         id={id}
-                        className="font-[family-name:var(--font-display)] text-2xl text-champagne sm:text-3xl md:text-4xl"
+                        className="text-3xl sm:text-4xl md:text-5xl"
                       >
                         Nos incontournables
                       </CategoryFireTitle>
@@ -214,7 +207,7 @@ export function CatalogBrowser({ featured, categories, fromDb }: Props) {
                   <div className="max-w-2xl">
                     <CategoryFireTitle
                       id={`cat-${cat.slug}`}
-                      className="font-[family-name:var(--font-display)] text-2xl text-champagne sm:text-3xl md:text-4xl"
+                      className="text-3xl sm:text-4xl md:text-5xl"
                     >
                       {cat.nameFr}
                     </CategoryFireTitle>
