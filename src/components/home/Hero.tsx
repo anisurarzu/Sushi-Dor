@@ -19,25 +19,25 @@ export function Hero() {
       />
 
       {teaseOpening ? (
-        <div className="absolute inset-x-0 top-20 z-20 flex justify-center px-4 sm:top-24 sm:px-6 md:top-28">
-          <p className="animate-rise border border-[color:var(--line)] bg-ink/70 px-3 py-2 text-center text-[0.58rem] uppercase tracking-[0.16em] text-gold backdrop-blur-sm sm:px-5 sm:py-2.5 sm:text-[0.68rem] sm:tracking-[0.22em] md:text-[0.72rem]">
+        <div className="absolute inset-x-0 top-[4.75rem] z-20 flex justify-center px-3 sm:top-24 sm:px-6 md:top-28">
+          <p className="animate-rise max-w-[min(100%,22rem)] border border-[color:var(--line)] bg-ink/70 px-3 py-2 text-center text-[0.56rem] uppercase leading-snug tracking-[0.14em] text-gold backdrop-blur-sm sm:max-w-none sm:px-5 sm:py-2.5 sm:text-[0.68rem] sm:tracking-[0.22em] md:text-[0.72rem]">
             Grande ouverture · 1er décembre 2026
           </p>
         </div>
       ) : null}
 
-      <div className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-12 pt-32 sm:px-6 sm:pb-16 sm:pt-36 md:px-10 md:pb-24">
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-12 pt-28 sm:px-6 sm:pb-16 sm:pt-36 md:px-10 md:pb-24">
         <BrandLogo as="h1" size="hero" className="animate-rise" fire />
-        <p className="animate-rise-delay-2 mt-5 max-w-2xl text-base leading-relaxed text-champagne/90 sm:mt-7 sm:text-lg md:text-xl md:leading-relaxed">
+        <p className="animate-rise-delay-2 mt-5 max-w-2xl text-[0.95rem] leading-relaxed text-champagne/90 sm:mt-7 sm:text-lg md:text-xl md:leading-relaxed">
           {teaseOpening
             ? "Nous ouvrons nos portes le 1er décembre — cuisine japonaise, fraîcheur et précision à Annemasse."
             : "Cuisine japonaise — fraîcheur, précision et excellence à chaque bouchée."}
         </p>
-        <div className="animate-rise-delay-2 mt-7 flex flex-wrap gap-3 sm:mt-10 sm:gap-4">
-          <Link href="/menu" className="btn-gold">
+        <div className="animate-rise-delay-2 mt-7 flex w-full max-w-md flex-col gap-2.5 sm:mt-10 sm:max-w-none sm:flex-row sm:flex-wrap sm:gap-4">
+          <Link href="/menu" className="btn-gold w-full sm:w-auto">
             Voir la carte
           </Link>
-          <Link href="/reservation" className="btn-ghost">
+          <Link href="/reservation" className="btn-ghost w-full sm:w-auto">
             {teaseOpening ? "Réserver dès maintenant" : "Réserver une table"}
           </Link>
         </div>
