@@ -1308,6 +1308,13 @@ body {
   flex-shrink: 0;
 }
 
+/* Desktop nav is visible from lg — hide hamburger (beats Tailwind utility order) */
+@media (min-width: 1024px) {
+  .site-header-menu-btn {
+    display: none;
+  }
+}
+
 .site-header-menu-btn__bars {
   position: relative;
   display: block;
