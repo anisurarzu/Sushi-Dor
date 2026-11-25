@@ -141,51 +141,6 @@ export default async function AdminDashboardPage() {
         ))}
       </div>
 
-      <section className="border border-[#c4a35a]/20 bg-[#12100e] p-4">
-        <div className="mb-3 flex items-center justify-between gap-3">
-          <h2 className="font-[family-name:var(--font-display)] text-xl text-[#f0e6c8]">
-            Visites — 7 derniers jours
-          </h2>
-          <Link href="/admin/analytics" className="text-xs text-[#c4a35a]">
-            Analytics →
-          </Link>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[420px] text-left text-sm">
-            <thead className="text-[0.65rem] uppercase tracking-[0.12em] text-[#a89f8e]">
-              <tr>
-                <th className="px-2 py-2">Date</th>
-                <th className="px-2 py-2">Visiteurs</th>
-                <th className="px-2 py-2">Visites</th>
-              </tr>
-            </thead>
-            <tbody>
-              {[...traffic.series].reverse().map((row) => (
-                <tr
-                  key={row.date}
-                  className="border-t border-[#c4a35a]/15"
-                >
-                  <td className="px-2 py-2 text-[#c4bbaa]">
-                    {new Date(`${row.date}T12:00:00`).toLocaleDateString(
-                      "fr-FR",
-                      {
-                        weekday: "short",
-                        day: "2-digit",
-                        month: "short",
-                      },
-                    )}
-                  </td>
-                  <td className="px-2 py-2 text-[#e0c878]">
-                    {row.uniqueVisitors}
-                  </td>
-                  <td className="px-2 py-2">{row.pageViews}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
       <section>
         <div className="mb-4 flex items-center justify-between">
           <h2 className="font-[family-name:var(--font-display)] text-xl text-[#f0e6c8]">
@@ -250,6 +205,51 @@ export default async function AdminDashboardPage() {
             </table>
           </div>
         )}
+      </section>
+
+      <section className="border border-[#c4a35a]/20 bg-[#12100e] p-4">
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <h2 className="font-[family-name:var(--font-display)] text-xl text-[#f0e6c8]">
+            Visites — 7 derniers jours
+          </h2>
+          <Link href="/admin/analytics" className="text-xs text-[#c4a35a]">
+            Analytics →
+          </Link>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[420px] text-left text-sm">
+            <thead className="text-[0.65rem] uppercase tracking-[0.12em] text-[#a89f8e]">
+              <tr>
+                <th className="px-2 py-2">Date</th>
+                <th className="px-2 py-2">Visiteurs</th>
+                <th className="px-2 py-2">Visites</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[...traffic.series].reverse().map((row) => (
+                <tr
+                  key={row.date}
+                  className="border-t border-[#c4a35a]/15"
+                >
+                  <td className="px-2 py-2 text-[#c4bbaa]">
+                    {new Date(`${row.date}T12:00:00`).toLocaleDateString(
+                      "fr-FR",
+                      {
+                        weekday: "short",
+                        day: "2-digit",
+                        month: "short",
+                      },
+                    )}
+                  </td>
+                  <td className="px-2 py-2 text-[#e0c878]">
+                    {row.uniqueVisitors}
+                  </td>
+                  <td className="px-2 py-2">{row.pageViews}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </section>
     </div>
   );
