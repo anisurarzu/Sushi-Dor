@@ -1,29 +1,56 @@
 import Link from "next/link";
+import { AnalyticsDateFilter } from "@/components/admin/AnalyticsDateFilter";
 import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
 import { formatEuro } from "@/lib/pricing";
-import { getTrafficSummary } from "@/lib/site-traffic";
+import {
+  getTrafficRange,
+  isValidYmd,
+  parisDateString,
+  shiftParisDate,
+} from "@/lib/site-traffic";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminAnalyticsPage() {
+type Props = {
+  searchParams: Promise<{ from?: string; to?: string }>;
+};
+
+export default async function AdminAnalyticsPage({ searchParams }: Props) {
   await requireAdmin();
-  const since = new Date();
-  since.setDate(since.getDate() - 30);
+  const params = await searchParams;
+  const today = parisDateString();
+  const defaultFrom = shiftParisDate(today, -29);
+
+  let from = isValidYmd(params.from) ? params.from : defaultFrom;
+  let to = isValidYmd(params.to) ? params.to : today;
+  if (from > to) {
+    const tmp = from;
+    from = to;
+    to = tmp;
+  }
+  // Cap range end at today
+  if (to > today) to = today;
+
+  const since = new Date(`${from}T00:00:00.000Z`);
+  const until = new Date(`${to}T23:59:59.999Z`);
 
   const [orders, reservations, traffic] = await Promise.all([
     prisma.order.findMany({
       where: {
         paymentStatus: "PAID",
-        createdAt: { gte: since },
+        createdAt: { gte: since, lte: until },
         deletedStatus: 0,
       },
       include: { items: true },
     }),
     prisma.reservation.count({
-      where: { createdAt: { gte: since }, deletedStatus: 0 },
+      where: {
+        createdAt: { gte: since, lte: until },
+        deletedStatus: 0,
+      },
     }),
-    getTrafficSummary(30),
+    getTrafficRange(from, to),
   ]);
 
   const revenue = orders.reduce((s, o) => s + o.totalCents, 0);
@@ -41,17 +68,18 @@ export default async function AdminAnalyticsPage() {
     .sort((a, b) => b[1] - a[1])
     .slice(0, 8);
 
-  const maxVisitors = Math.max(
-    1,
-    ...traffic.series.map((r) => r.uniqueVisitors),
-  );
+  const dayCount = traffic.series.length;
+  const periodLabel =
+    from === defaultFrom && to === today
+      ? "30 derniers jours"
+      : `${from} → ${to}`;
 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="text-[0.65rem] uppercase tracking-[0.2em] text-[#c4a35a]">
-            30 jours
+            {periodLabel}
           </p>
           <h1 className="mt-1 font-[family-name:var(--font-display)] text-3xl">
             Analytics
@@ -62,13 +90,14 @@ export default async function AdminAnalyticsPage() {
         </Link>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+      <AnalyticsDateFilter from={from} to={to} today={today} />
+
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         {(
           [
-            ["Visiteurs du jour", String(traffic.today.uniqueVisitors)],
-            ["Visites du jour", String(traffic.today.pageViews)],
-            ["Visiteurs 30 j", String(traffic.totals.uniqueVisitors)],
-            ["Visites 30 j", String(traffic.totals.pageViews)],
+            ["Visiteurs uniques", String(traffic.totals.uniqueVisitors)],
+            ["Visites (pages)", String(traffic.totals.pageViews)],
+            ["Jours", String(dayCount)],
             ["CA", formatEuro(revenue)],
             ["Commandes", String(orders.length)],
             ["Panier moyen", formatEuro(aov)],
@@ -85,34 +114,43 @@ export default async function AdminAnalyticsPage() {
       </div>
 
       <section className="border border-[#c4a35a]/20 bg-[#12100e] p-4">
-        <h2 className="text-[#f0e6c8]">Visiteurs par jour</h2>
+        <h2 className="text-[#f0e6c8]">Trafic par jour</h2>
         <p className="mt-1 text-xs text-[#a89f8e]">
-          Visiteurs uniques (cookie) · fuseau Europe/Paris
+          Uniques + visites · fuseau Europe/Paris · {dayCount} jour
+          {dayCount > 1 ? "s" : ""}
         </p>
-        <ul className="mt-4 space-y-2">
-          {[...traffic.series].reverse().map((row) => (
-            <li key={row.date} className="grid grid-cols-[7rem_1fr_auto] items-center gap-3 text-sm">
-              <span className="text-[#c4bbaa]">
-                {new Date(`${row.date}T12:00:00`).toLocaleDateString("fr-FR", {
-                  day: "2-digit",
-                  month: "short",
-                })}
-              </span>
-              <div className="h-2 overflow-hidden bg-[#1a1612]">
-                <div
-                  className="h-full bg-gradient-to-r from-[#8a6f2f] to-[#e0c878]"
-                  style={{
-                    width: `${Math.round((row.uniqueVisitors / maxVisitors) * 100)}%`,
-                  }}
-                />
-              </div>
-              <span className="min-w-[4.5rem] text-right text-[#e0c878]">
-                {row.uniqueVisitors}
-                <span className="ml-2 text-[#a89f8e]">/ {row.pageViews}</span>
-              </span>
-            </li>
-          ))}
-        </ul>
+        <div className="mt-4 overflow-x-auto">
+          <table className="w-full min-w-[520px] text-left text-sm">
+            <thead className="text-[0.65rem] uppercase tracking-[0.12em] text-[#a89f8e]">
+              <tr>
+                <th className="px-2 py-2">Date</th>
+                <th className="px-2 py-2">Visiteurs uniques</th>
+                <th className="px-2 py-2">Visites</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[...traffic.series].reverse().map((row) => (
+                <tr key={row.date} className="border-t border-[#c4a35a]/15">
+                  <td className="px-2 py-2 text-[#c4bbaa]">
+                    {new Date(`${row.date}T12:00:00`).toLocaleDateString(
+                      "fr-FR",
+                      {
+                        weekday: "short",
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      },
+                    )}
+                  </td>
+                  <td className="px-2 py-2 text-[#e0c878]">
+                    {row.uniqueVisitors}
+                  </td>
+                  <td className="px-2 py-2">{row.pageViews}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </section>
 
       <section className="border border-[#c4a35a]/20 bg-[#12100e] p-4">

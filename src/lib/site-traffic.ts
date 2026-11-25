@@ -14,10 +14,62 @@ export function hashVisitorId(raw: string) {
   return createHash("sha256").update(raw).digest("hex").slice(0, 32);
 }
 
-function shiftParisDate(ymd: string, deltaDays: number) {
+export function shiftParisDate(ymd: string, deltaDays: number) {
   const d = new Date(`${ymd}T12:00:00.000Z`);
   d.setUTCDate(d.getUTCDate() + deltaDays);
   return d.toISOString().slice(0, 10);
+}
+
+const YMD_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+export function isValidYmd(value: string | null | undefined): value is string {
+  return Boolean(value && YMD_RE.test(value));
+}
+
+/** Inclusive daily series between from..to (YYYY-MM-DD, Europe/Paris calendar). */
+export async function getTrafficRange(from: string, to: string) {
+  let start = from;
+  let end = to;
+  if (start > end) {
+    const tmp = start;
+    start = end;
+    end = tmp;
+  }
+
+  const rows = await prisma.siteTrafficDay.findMany({
+    where: { date: { gte: start, lte: end } },
+    orderBy: { date: "asc" },
+  });
+  const byDate = new Map(rows.map((r) => [r.date, r]));
+
+  const series: {
+    date: string;
+    pageViews: number;
+    uniqueVisitors: number;
+  }[] = [];
+
+  let cursor = start;
+  while (cursor <= end) {
+    const row = byDate.get(cursor);
+    series.push({
+      date: cursor,
+      pageViews: row?.pageViews ?? 0,
+      uniqueVisitors: row?.uniqueVisitors ?? 0,
+    });
+    cursor = shiftParisDate(cursor, 1);
+  }
+
+  const [pageViews, uniqueVisitors] = await Promise.all([
+    sumPageViews(start, end),
+    countUniqueVisitors(start, end),
+  ]);
+
+  return {
+    from: start,
+    to: end,
+    series,
+    totals: { pageViews, uniqueVisitors },
+  };
 }
 
 async function sumPageViews(from?: string, to?: string) {
