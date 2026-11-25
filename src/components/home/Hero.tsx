@@ -20,7 +20,7 @@ export function Hero() {
 
       {teaseOpening ? (
         <div
-          className="opening-marquee absolute inset-x-0 top-[4.6rem] z-20 sm:top-24 md:top-28"
+          className="opening-marquee absolute inset-x-0 top-1/2 z-20 -translate-y-1/2"
           role="status"
           aria-label="Grande ouverture le 1er décembre 2026"
         >

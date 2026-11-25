@@ -1207,7 +1207,9 @@ body {
 
 /* —— Grand opening ticker (right → left) —— */
 .opening-marquee {
-  position: absolute;
+  left: 0;
+  right: 0;
+  width: 100%;
   overflow: hidden;
   border-block: 1px solid var(--line);
   background: linear-gradient(
