@@ -19,10 +19,26 @@ export function Hero() {
       />
 
       {teaseOpening ? (
-        <div className="absolute inset-x-0 top-[4.75rem] z-20 flex justify-center px-3 sm:top-24 sm:px-6 md:top-28">
-          <p className="animate-rise max-w-[min(100%,22rem)] border border-[color:var(--line)] bg-ink/70 px-3 py-2 text-center text-[0.56rem] uppercase leading-snug tracking-[0.14em] text-gold backdrop-blur-sm sm:max-w-none sm:px-5 sm:py-2.5 sm:text-[0.68rem] sm:tracking-[0.22em] md:text-[0.72rem]">
-            Grande ouverture · 1er décembre 2026
-          </p>
+        <div
+          className="opening-marquee absolute inset-x-0 top-[4.6rem] z-20 sm:top-24 md:top-28"
+          role="status"
+          aria-label="Grande ouverture le 1er décembre 2026"
+        >
+          <div className="opening-marquee__fade" aria-hidden />
+          <div className="opening-marquee__track">
+            {[0, 1].map((copy) => (
+              <div key={copy} className="opening-marquee__group" aria-hidden={copy === 1}>
+                {Array.from({ length: 4 }, (_, i) => (
+                  <span key={`${copy}-${i}`} className="opening-marquee__item">
+                    Grande ouverture · 1er décembre 2026
+                    <span className="opening-marquee__dot" aria-hidden>
+                      ◆
+                    </span>
+                  </span>
+                ))}
+              </div>
+            ))}
+          </div>
         </div>
       ) : null}
 
