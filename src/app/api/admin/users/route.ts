@@ -21,16 +21,13 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
   }
   const tab = new URL(req.url).searchParams.get("tab");
-  const roleFilter =
-    tab === "clients"
-      ? ({ role: "CUSTOMER" as const })
-      : {
-          role: {
-            in: ["SUPER_ADMIN", "MANAGER", "STAFF", "ADMIN"] as const,
-          },
-        };
   const users = await prisma.user.findMany({
-    where: roleFilter,
+    where:
+      tab === "clients"
+        ? { role: "CUSTOMER" }
+        : {
+            role: { in: ["SUPER_ADMIN", "MANAGER", "STAFF", "ADMIN"] },
+          },
     orderBy: { createdAt: "desc" },
     select: {
       id: true,
