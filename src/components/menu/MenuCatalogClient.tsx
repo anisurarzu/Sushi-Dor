@@ -94,7 +94,7 @@ export function MenuCatalogClient({ categories }: { categories: Cat[] }) {
                 <CategoryFireTitle
                   id={cat.slug}
                   as="h2"
-                  className="text-3xl sm:text-4xl md:text-5xl"
+                  className="text-2xl sm:text-3xl md:text-4xl"
                 >
                   {cat.nameFr}
                 </CategoryFireTitle>

@@ -171,7 +171,7 @@ export function CatalogBrowser({ featured, categories, fromDb }: Props) {
                     <div className="max-w-2xl">
                       <CategoryFireTitle
                         id={id}
-                        className="text-3xl sm:text-4xl md:text-5xl"
+                        className="text-2xl sm:text-3xl md:text-4xl"
                       >
                         Nos incontournables
                       </CategoryFireTitle>
@@ -207,7 +207,7 @@ export function CatalogBrowser({ featured, categories, fromDb }: Props) {
                   <div className="max-w-2xl">
                     <CategoryFireTitle
                       id={`cat-${cat.slug}`}
-                      className="text-3xl sm:text-4xl md:text-5xl"
+                      className="text-2xl sm:text-3xl md:text-4xl"
                     >
                       {cat.nameFr}
                     </CategoryFireTitle>

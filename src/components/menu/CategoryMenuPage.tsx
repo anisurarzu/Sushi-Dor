@@ -26,7 +26,7 @@ export function CategoryMenuPage({ category, products }: Props) {
             >
               ← La carte
             </Link>
-            <h1 className="category-title mt-4 text-4xl sm:text-5xl md:text-6xl lg:text-7xl">
+            <h1 className="category-title mt-4 text-3xl sm:text-4xl md:text-5xl">
               {category.nameFr}
             </h1>
             {category.description ? (
