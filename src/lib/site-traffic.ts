@@ -14,6 +14,45 @@ export function hashVisitorId(raw: string) {
   return createHash("sha256").update(raw).digest("hex").slice(0, 32);
 }
 
+function shiftParisDate(ymd: string, deltaDays: number) {
+  const d = new Date(`${ymd}T12:00:00.000Z`);
+  d.setUTCDate(d.getUTCDate() + deltaDays);
+  return d.toISOString().slice(0, 10);
+}
+
+async function sumPageViews(from?: string, to?: string) {
+  const where =
+    from && to
+      ? { date: { gte: from, lte: to } }
+      : from
+        ? { date: { gte: from } }
+        : to
+          ? { date: { lte: to } }
+          : {};
+  const agg = await prisma.siteTrafficDay.aggregate({
+    where,
+    _sum: { pageViews: true },
+  });
+  return agg._sum.pageViews ?? 0;
+}
+
+async function countUniqueVisitors(from?: string, to?: string) {
+  const where =
+    from && to
+      ? { date: { gte: from, lte: to } }
+      : from
+        ? { date: { gte: from } }
+        : to
+          ? { date: { lte: to } }
+          : {};
+  const rows = await prisma.siteVisitorDay.findMany({
+    where,
+    select: { visitorHash: true },
+    distinct: ["visitorHash"],
+  });
+  return rows.length;
+}
+
 export async function recordSiteVisit(visitorId: string) {
   const date = parisDateString();
   const visitorHash = hashVisitorId(visitorId.trim());
@@ -46,9 +85,7 @@ export async function recordSiteVisit(visitorId: string) {
 
 export async function getTrafficSummary(days = 14) {
   const today = parisDateString();
-  const start = new Date(`${today}T12:00:00.000Z`);
-  start.setUTCDate(start.getUTCDate() - (days - 1));
-  const from = start.toISOString().slice(0, 10);
+  const from = shiftParisDate(today, -(days - 1));
 
   const rows = await prisma.siteTrafficDay.findMany({
     where: { date: { gte: from, lte: today } },
@@ -63,9 +100,7 @@ export async function getTrafficSummary(days = 14) {
   }[] = [];
 
   for (let i = 0; i < days; i++) {
-    const d = new Date(`${from}T12:00:00.000Z`);
-    d.setUTCDate(d.getUTCDate() + i);
-    const key = d.toISOString().slice(0, 10);
+    const key = shiftParisDate(from, i);
     const row = byDate.get(key);
     series.push({
       date: key,
@@ -93,5 +128,38 @@ export async function getTrafficSummary(days = 14) {
     periodDays: days,
     totals,
     series,
+  };
+}
+
+export async function getTrafficDashboardCards() {
+  const today = parisDateString();
+  const from7 = shiftParisDate(today, -6);
+  const from30 = shiftParisDate(today, -29);
+
+  const [
+    todayViews,
+    todayUniques,
+    weekViews,
+    weekUniques,
+    monthViews,
+    monthUniques,
+    allViews,
+    allUniques,
+  ] = await Promise.all([
+    sumPageViews(today, today),
+    countUniqueVisitors(today, today),
+    sumPageViews(from7, today),
+    countUniqueVisitors(from7, today),
+    sumPageViews(from30, today),
+    countUniqueVisitors(from30, today),
+    sumPageViews(),
+    countUniqueVisitors(),
+  ]);
+
+  return {
+    today: { uniqueVisitors: todayUniques, pageViews: todayViews },
+    last7Days: { uniqueVisitors: weekUniques, pageViews: weekViews },
+    lastMonth: { uniqueVisitors: monthUniques, pageViews: monthViews },
+    allTime: { uniqueVisitors: allUniques, pageViews: allViews },
   };
 }
