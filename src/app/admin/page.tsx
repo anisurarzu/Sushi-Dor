@@ -66,7 +66,12 @@ export default async function AdminDashboardPage() {
     {
       label: "Visiteurs du jour",
       value: String(traffic.today.uniqueVisitors),
-      hint: `${traffic.today.pageViews} pages vues`,
+      hint: "Personnes uniques",
+    },
+    {
+      label: "Visites du jour",
+      value: String(traffic.today.pageViews),
+      hint: "Nombre de fois (pages)",
     },
     { label: "CA du jour", value: formatEuro(revenue) },
     { label: "Commandes du jour", value: String(ordersToday) },
@@ -77,7 +82,12 @@ export default async function AdminDashboardPage() {
     {
       label: "Visiteurs 7 jours",
       value: String(traffic.totals.uniqueVisitors),
-      hint: `${traffic.totals.pageViews} pages vues`,
+      hint: "Personnes uniques",
+    },
+    {
+      label: "Visites 7 jours",
+      value: String(traffic.totals.pageViews),
+      hint: "Nombre de fois (pages)",
     },
   ];
 
@@ -146,7 +156,7 @@ export default async function AdminDashboardPage() {
               <tr>
                 <th className="px-2 py-2">Date</th>
                 <th className="px-2 py-2">Visiteurs</th>
-                <th className="px-2 py-2">Pages vues</th>
+                <th className="px-2 py-2">Visites</th>
               </tr>
             </thead>
             <tbody>

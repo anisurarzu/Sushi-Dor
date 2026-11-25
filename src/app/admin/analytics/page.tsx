@@ -66,9 +66,9 @@ export default async function AdminAnalyticsPage() {
         {(
           [
             ["Visiteurs du jour", String(traffic.today.uniqueVisitors)],
-            ["Pages vues du jour", String(traffic.today.pageViews)],
+            ["Visites du jour", String(traffic.today.pageViews)],
             ["Visiteurs 30 j", String(traffic.totals.uniqueVisitors)],
-            ["Pages vues 30 j", String(traffic.totals.pageViews)],
+            ["Visites 30 j", String(traffic.totals.pageViews)],
             ["CA", formatEuro(revenue)],
             ["Commandes", String(orders.length)],
             ["Panier moyen", formatEuro(aov)],
