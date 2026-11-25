@@ -691,3 +691,24 @@ model UserPermission {
   @@unique([userId, permission])
   @@index([permission])
 }
+
+/// Daily site traffic (Europe/Paris calendar day as YYYY-MM-DD).
+model SiteTrafficDay {
+  id             String   @id @default(cuid())
+  date           String   @unique
+  pageViews      Int      @default(0)
+  uniqueVisitors Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+/// Marks that a visitor cookie already counted as unique for that Paris day.
+model SiteVisitorDay {
+  id          String   @id @default(cuid())
+  visitorHash String
+  date        String
+  createdAt   DateTime @default(now())
+
+  @@unique([visitorHash, date])
+  @@index([date])
+}

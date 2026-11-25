@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
 import { formatEuro } from "@/lib/pricing";
+import { getTrafficSummary } from "@/lib/site-traffic";
 import { AdminLogoutButton } from "@/components/admin/AdminLogoutButton";
 
 export const dynamic = "force-dynamic";
@@ -23,6 +24,7 @@ export default async function AdminDashboardPage() {
     activeProducts,
     customers,
     recentOrders,
+    traffic,
   ] = await Promise.all([
     prisma.order.findMany({
       where: {
@@ -54,18 +56,29 @@ export default async function AdminDashboardPage() {
       take: 12,
       include: { items: true },
     }),
+    getTrafficSummary(7),
   ]);
 
   const revenue = todayPaidOrders.reduce((s, o) => s + o.totalCents, 0);
   const ordersToday = todayPaidOrders.length;
 
   const cards = [
+    {
+      label: "Visiteurs du jour",
+      value: String(traffic.today.uniqueVisitors),
+      hint: `${traffic.today.pageViews} pages vues`,
+    },
     { label: "CA du jour", value: formatEuro(revenue) },
     { label: "Commandes du jour", value: String(ordersToday) },
     { label: "En cours", value: String(pendingOrders) },
     { label: "Réservations du jour", value: String(todayReservations) },
     { label: "Produits actifs", value: String(activeProducts) },
     { label: "Clients", value: String(customers) },
+    {
+      label: "Visiteurs 7 jours",
+      value: String(traffic.totals.uniqueVisitors),
+      hint: `${traffic.totals.pageViews} pages vues`,
+    },
   ];
 
   return (
@@ -99,7 +112,7 @@ export default async function AdminDashboardPage() {
         </div>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {cards.map((card) => (
           <div
             key={card.label}
@@ -111,9 +124,57 @@ export default async function AdminDashboardPage() {
             <p className="mt-2 font-[family-name:var(--font-display)] text-2xl text-[#e0c878]">
               {card.value}
             </p>
+            {"hint" in card && card.hint ? (
+              <p className="mt-1 text-xs text-[#a89f8e]">{card.hint}</p>
+            ) : null}
           </div>
         ))}
       </div>
+
+      <section className="border border-[#c4a35a]/20 bg-[#12100e] p-4">
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <h2 className="font-[family-name:var(--font-display)] text-xl text-[#f0e6c8]">
+            Visites — 7 derniers jours
+          </h2>
+          <Link href="/admin/analytics" className="text-xs text-[#c4a35a]">
+            Analytics →
+          </Link>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[420px] text-left text-sm">
+            <thead className="text-[0.65rem] uppercase tracking-[0.12em] text-[#a89f8e]">
+              <tr>
+                <th className="px-2 py-2">Date</th>
+                <th className="px-2 py-2">Visiteurs</th>
+                <th className="px-2 py-2">Pages vues</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[...traffic.series].reverse().map((row) => (
+                <tr
+                  key={row.date}
+                  className="border-t border-[#c4a35a]/15"
+                >
+                  <td className="px-2 py-2 text-[#c4bbaa]">
+                    {new Date(`${row.date}T12:00:00`).toLocaleDateString(
+                      "fr-FR",
+                      {
+                        weekday: "short",
+                        day: "2-digit",
+                        month: "short",
+                      },
+                    )}
+                  </td>
+                  <td className="px-2 py-2 text-[#e0c878]">
+                    {row.uniqueVisitors}
+                  </td>
+                  <td className="px-2 py-2">{row.pageViews}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
 
       <section>
         <div className="mb-4 flex items-center justify-between">

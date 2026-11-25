@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Outfit } from "next/font/google";
+import { VisitTracker } from "@/components/analytics/VisitTracker";
 import { CartFlyLayer } from "@/components/cart/CartFlyLayer";
 import { CartProvider } from "@/components/cart/CartProvider";
 import { FloatingCart } from "@/components/cart/FloatingCart";
@@ -34,6 +35,7 @@ export default function RootLayout({
       <body className="min-h-full antialiased">
         <ConfirmProvider>
           <CartProvider>
+            <VisitTracker />
             {children}
             <FloatingCart />
             <CartFlyLayer />
