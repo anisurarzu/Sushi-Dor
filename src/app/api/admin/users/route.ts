@@ -11,17 +11,26 @@ const createSchema = z.object({
   email: z.string().email(),
   phone: z.string().max(40).optional().nullable(),
   password: z.string().min(8).max(128),
-  role: z.enum(["SUPER_ADMIN", "MANAGER", "STAFF", "ADMIN"]),
+  role: z.enum(["SUPER_ADMIN", "MANAGER", "STAFF", "ADMIN", "CUSTOMER"]),
   isActive: z.boolean().optional(),
 });
 
-export async function GET() {
+export async function GET(req: Request) {
   const admin = await requireAdminApi("users.view");
   if (!admin) {
     return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
   }
+  const tab = new URL(req.url).searchParams.get("tab");
+  const roleFilter =
+    tab === "clients"
+      ? ({ role: "CUSTOMER" as const })
+      : {
+          role: {
+            in: ["SUPER_ADMIN", "MANAGER", "STAFF", "ADMIN"] as const,
+          },
+        };
   const users = await prisma.user.findMany({
-    where: { role: { in: ["SUPER_ADMIN", "MANAGER", "STAFF", "ADMIN"] } },
+    where: roleFilter,
     orderBy: { createdAt: "desc" },
     select: {
       id: true,
@@ -64,13 +73,19 @@ export async function POST(req: Request) {
   }
 
   const passwordHash = await bcrypt.hash(body.password, 12);
+  const role =
+    body.role === "CUSTOMER"
+      ? "CUSTOMER"
+      : body.role === "ADMIN"
+        ? "SUPER_ADMIN"
+        : body.role;
   const user = await prisma.user.create({
     data: {
       email: body.email.toLowerCase(),
       firstName: body.firstName,
       lastName: body.lastName,
       phone: body.phone || null,
-      role: body.role === "ADMIN" ? "SUPER_ADMIN" : body.role,
+      role,
       passwordHash,
       isActive: body.isActive ?? true,
     },

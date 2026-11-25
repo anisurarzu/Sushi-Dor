@@ -18,7 +18,13 @@ export type UserListRow = {
   isActive: boolean;
 };
 
-export function UsersDeleteList({ users }: { users: UserListRow[] }) {
+export function UsersDeleteList({
+  users,
+  emptyLabel = "Aucun utilisateur.",
+}: {
+  users: UserListRow[];
+  emptyLabel?: string;
+}) {
   const bulk = useBulkDelete({
     resource: "users",
     ids: users.map((u) => u.id),
@@ -26,7 +32,7 @@ export function UsersDeleteList({ users }: { users: UserListRow[] }) {
   });
 
   if (users.length === 0) {
-    return <p className="text-sm text-[#a89f8e]">Aucun utilisateur staff.</p>;
+    return <p className="text-sm text-[#a89f8e]">{emptyLabel}</p>;
   }
 
   return (

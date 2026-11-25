@@ -16,15 +16,19 @@ export default async function AdminUserEditPage({ params }: Props) {
     where: { id },
     include: { userPermissions: true },
   });
-  if (!user || user.role === "CUSTOMER") notFound();
+  if (!user) notFound();
 
+  const isCustomer = user.role === "CUSTOMER";
   const canEditSuper =
     effectiveRole(admin.role) === "SUPER_ADMIN" || admin.role === "ADMIN";
 
   return (
     <div className="space-y-6">
       <div>
-        <Link href="/admin/users" className="text-sm text-[#c4a35a]">
+        <Link
+          href={isCustomer ? "/admin/users?tab=clients" : "/admin/users"}
+          className="text-sm text-[#c4a35a]"
+        >
           ← Utilisateurs
         </Link>
         <h1 className="mt-2 font-[family-name:var(--font-display)] text-3xl">
@@ -46,6 +50,7 @@ export default async function AdminUserEditPage({ params }: Props) {
           userPermissions: user.userPermissions,
         }}
         canEditSuper={canEditSuper}
+        isCustomer={isCustomer}
       />
     </div>
   );

@@ -17,9 +17,15 @@ type Props = {
     userPermissions: { permission: string; granted: boolean }[];
   };
   canEditSuper: boolean;
+  /** Client account — no staff role / permission editing */
+  isCustomer?: boolean;
 };
 
-export function UserEditForm({ user, canEditSuper }: Props) {
+export function UserEditForm({
+  user,
+  canEditSuper,
+  isCustomer = false,
+}: Props) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -55,10 +61,11 @@ export function UserEditForm({ user, canEditSuper }: Props) {
         lastName,
         email,
         phone: phone || null,
-        role,
+        role: isCustomer ? "CUSTOMER" : role,
         isActive,
         password: password || undefined,
-        extraPermissions: canEditSuper ? extraPermissions : undefined,
+        extraPermissions:
+          !isCustomer && canEditSuper ? extraPermissions : undefined,
       }),
     });
     const data = await res.json();
@@ -112,20 +119,28 @@ export function UserEditForm({ user, canEditSuper }: Props) {
           className="mt-1 w-full border border-[#c4a35a]/25 bg-transparent px-3 py-2"
         />
       </label>
-      <div className="block text-sm">
-        <span className="mb-1 block">Rôle</span>
-        <AdminSelect
-          aria-label="Rôle"
-          value={role === "ADMIN" ? "SUPER_ADMIN" : role}
-          onChange={setRole}
-          disabled={!canEditSuper && (role === "SUPER_ADMIN" || role === "ADMIN")}
-          options={[
-            { value: "STAFF", label: "STAFF" },
-            { value: "MANAGER", label: "MANAGER" },
-            { value: "SUPER_ADMIN", label: "SUPER_ADMIN" },
-          ]}
-        />
-      </div>
+      {isCustomer ? (
+        <p className="text-sm text-[#a89f8e]">
+          Rôle : <span className="text-[#e0c878]">CUSTOMER</span>
+        </p>
+      ) : (
+        <div className="block text-sm">
+          <span className="mb-1 block">Rôle</span>
+          <AdminSelect
+            aria-label="Rôle"
+            value={role === "ADMIN" ? "SUPER_ADMIN" : role}
+            onChange={setRole}
+            disabled={
+              !canEditSuper && (role === "SUPER_ADMIN" || role === "ADMIN")
+            }
+            options={[
+              { value: "STAFF", label: "STAFF" },
+              { value: "MANAGER", label: "MANAGER" },
+              { value: "SUPER_ADMIN", label: "SUPER_ADMIN" },
+            ]}
+          />
+        </div>
+      )}
       <label className="flex items-center gap-2 text-sm">
         <input
           type="checkbox"
@@ -146,7 +161,7 @@ export function UserEditForm({ user, canEditSuper }: Props) {
         />
       </label>
 
-      {canEditSuper ? (
+      {!isCustomer && canEditSuper ? (
         <fieldset className="border border-[#c4a35a]/15 p-3">
           <legend className="px-1 text-[0.65rem] uppercase tracking-wider text-[#c4a35a]">
             Permissions supplémentaires

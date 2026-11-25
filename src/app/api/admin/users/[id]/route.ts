@@ -12,7 +12,9 @@ const patchSchema = z.object({
   lastName: z.string().min(1).max(80).optional(),
   email: z.string().email().optional(),
   phone: z.string().max(40).nullable().optional(),
-  role: z.enum(["SUPER_ADMIN", "MANAGER", "STAFF", "ADMIN"]).optional(),
+  role: z
+    .enum(["SUPER_ADMIN", "MANAGER", "STAFF", "ADMIN", "CUSTOMER"])
+    .optional(),
   isActive: z.boolean().optional(),
   password: z.string().min(8).max(128).optional(),
   extraPermissions: z
@@ -109,7 +111,7 @@ export async function PATCH(req: Request, { params }: Params) {
     lastName?: string;
     email?: string;
     phone?: string | null;
-    role?: "SUPER_ADMIN" | "MANAGER" | "STAFF" | "ADMIN";
+    role?: "SUPER_ADMIN" | "MANAGER" | "STAFF" | "ADMIN" | "CUSTOMER";
     isActive?: boolean;
     passwordHash?: string;
   } = {};
@@ -119,7 +121,12 @@ export async function PATCH(req: Request, { params }: Params) {
   if (body.email !== undefined) data.email = body.email.toLowerCase();
   if (body.phone !== undefined) data.phone = body.phone;
   if (body.role !== undefined) {
-    data.role = body.role === "ADMIN" ? "SUPER_ADMIN" : body.role;
+    // Keep customers as CUSTOMER; don't promote/demote via this field casually
+    if (target.role === "CUSTOMER" || body.role === "CUSTOMER") {
+      data.role = "CUSTOMER";
+    } else {
+      data.role = body.role === "ADMIN" ? "SUPER_ADMIN" : body.role;
+    }
   }
   if (body.isActive !== undefined) data.isActive = body.isActive;
   if (body.password) {
